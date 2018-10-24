@@ -14,5 +14,8 @@ Decimal::Decimal() {
 
 Decimal::~Decimal() {
 	// TODO Auto-generated destructor stub
+	/*
+	 * dfhalöshfashdfkj dkfjdsfölasdkfjadslfaösld
+	 */
 }
 
