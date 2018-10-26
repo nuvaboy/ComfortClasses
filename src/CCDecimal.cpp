@@ -5,16 +5,16 @@
  *      Author: marlo
  */
 
-#include "Decimal.h"
+#include "CCDecimal.h"
 
-Decimal::Decimal() {
+CCDecimal::CCDecimal() {
 	// TODO Auto-generated constructor stub
 	/**
 	 * Das ist Jans Beitrag zur Gesellschaft.
 	 */
 }
 
-Decimal::~Decimal() {
+CCDecimal::~CCDecimal() {
 	// TODO Auto-generated destructor stub
 	/*
 	 * dfhalöshfashdfkj dkfjdsfölasdkfjadslfaösld

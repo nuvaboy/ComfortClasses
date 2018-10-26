@@ -5,13 +5,13 @@
  *      Author: marlo
  */
 
-#ifndef DECIMAL_H_
-#define DECIMAL_H_
+#ifndef CCDECIMAL_H_
+#define CCDECIMAL_H_
 
-class Decimal {
+class CCDecimal {
 public:
-	Decimal();
-	~Decimal();
+	CCDecimal();
+	~CCDecimal();
 };
 
-#endif /* DECIMAL_H_ */
+#endif /* CCDECIMAL_H_ */
