@@ -8,7 +8,7 @@
 #ifndef CCDECIMAL_H_
 #define CCDECIMAL_H_
 
-#define MAX 31
+//#define MAX 9
 
 
 #include <stdint.h>
@@ -20,8 +20,8 @@ using namespace std;
 
 class CCDecimal {
 private:
-
-	int8_t digit[MAX + 1];
+	const static int MAX = 9;
+	int8_t digit[CCDecimal::MAX + 1];
 	unsigned int used = 0;
 	int shift = 0;
 	int precision = 2;
@@ -89,7 +89,7 @@ public:
 			cout << shift;
 		}
 
-	CCDecimal operator =(const string& str) {
+	CCDecimal& operator = (string& str) {
 
 		shift = 0;
 		int lz = 0;
@@ -128,14 +128,38 @@ public:
 		if (hasDp == false) {
 			shift = lz;
 		}
-		used = pos;
+		//used = pos;
+
+		//remove leading zeroes
+		pos--;
+		while (pos > 0 && (digit[pos] == 0)){
+			pos--;
+		}
+		used = pos + 1;
+
+
 		cout << "used: " << used  << endl;
 		cout << "shift: " <<  shift<< endl;
 
 		return *this;
 	}
 
+	/*CCDecimal(const string& str) : CCDecimal(){
+		*this = str;
+	}*/
+	CCDecimal(const char* str) : CCDecimal(){
+		string s(str);
+		*this = s;
+	}
 
+//	CCDecimal(const string& str){
+//		*this = str;
+//	}
+//
+//	CCDecimal(const char* str){
+//		string s = str;
+//		*this = s;
+//	}
 
 };
 
