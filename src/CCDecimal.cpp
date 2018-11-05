@@ -5,6 +5,11 @@
  *      Author: marlo
  */
 
+#include <string>
+#include <sstream>
+#include <iomanip>
+#include <limits>
+
 #include "CCDecimal.h"
 
 using namespace std;
@@ -20,6 +25,152 @@ CCDecimal::CCDecimal() {
 	}
 	used = 0;
 	shift = 0;
+}
+
+CCDecimal::CCDecimal(std::string number) :
+		CCDecimal() {
+//	pPrecision = &CCDecimal::defaultPrecision;
+//	shift = 0;
+//	used = 0;
+
+	int begin = 0;
+	int end = 0;
+	bool foundValid = false;
+
+	while (!foundValid) {
+		begin = number.find_first_of("-+.0987654321", end);
+		end = number.find_first_not_of("-+.0987654321", begin);
+
+		std::string numCandidate = number.substr(begin, end - 1);
+
+		/*
+		 * validate: max one sign; max one point; sign at the beginning,
+		 * then digits, then point, if point, then more digits
+		 * uses state-machine-ish behaviour, result valid if in digits_* state.
+		 */
+		enum ValidatorStates {
+			error = -1,
+			start,
+			found_negative,
+			found_positive,
+			digits_after_sign,
+			found_point,
+			digits_after_point
+		} validatorState;
+		auto it = numCandidate.begin();
+		while (it != numCandidate.end()) {
+			switch (validatorState) {
+			case start:
+				validatorState =
+						(*it == '-') ?
+								(found_negative) :
+								((*it == '+') ?
+										(found_positive) :
+										((*it == '.') ?
+												(found_point) :
+												((('0' <= *it && *it <= '9') ?
+														(digits_after_sign) :
+														(error)))));
+				/*;*/
+				break;
+			case found_negative:
+				//TODO set sign to negative
+				negative = true;
+				/* no break */
+			case found_positive:
+				//next state
+				it++;
+				validatorState = (it == numCandidate.end()) ? // in case number has only a sign
+						error : digits_after_sign;
+				break;
+			case digits_after_sign:
+				//TODO tracking shift goes here
+				used++;
+
+				//next state
+				it++;
+				validatorState =
+						(*it == '.') ?
+								(found_point) :
+								(('0' <= *it && *it <= '9') ?
+										(validatorState) : (error));
+				break;
+			case found_point:
+				//TODO change tracking of shift
+				//TODO "X." has to be allowed
+
+				//next state
+				it++;
+				validatorState =
+						(it == numCandidate.end()
+								&& (it - 1) == numCandidate.begin()) ? // in case number has only a point
+						error : digits_after_point;
+				break;
+			case digits_after_point:
+				//TODO tracking shift goes here
+				shift--;
+				used++;
+				//next state
+				it++;
+				validatorState =
+						('0' <= *it && *it <= '9') ? (validatorState) : (error);
+				break;
+			case error:
+				it++;
+				break;
+			default:
+				std::cout << "FSM in default. This should not happen."
+						<< std::endl;
+			}
+			if (validatorState == digits_after_point
+					|| validatorState == digits_after_sign) {
+				//TODO copy digits into array
+				for (unsigned int i = 0; i < used; i++) {
+					//digits[i];
+					//*(numCanditate.rbegin()+i)
+
+					//digits
+					;
+				}
+
+				foundValid = true;
+			} else {
+				//dunno, init to zero maybe?
+				//reset everything changed within validation (shift, sign)
+				shift = 0;
+				used = 0;
+				negative = false;
+			}
+		}
+
+//		for (int i = (end-1); i >= begin; i--) { //index of digits should be -i + end-1
+//			if('0' <= number[i] && number[i] <= '9'){
+//				//if digit, store in array
+//				digit[-i+end-1] = number[i] - (int)'0';
+//
+//				used++;
+//				shift = (foundPoint) ? (shift+1) : (shift-1);
+//			} else if ()
+//		}
+		//copy digits
+		for (auto it = numCandidate.rbegin(); it != numCandidate.rend(); it++) {
+			//insert digits, set sign
+		}
+	}
+//TODO read digits
+}
+
+CCDecimal::CCDecimal(double number) {
+	pPrecision = &CCDecimal::defaultPrecision;
+	std::stringstream stringStream;
+	std::string numberAsString;
+
+	stringStream << std::setprecision(std::numeric_limits<double>::digits10)
+			<< number;
+
+	numberAsString = stringStream.str();
+
+	//basically copy-paste the rest from CCDecimal(string)
 }
 
 CCDecimal::~CCDecimal() {

@@ -25,6 +25,7 @@ private:
 	unsigned int used = 0;
 	int shift = 0;
 	int precision = 2;
+	bool negative = false;
 
 	unsigned int* pPrecision;
 	static unsigned int defaultPrecision;
@@ -34,6 +35,8 @@ private:
 public:
 
 	CCDecimal();
+	CCDecimal(std::string number);
+	CCDecimal(double number);
 	virtual ~CCDecimal();
 
 	CCDecimal operator +(const CCDecimal&) const;
