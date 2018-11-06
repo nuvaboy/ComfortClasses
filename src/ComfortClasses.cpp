@@ -8,7 +8,9 @@
 #include <iostream>
 #include <string>
 
-int main() {
+#include "CCDecimal.h"
+
+void deleteTest() {
 	std::string str;
 
 	for (char c = '0'; c <= '9'; c++) {
@@ -50,5 +52,13 @@ int main() {
 	std::cin >> str;
 }
 
+int main(){
+	std::string zeroStr("+0.0000");
+	CCDecimal zero(zeroStr);
+	std::cout << zeroStr << " liefert " << zero.toString() << std::endl;
+	std::string juhuStr("-000123000000123.0003740000");
+		CCDecimal juhu(juhuStr);
+		std::cout << juhuStr << " liefert " << juhu.toString() << std::endl;
 
+}
 

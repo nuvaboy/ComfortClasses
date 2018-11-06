@@ -30,40 +30,38 @@ CCDecimal::CCDecimal() {
 
 CCDecimal::CCDecimal(std::string number) :
 		CCDecimal() {
-	int begin = 0;
-	int end = 0;
-	bool foundValid = false;
+	if (!number.empty()) {
+		unsigned int begin = number.find_first_of("-+.0987654321", 0);
+		unsigned int end = number.find_first_not_of("-+.0987654321", begin);
 
-	while (!foundValid) {
-		begin = number.find_first_of("-+.0987654321", end);
-		end = number.find_first_not_of("-+.0987654321", begin);
+		if (begin == std::string::npos || end == std::string::npos) {
 
-		std::string numCandidate = number.substr(begin, end - 1);
+			std::string numCandidate = number.substr(begin, end - 1);
 
-		/*
-		 * validate: max one sign; max one point; sign at the beginning,
-		 * then digits, then point, if point, then more digits
-		 * uses state-machine-ish behaviour, result valid if in valid_end.
-		 */
-		enum ValidatorStates {
-			error = -1,
-			start,
-			sign_negative,
-			sign_positive,
-			point_after_sign,
-			digit_after_sign,
-			point_after_digit,
-			end_after_point,
-			digit_after_point,
-			valid_end
-		};
+			/*
+			 * validate: max one sign; max one point; sign at the beginning,
+			 * then digits, then point, if point, then more digits
+			 * uses state-machine-ish behaviour, result valid if in valid_end.
+			 */
+			enum ValidatorStates {
+				error = -1,
+				start,
+				sign_negative,
+				sign_positive,
+				point_after_sign,
+				digit_after_sign,
+				point_after_digit,
+				end_after_point,
+				digit_after_point,
+				valid_end
+			};
 
-		ValidatorStates validator = start;
-		{
+			ValidatorStates validator = start;
 			auto it = numCandidate.begin();
 			while (it != numCandidate.end()) {
 				switch (validator) {
 				case start:
+					std::cout << "in start\n";
 					validator =
 							(it == numCandidate.end()) ?
 									(error) :
@@ -80,10 +78,12 @@ CCDecimal::CCDecimal(std::string number) :
 																	(error))))));
 					break;
 				case sign_negative:
+					std::cout << "in sign_negative\n";
 					//set sign
 					negative = true;
 					/* no break */
 				case sign_positive:
+					std::cout << "in sign_positive\n";
 					//next state
 					it++;
 					validator =
@@ -95,6 +95,7 @@ CCDecimal::CCDecimal(std::string number) :
 													(digit_after_sign) : (error)));
 					break;
 				case point_after_sign:
+					std::cout << "in point_after_sign\n";
 					//next state
 					it++;
 					validator =
@@ -104,6 +105,7 @@ CCDecimal::CCDecimal(std::string number) :
 											(digit_after_point) : (error));
 					break;
 				case digit_after_sign:
+					std::cout << "in digit_after_sign\n";
 					//tracking digit
 					used++;
 					//next state
@@ -117,6 +119,7 @@ CCDecimal::CCDecimal(std::string number) :
 													(validator) : (error)));
 					break;
 				case point_after_digit:
+					std::cout << "in point_after_digit\n";
 					//next state
 					it++;
 					validator =
@@ -126,6 +129,7 @@ CCDecimal::CCDecimal(std::string number) :
 											(digit_after_point) : (error));
 					break;
 				case digit_after_point:
+					std::cout << "in digit_after_point\n";
 					//tracking shift
 					shift--;
 					//tracking digit
@@ -139,6 +143,7 @@ CCDecimal::CCDecimal(std::string number) :
 											(validator) : (error));
 					break;
 				case error:
+					std::cout << "in error\n";
 					it++;
 					break;
 				default:
@@ -156,7 +161,10 @@ CCDecimal::CCDecimal(std::string number) :
 					it++;
 				}
 				while (*it == '0') {
+					std::cout << *it;
+					std::cout << " erasing " << *(it) << " ";
 					numCandidate.erase(it);
+					std::cout << *it << std::endl;
 					used--;
 					//skip over decimal point
 					if (*it == '.') {
@@ -166,7 +174,10 @@ CCDecimal::CCDecimal(std::string number) :
 				//remove trailing zeroes
 				auto rit = numCandidate.rbegin();
 				while (*rit == '0') {
+					std::cout << *rit;
+					std::cout << " erasing " << *(rit.base() - 1) << " ";
 					numCandidate.erase(rit.base() - 1);
+					std::cout << *rit << std::endl;
 					shift++;
 					used--;
 					rit++;
@@ -177,14 +188,15 @@ CCDecimal::CCDecimal(std::string number) :
 				}
 				//TODO check for fit in type
 				int cutOffset = 0;
-				bool overflow = false;
 				if (used > MAX) {
 					int digitsToCut = used - MAX;
 					int digitsToSpare = -*pPrecision + shift;
-					if (!(digitsToCut > digitsToSpare)) {
+					std::cout << "digitsToCut:" << digitsToCut
+							<< "; digitsToSpare:" << digitsToSpare;
+					if (!(digitsToCut >= digitsToSpare)) {
 						cutOffset = digitsToCut;
 					} else {
-						overflow = true;
+						std::cout << "\noverflow\n";
 					}
 				}
 				//TODO copy digits into array
@@ -195,20 +207,27 @@ CCDecimal::CCDecimal(std::string number) :
 						rit++;
 					} else {
 						digit[i] = ((*it) - '0');
+						std::cout << "digit[" << i << "] = "
+								<< (int) ((*it) - '0') << " (originally " << *it
+								<< ")\n";
 						i++;
 						rit++;
 					}
 				}
 
-				foundValid = true;
 			} else {
 				//dunno, init to zero maybe?
 				//reset everything changed within validation (shift, used, sign)
+				std::cout << "\ninvalid number\n";
 				shift = 0;
 				used = 0;
 				negative = false;
 			}
+		} else {
+			std::cout << "\n string cannot contain a number \n";
 		}
+	} else {
+		std::cout << "\n empty string\n";
 	}
 }
 
@@ -349,5 +368,4 @@ void CCDecimal::setDefaultPrecision(unsigned int precision) {
 unsigned int CCDecimal::getDefaultPrecision() {
 	return CCDecimal::defaultPrecision;
 }
-
 
