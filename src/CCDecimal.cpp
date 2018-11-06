@@ -30,10 +30,6 @@ CCDecimal::CCDecimal() {
 
 CCDecimal::CCDecimal(std::string number) :
 		CCDecimal() {
-//	pPrecision = &CCDecimal::defaultPrecision;
-//	shift = 0;
-//	used = 0;
-
 	int begin = 0;
 	int end = 0;
 	bool foundValid = false;
@@ -82,7 +78,6 @@ CCDecimal::CCDecimal(std::string number) :
 																			<= '9') ?
 																	(digit_after_sign) :
 																	(error))))));
-					/*;*/
 					break;
 				case sign_negative:
 					//set sign
@@ -181,8 +176,29 @@ CCDecimal::CCDecimal(std::string number) :
 					}
 				}
 				//TODO check for fit in type
-
+				int cutOffset = 0;
+				bool overflow = false;
+				if (used > MAX) {
+					int digitsToCut = used - MAX;
+					int digitsToSpare = -*pPrecision + shift;
+					if (!(digitsToCut > digitsToSpare)) {
+						cutOffset = digitsToCut;
+					} else {
+						overflow = true;
+					}
+				}
 				//TODO copy digits into array
+				int i = 0;
+				rit = numCandidate.rbegin() + cutOffset;
+				while (i <= MAX && rit != numCandidate.rend()) {
+					if (*it == '.' || *it == '+' || *it == '-') {
+						rit++;
+					} else {
+						digit[i] = ((*it) - '0');
+						i++;
+						rit++;
+					}
+				}
 
 				foundValid = true;
 			} else {
