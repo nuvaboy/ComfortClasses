@@ -28,15 +28,19 @@ CCDecimal::CCDecimal() {
 	shift = 0;
 }
 
-CCDecimal::CCDecimal(std::string number) :
-		CCDecimal() {
-	if (!number.empty()) {
-		unsigned int begin = number.find_first_of("-+.0987654321", 0);
-		unsigned int end = number.find_first_not_of("-+.0987654321", begin);
+CCDecimal::CCDecimal(std::string numberStr) :
+	CCDecimal() {
+	constructFromString(numberStr);
+}
+
+void CCDecimal::constructFromString(std::string numberStr){
+	if (!numberStr.empty()) {
+		unsigned int begin = numberStr.find_first_of("-+.0987654321", 0);
+		unsigned int end = numberStr.find_first_not_of("-+.0987654321", begin);
 
 		if (begin == std::string::npos || end == std::string::npos) {
 
-			std::string numCandidate = number.substr(begin, end - 1);
+			std::string numCandidate = numberStr.substr(begin, end - 1);
 
 			/*
 			 * validate: max one sign; max one point; sign at the beginning,
@@ -226,14 +230,14 @@ CCDecimal::CCDecimal(std::string number) :
 CCDecimal::CCDecimal(double number) {
 	pPrecision = &CCDecimal::defaultPrecision;
 	std::stringstream stringStream;
-	std::string numberAsString;
+	std::string numberStr;
 
 	stringStream << std::setprecision(std::numeric_limits<double>::digits10)
 			<< number;
 
-	numberAsString = stringStream.str();
+	numberStr = stringStream.str();
 
-	//basically copy-paste the rest from CCDecimal(string)
+	constructFromString(numberStr);
 }
 
 CCDecimal::~CCDecimal() {
