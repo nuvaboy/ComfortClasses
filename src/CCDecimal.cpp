@@ -47,7 +47,7 @@ CCDecimal::CCDecimal(std::string number) :
 		/*
 		 * validate: max one sign; max one point; sign at the beginning,
 		 * then digits, then point, if point, then more digits
-		 * uses state-machine-ish behaviour, result valid if in digits_* state.
+		 * uses state-machine-ish behaviour, result valid if in valid_end.
 		 */
 		enum ValidatorStates {
 			error = -1,
@@ -62,83 +62,127 @@ CCDecimal::CCDecimal(std::string number) :
 			valid_end
 		};
 
-		auto it = numCandidate.begin();
 		ValidatorStates validator = start;
-		while (it != numCandidate.end()) {
-			switch (validator) {
-			case start:
-				validator = (it == numCandidate.end()) ? (error) : (
-						(*it == '-') ?
-								(sign_negative) :
-								((*it == '+') ?
-										(sign_positive) :
-										((*it == '.') ?
-												(point_after_sign) :
-												((('0' <= *it && *it <= '9') ?
-														(digit_after_sign) :
-														(error))))));
-				/*;*/
-				break;
-			case sign_negative:
-				//TODO set sign to negative
-				negative = true;
-				/* no break */
-			case sign_positive:
-				//next state
-				it++;
-				validator = (it == numCandidate.end()) ? (error) : ((*it == '.') ? (point_after_sign) : (('0' <= *it && *it <= '9') ? (digit_after_sign) : (error)));
-				break;
-			case point_after_sign:
-				//next state
-				it++;
-				validator = (it == numCandidate.end()) ? (error) : (('0' <= *it && *it <= '9') ? (digit_after_point) : (error));
-				break;
-			case digit_after_sign:
-				//TODO tracking shift goes here
-				used++;
-
-				//next state
-				it++;
-				validator = (it == numCandidate.end()) ? (valid_end) : (
-						(*it == '.') ?
-								(point_after_digit) :
-								(('0' <= *it && *it <= '9') ?
-										(validator) : (error)));
-				break;
-			case point_after_digit:
-				//TODO change tracking of shift
-				//TODO "X." has to be allowed
-
-				//next state
-				it++;
-				validator = (it == numCandidate.end()) ? (valid_end) : (('0' <= *it && *it <= '9') ? (digit_after_point) : (error));
-				break;
-			case digit_after_point:
-				//TODO tracking shift goes here
-				shift--;
-				used++;
-				//next state
-				it++;
-				validator = (it == numCandidate.end()) ? (valid_end) : (('0' <= *it && *it <= '9') ? (validator) : (error));
-				break;
-			case error:
-				it++;
-				break;
-			default:
-				std::cout << "FSM in default. This should not happen." << std::endl;
+		{
+			auto it = numCandidate.begin();
+			while (it != numCandidate.end()) {
+				switch (validator) {
+				case start:
+					validator =
+							(it == numCandidate.end()) ?
+									(error) :
+									((*it == '-') ?
+											(sign_negative) :
+											((*it == '+') ?
+													(sign_positive) :
+													((*it == '.') ?
+															(point_after_sign) :
+															((('0' <= *it
+																	&& *it
+																			<= '9') ?
+																	(digit_after_sign) :
+																	(error))))));
+					/*;*/
+					break;
+				case sign_negative:
+					//set sign
+					negative = true;
+					/* no break */
+				case sign_positive:
+					//next state
+					it++;
+					validator =
+							(it == numCandidate.end()) ?
+									(error) :
+									((*it == '.') ?
+											(point_after_sign) :
+											(('0' <= *it && *it <= '9') ?
+													(digit_after_sign) : (error)));
+					break;
+				case point_after_sign:
+					//next state
+					it++;
+					validator =
+							(it == numCandidate.end()) ?
+									(error) :
+									(('0' <= *it && *it <= '9') ?
+											(digit_after_point) : (error));
+					break;
+				case digit_after_sign:
+					//tracking digit
+					used++;
+					//next state
+					it++;
+					validator =
+							(it == numCandidate.end()) ?
+									(valid_end) :
+									((*it == '.') ?
+											(point_after_digit) :
+											(('0' <= *it && *it <= '9') ?
+													(validator) : (error)));
+					break;
+				case point_after_digit:
+					//next state
+					it++;
+					validator =
+							(it == numCandidate.end()) ?
+									(valid_end) :
+									(('0' <= *it && *it <= '9') ?
+											(digit_after_point) : (error));
+					break;
+				case digit_after_point:
+					//tracking shift
+					shift--;
+					//tracking digit
+					used++;
+					//next state
+					it++;
+					validator =
+							(it == numCandidate.end()) ?
+									(valid_end) :
+									(('0' <= *it && *it <= '9') ?
+											(validator) : (error));
+					break;
+				case error:
+					it++;
+					break;
+				default:
+					std::cout << "FSM in default. This should not happen."
+							<< std::endl;
+				}
 			}
 
 			//if valid string representation of a double
-			if (validator == digit_after_point
-					|| validator == digit_after_sign || validator == end_after_point) {
-				//TODO copy digits into array
-				for (unsigned int i = 0; i < used; i++) {
-					//digits[i];
-					//*(numCanditate.rbegin()+i)
-
-					//digits
-					;
+			if (validator == valid_end) {
+				//TODO trim number
+				//remove leading zeroes
+				auto it = numCandidate.begin();
+				if (*it == '+' || *it == '-') {
+					it++;
 				}
+				while (*it == '0') {
+					numCandidate.erase(it);
+					used--;
+					//skip over decimal point
+					if (*it == '.') {
+						it++;
+					}
+				}
+				//remove trailing zeroes
+				auto rit = numCandidate.rbegin();
+				while (*rit == '0') {
+					numCandidate.erase(rit.base() - 1);
+					shift++;
+					used--;
+					rit++;
+					//skip over decimal point
+					if (*rit == '.') {
+						rit++;
+					}
+				}
+				//TODO check for fit in type
+
+				//TODO copy digits into array
 
 				foundValid = true;
 			} else {
@@ -229,7 +273,7 @@ void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 				opOffsetLeast = digToCut - shift_delta;
 
 			} else if (digToCut < shift_delta) {
-				shift_delta -= - digToCut;
+				shift_delta -= -digToCut;
 			}
 		}
 	}
