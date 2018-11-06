@@ -9,6 +9,7 @@
 #include <sstream>
 #include <iomanip>
 #include <limits>
+#include <algorithm>
 
 #include "CCDecimal.h"
 
@@ -51,79 +52,85 @@ CCDecimal::CCDecimal(std::string number) :
 		enum ValidatorStates {
 			error = -1,
 			start,
-			found_negative,
-			found_positive,
-			digits_after_sign,
-			found_point,
-			digits_after_point
-		} validatorState;
+			sign_negative,
+			sign_positive,
+			point_after_sign,
+			digit_after_sign,
+			point_after_digit,
+			end_after_point,
+			digit_after_point,
+			valid_end
+		};
+
 		auto it = numCandidate.begin();
+		ValidatorStates validator = start;
 		while (it != numCandidate.end()) {
-			switch (validatorState) {
+			switch (validator) {
 			case start:
-				validatorState =
+				validator = (it == numCandidate.end()) ? (error) : (
 						(*it == '-') ?
-								(found_negative) :
+								(sign_negative) :
 								((*it == '+') ?
-										(found_positive) :
+										(sign_positive) :
 										((*it == '.') ?
-												(found_point) :
+												(point_after_sign) :
 												((('0' <= *it && *it <= '9') ?
-														(digits_after_sign) :
-														(error)))));
+														(digit_after_sign) :
+														(error))))));
 				/*;*/
 				break;
-			case found_negative:
+			case sign_negative:
 				//TODO set sign to negative
 				negative = true;
 				/* no break */
-			case found_positive:
+			case sign_positive:
 				//next state
 				it++;
-				validatorState = (it == numCandidate.end()) ? // in case number has only a sign
-						error : digits_after_sign;
+				validator = (it == numCandidate.end()) ? (error) : ((*it == '.') ? (point_after_sign) : (('0' <= *it && *it <= '9') ? (digit_after_sign) : (error)));
 				break;
-			case digits_after_sign:
+			case point_after_sign:
+				//next state
+				it++;
+				validator = (it == numCandidate.end()) ? (error) : (('0' <= *it && *it <= '9') ? (digit_after_point) : (error));
+				break;
+			case digit_after_sign:
 				//TODO tracking shift goes here
 				used++;
 
 				//next state
 				it++;
-				validatorState =
+				validator = (it == numCandidate.end()) ? (valid_end) : (
 						(*it == '.') ?
-								(found_point) :
+								(point_after_digit) :
 								(('0' <= *it && *it <= '9') ?
-										(validatorState) : (error));
+										(validator) : (error)));
 				break;
-			case found_point:
+			case point_after_digit:
 				//TODO change tracking of shift
 				//TODO "X." has to be allowed
 
 				//next state
 				it++;
-				validatorState =
-						(it == numCandidate.end()
-								&& (it - 1) == numCandidate.begin()) ? // in case number has only a point
-						error : digits_after_point;
+				validator = (it == numCandidate.end()) ? (valid_end) : (('0' <= *it && *it <= '9') ? (digit_after_point) : (error));
 				break;
-			case digits_after_point:
+			case digit_after_point:
 				//TODO tracking shift goes here
 				shift--;
 				used++;
 				//next state
 				it++;
-				validatorState =
-						('0' <= *it && *it <= '9') ? (validatorState) : (error);
+				validator = (it == numCandidate.end()) ? (valid_end) : (('0' <= *it && *it <= '9') ? (validator) : (error));
 				break;
 			case error:
 				it++;
 				break;
 			default:
-				std::cout << "FSM in default. This should not happen."
-						<< std::endl;
+				std::cout << "FSM in default. This should not happen." << std::endl;
 			}
-			if (validatorState == digits_after_point
-					|| validatorState == digits_after_sign) {
+
+			//if valid string representation of a double
+			if (validator == digit_after_point
+					|| validator == digit_after_sign || validator == end_after_point) {
 				//TODO copy digits into array
 				for (unsigned int i = 0; i < used; i++) {
 					//digits[i];
@@ -136,28 +143,13 @@ CCDecimal::CCDecimal(std::string number) :
 				foundValid = true;
 			} else {
 				//dunno, init to zero maybe?
-				//reset everything changed within validation (shift, sign)
+				//reset everything changed within validation (shift, used, sign)
 				shift = 0;
 				used = 0;
 				negative = false;
 			}
 		}
-
-//		for (int i = (end-1); i >= begin; i--) { //index of digits should be -i + end-1
-//			if('0' <= number[i] && number[i] <= '9'){
-//				//if digit, store in array
-//				digit[-i+end-1] = number[i] - (int)'0';
-//
-//				used++;
-//				shift = (foundPoint) ? (shift+1) : (shift-1);
-//			} else if ()
-//		}
-		//copy digits
-		for (auto it = numCandidate.rbegin(); it != numCandidate.rend(); it++) {
-			//insert digits, set sign
-		}
 	}
-//TODO read digits
 }
 
 CCDecimal::CCDecimal(double number) {
