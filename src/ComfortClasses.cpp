@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include "CCDecimal.h"
 
@@ -22,10 +23,10 @@ void deleteTest() {
 		std::cout << *rit;
 		if (*rit == '5') {
 			std::cout << " removing " << rit.base()[-1] << " ";
-			str.erase(rit.base()-1);
+			str.erase(rit.base() - 1);
 		}
 		std::cout << *rit << std::endl;
-		
+
 	}
 
 	std::cout << std::endl << str << std::endl;
@@ -52,13 +53,21 @@ void deleteTest() {
 	std::cin >> str;
 }
 
-int main(){
-	std::string zeroStr("+0.0000");
-	CCDecimal zero(zeroStr);
-	std::cout << zeroStr << " liefert " << zero.toString() << std::endl;
-	std::string juhuStr("-000123000000123.0003740000");
-		CCDecimal juhu(juhuStr);
-		std::cout << juhuStr << " liefert " << juhu.toString() << std::endl;
-
+int main() {
+	//deleteTest();
+	std::vector<std::string> testCases = {
+		"000987",
+		"+1098765432109876543210987654321000",
+		".7",
+		"-.00036000",
+		"+40.",
+		"-52.79876543210987654321098765432"
+	};
+	for (std::string testCase : testCases) {
+		CCDecimal test(testCase);
+		std::cout << testCase << " liefert " << test.toString() << std::endl;
+	}
+	std::string input;
+	std::cin >> input;
 }
 

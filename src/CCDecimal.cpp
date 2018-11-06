@@ -80,7 +80,7 @@ CCDecimal::CCDecimal(std::string number) :
 				case sign_negative:
 					std::cout << "in sign_negative\n";
 					//set sign
-					negative = true;
+					isNegative = true;
 					/* no break */
 				case sign_positive:
 					std::cout << "in sign_positive\n";
@@ -160,59 +160,79 @@ CCDecimal::CCDecimal(std::string number) :
 				if (*it == '+' || *it == '-') {
 					it++;
 				}
-				while (*it == '0') {
-					std::cout << *it;
-					std::cout << " erasing " << *(it) << " ";
+				while (it != numCandidate.end() && *it == '0') {
+//					std::cout << *it;
+//					std::cout << " erasing " << *(it) << " ";
 					numCandidate.erase(it);
-					std::cout << *it << std::endl;
+/*					if (it != numCandidate.end()) { 
+						std::cout << *it << std::endl; 
+					} else
+					{
+						std::cout << " end of string " << std::endl;
+					}*/
 					used--;
 					//skip over decimal point
-					if (*it == '.') {
+					if (it != numCandidate.end() && *it == '.') {
 						it++;
 					}
 				}
 				//remove trailing zeroes
 				auto rit = numCandidate.rbegin();
-				while (*rit == '0') {
-					std::cout << *rit;
-					std::cout << " erasing " << *(rit.base() - 1) << " ";
+				while (rit != numCandidate.rend() && *rit == '0') {
+//					std::cout << *rit;
+//					std::cout << " erasing " << *(rit.base() - 1) << " ";
 					numCandidate.erase(rit.base() - 1);
-					std::cout << *rit << std::endl;
+/*					if (rit != numCandidate.rend()) {
+						std::cout << *rit << std::endl;
+					}
+					else
+					{
+						std::cout << " end of string " << std::endl;
+					}*/
 					shift++;
 					used--;
 					rit++;
 					//skip over decimal point
-					if (*rit == '.') {
+					if (rit != numCandidate.rend() && *rit == '.') {
 						rit++;
 					}
 				}
-				//TODO check for fit in type
-				int cutOffset = 0;
-				if (used > MAX) {
-					int digitsToCut = used - MAX;
-					int digitsToSpare = -*pPrecision + shift;
-					std::cout << "digitsToCut:" << digitsToCut
+				if (!numCandidate.empty()) {
+					//TODO check for fit in type
+					int cutOffset = 0;
+					if (used > MAX) {
+						int digitsToCut = used - MAX;
+						int digitsToSpare = -*pPrecision + shift;
+						std::cout << "digitsToCut:" << digitsToCut
 							<< "; digitsToSpare:" << digitsToSpare;
-					if (!(digitsToCut >= digitsToSpare)) {
-						cutOffset = digitsToCut;
-					} else {
-						std::cout << "\noverflow\n";
+						if (!(digitsToCut >= digitsToSpare)) {
+							cutOffset = digitsToCut;
+						}
+						else {
+							std::cout << "\noverflow\n";
+						}
+					}
+					//TODO copy digits into array
+					int i = 0;
+					rit = numCandidate.rbegin() + cutOffset;
+					while (i <= MAX && rit != numCandidate.rend()) {
+						if (*rit == '.' || *rit == '+' || *rit == '-') {
+							rit++;
+						}
+						else {
+							digit[i] = ((*rit) - '0');
+							std::cout << "digit[" << i << "] = "
+								<< (int)((*rit) - '0') << " (originally " << *rit
+								<< ")\n";
+							i++;
+							rit++;
+						}
 					}
 				}
-				//TODO copy digits into array
-				int i = 0;
-				rit = numCandidate.rbegin() + cutOffset;
-				while (i <= MAX && rit != numCandidate.rend()) {
-					if (*it == '.' || *it == '+' || *it == '-') {
-						rit++;
-					} else {
-						digit[i] = ((*it) - '0');
-						std::cout << "digit[" << i << "] = "
-								<< (int) ((*it) - '0') << " (originally " << *it
-								<< ")\n";
-						i++;
-						rit++;
-					}
+				else {
+					std::cout << "\n empty string remaining. assuming value zero.\n";
+					shift = 0;
+					used = 0;
 				}
 
 			} else {
@@ -221,7 +241,7 @@ CCDecimal::CCDecimal(std::string number) :
 				std::cout << "\ninvalid number\n";
 				shift = 0;
 				used = 0;
-				negative = false;
+				isNegative = false;
 			}
 		} else {
 			std::cout << "\n string cannot contain a number \n";
