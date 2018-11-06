@@ -26,11 +26,11 @@ private:
 	bool isNegative = false;
 	int precision = 2;
 
-
 	unsigned int* pPrecision;
 	static unsigned int defaultPrecision;
 
 	void add(CCDecimal* result, const CCDecimal&) const;
+	void constructFromString(const std::string numberStr);
 
 public:
 

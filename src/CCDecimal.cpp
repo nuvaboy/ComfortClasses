@@ -28,38 +28,39 @@ CCDecimal::CCDecimal() {
 	shift = 0;
 }
 
-CCDecimal::CCDecimal(std::string number) :
-		CCDecimal() {
-	int begin = 0;
-	int end = 0;
-	bool foundValid = false;
+CCDecimal::CCDecimal(std::string numberStr) :
+	CCDecimal() {
+	constructFromString(numberStr);
+}
 
-	while (!foundValid) {
-		begin = number.find_first_of("-+.0987654321", end);
-		end = number.find_first_not_of("-+.0987654321", begin);
+void CCDecimal::constructFromString(std::string numberStr){
+	if (!numberStr.empty()) {
+		unsigned int begin = numberStr.find_first_of("-+.0987654321", 0);
+		unsigned int end = numberStr.find_first_not_of("-+.0987654321", begin);
 
-		std::string numCandidate = number.substr(begin, end - 1);
+		if (begin == std::string::npos || end == std::string::npos) {
 
-		/*
-		 * validate: max one sign; max one point; sign at the beginning,
-		 * then digits, then point, if point, then more digits
-		 * uses state-machine-ish behaviour, result valid if in valid_end.
-		 */
-		enum ValidatorStates {
-			error = -1,
-			start,
-			sign_negative,
-			sign_positive,
-			point_after_sign,
-			digit_after_sign,
-			point_after_digit,
-			end_after_point,
-			digit_after_point,
-			valid_end
-		};
+			std::string numCandidate = numberStr.substr(begin, end - 1);
 
-		ValidatorStates validator = start;
-		{
+			/*
+			 * validate: max one sign; max one point; sign at the beginning,
+			 * then digits, then point, if point, then more digits
+			 * uses state-machine-ish behaviour, result valid if in valid_end.
+			 */
+			enum ValidatorStates {
+				error = -1,
+				start,
+				sign_negative,
+				sign_positive,
+				point_after_sign,
+				digit_after_sign,
+				point_after_digit,
+				end_after_point,
+				digit_after_point,
+				valid_end
+			};
+
+			ValidatorStates validator = start;
 			auto it = numCandidate.begin();
 			while (it != numCandidate.end()) {
 				switch (validator) {
@@ -147,73 +148,87 @@ CCDecimal::CCDecimal(std::string number) :
 				if (*it == '+' || *it == '-') {
 					it++;
 				}
-				while (*it == '0') {
+				while (it != numCandidate.end() && *it == '0') {
 					numCandidate.erase(it);
 					used--;
 					//skip over decimal point
-					if (*it == '.') {
+					if (it != numCandidate.end() && *it == '.') {
 						it++;
 					}
 				}
 				//remove trailing zeroes
 				auto rit = numCandidate.rbegin();
-				while (*rit == '0') {
+				while (rit != numCandidate.rend() && *rit == '0') {
 					numCandidate.erase(rit.base() - 1);
 					shift++;
 					used--;
 					rit++;
 					//skip over decimal point
-					if (*rit == '.') {
+					if (rit != numCandidate.rend() && *rit == '.') {
 						rit++;
 					}
 				}
-				//TODO check for fit in type
-				int cutOffset = 0;
-				bool overflow = false;
-				if (used > MAX) {
-					int digitsToCut = used - MAX;
-					int digitsToSpare = -*pPrecision + shift;
-					if (!(digitsToCut > digitsToSpare)) {
-						cutOffset = digitsToCut;
-					} else {
-						overflow = true;
+				if (!numCandidate.empty()) {
+					//TODO check for fit in type
+					int cutOffset = 0;
+					if (used > MAX) {
+						int digitsToCut = used - MAX;
+						int digitsToSpare = -*pPrecision + shift;
+						std::cout << "digitsToCut:" << digitsToCut
+							<< "; digitsToSpare:" << digitsToSpare;
+						if (!(digitsToCut >= digitsToSpare)) {
+							cutOffset = digitsToCut;
+						}
+						else {
+							std::cout << "\n overflow. \n";
+						}
+					}
+					//TODO copy digits into array
+					int i = 0;
+					rit = numCandidate.rbegin() + cutOffset;
+					while (i <= MAX && rit != numCandidate.rend()) {
+						if (*rit == '.' || *rit == '+' || *rit == '-') {
+							rit++;
+						}
+						else {
+							digit[i] = ((*rit) - '0');
+							i++;
+							rit++;
+						}
 					}
 				}
-				//TODO copy digits into array
-				int i = 0;
-				rit = numCandidate.rbegin() + cutOffset;
-				while (i <= MAX && rit != numCandidate.rend()) {
-					if (*it == '.' || *it == '+' || *it == '-') {
-						rit++;
-					} else {
-						digit[i] = ((*it) - '0');
-						i++;
-						rit++;
-					}
+				else {
+					std::cout << "\n trimmed number empty. assuming value zero.\n";
+					shift = 0;
+					used = 0;
 				}
 
-				foundValid = true;
 			} else {
 				//dunno, init to zero maybe?
 				//reset everything changed within validation (shift, used, sign)
+				std::cout << "\n invalid number. \n";
 				shift = 0;
 				used = 0;
 				isNegative = false;
 			}
+		} else {
+			std::cout << "\n string cannot contain a number. \n";
 		}
+	} else {
+		std::cout << "\n empty string. \n";
 	}
 }
 
 CCDecimal::CCDecimal(double number) {
 	pPrecision = &CCDecimal::defaultPrecision;
 	std::stringstream stringStream;
-	std::string numberAsString;
+	std::string numberStr;
 
 	stringStream << std::setprecision(std::numeric_limits<double>::digits10) << number;
 
-	numberAsString = stringStream.str();
+	numberStr = stringStream.str();
 
-	//basically copy-paste the rest from CCDecimal(string)
+	constructFromString(numberStr);
 }
 
 CCDecimal::~CCDecimal() {
