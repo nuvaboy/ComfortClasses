@@ -73,15 +73,12 @@ CCDecimal::CCDecimal(std::string number) :
 													(sign_positive) :
 													((*it == '.') ?
 															(point_after_sign) :
-															((('0' <= *it
-																	&& *it
-																			<= '9') ?
-																	(digit_after_sign) :
-																	(error))))));
+															((('0' <= *it && *it <= '9') ?
+																	(digit_after_sign) : (error))))));
 					break;
 				case sign_negative:
 					//set sign
-					negative = true;
+					isNegative = true;
 					/* no break */
 				case sign_positive:
 					//next state
@@ -100,8 +97,7 @@ CCDecimal::CCDecimal(std::string number) :
 					validator =
 							(it == numCandidate.end()) ?
 									(error) :
-									(('0' <= *it && *it <= '9') ?
-											(digit_after_point) : (error));
+									(('0' <= *it && *it <= '9') ? (digit_after_point) : (error));
 					break;
 				case digit_after_sign:
 					//tracking digit
@@ -113,8 +109,7 @@ CCDecimal::CCDecimal(std::string number) :
 									(valid_end) :
 									((*it == '.') ?
 											(point_after_digit) :
-											(('0' <= *it && *it <= '9') ?
-													(validator) : (error)));
+											(('0' <= *it && *it <= '9') ? (validator) : (error)));
 					break;
 				case point_after_digit:
 					//next state
@@ -122,8 +117,7 @@ CCDecimal::CCDecimal(std::string number) :
 					validator =
 							(it == numCandidate.end()) ?
 									(valid_end) :
-									(('0' <= *it && *it <= '9') ?
-											(digit_after_point) : (error));
+									(('0' <= *it && *it <= '9') ? (digit_after_point) : (error));
 					break;
 				case digit_after_point:
 					//tracking shift
@@ -135,15 +129,13 @@ CCDecimal::CCDecimal(std::string number) :
 					validator =
 							(it == numCandidate.end()) ?
 									(valid_end) :
-									(('0' <= *it && *it <= '9') ?
-											(validator) : (error));
+									(('0' <= *it && *it <= '9') ? (validator) : (error));
 					break;
 				case error:
 					it++;
 					break;
 				default:
-					std::cout << "FSM in default. This should not happen."
-							<< std::endl;
+					std::cout << "FSM in default. This should not happen." << std::endl;
 				}
 			}
 
@@ -206,7 +198,7 @@ CCDecimal::CCDecimal(std::string number) :
 				//reset everything changed within validation (shift, used, sign)
 				shift = 0;
 				used = 0;
-				negative = false;
+				isNegative = false;
 			}
 		}
 	}
@@ -217,8 +209,7 @@ CCDecimal::CCDecimal(double number) {
 	std::stringstream stringStream;
 	std::string numberAsString;
 
-	stringStream << std::setprecision(std::numeric_limits<double>::digits10)
-			<< number;
+	stringStream << std::setprecision(std::numeric_limits<double>::digits10) << number;
 
 	numberAsString = stringStream.str();
 
@@ -261,15 +252,15 @@ void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 		pLeastPrec = this;
 	}
 
-	int shift_min = pMostPrec->shift;
-	int shift_delta = pLeastPrec->shift - pMostPrec->shift;
+	int shift_min = pMostPrec->shift; //dpPos_min
+	int shift_delta = pLeastPrec->shift - pMostPrec->shift; //dpPos_gap
 	int size = max(pMostPrec->used, shift_delta + pLeastPrec->used); //calculate coalesced size
 
 	//calculate amount of expendable digits
 	int digToSpend = -precision - shift_min;
 
 	//calculate amount of digits needed to be cut to meet size requirements
-	int digToCut = size - MAX; //size - 31 = digits to cut
+	int digToCut = size - MAX;
 
 	//requiered to cut
 	int opOffsetMost = 0;
@@ -282,13 +273,15 @@ void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 					"Result is too large to store in Decimal. Keep values in range or reduce precision!");
 
 		} else { //cut
-			shift_min += digToCut;
+			shift_min += digToCut; //adjust shift_min
 			opOffsetMost = digToCut;
 
-			if (digToCut > shift_delta) {
-				opOffsetLeast = digToCut - shift_delta;
-
-			} else if (digToCut < shift_delta) {
+//			if (digToCut > shift_delta) { //this case is not needed, because reasons
+//				opOffsetLeast = digToCut - shift_delta;
+//				shift_delta = 0; //experimental
+//
+//			} else
+			if (digToCut <= shift_delta) {
 				shift_delta -= -digToCut;
 			}
 		}
@@ -349,5 +342,4 @@ void CCDecimal::setDefaultPrecision(unsigned int precision) {
 unsigned int CCDecimal::getDefaultPrecision() {
 	return CCDecimal::defaultPrecision;
 }
-
 

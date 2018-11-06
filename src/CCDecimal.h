@@ -25,7 +25,7 @@ private:
 	int shift = 0;
 	bool isNegative = false;
 	int precision = 2;
-	bool negative = false;
+
 
 	unsigned int* pPrecision;
 	static unsigned int defaultPrecision;
