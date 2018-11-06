@@ -40,9 +40,7 @@ void CCDecimal::constructFromString(std::string numberStr) {
 
 		if (begin == std::string::npos)
 			std::cout << "\n didn't find beginning \n";
-		if (end == std::string::npos)
-			std::cout << "\n didn't find end \n";
-		if (begin != std::string::npos && end != std::string::npos) {
+		if (begin != std::string::npos) {
 
 			std::string numCandidate = numberStr.substr(begin, end - 1);
 
@@ -179,8 +177,8 @@ void CCDecimal::constructFromString(std::string numberStr) {
 
 						int digitsToCut = used - MAX;
 						int digitsToSpare = -*pPrecision + shift;
-						std::cout << "digitsToCut:" << digitsToCut
-								<< "; digitsToSpare:" << digitsToSpare;
+						std::cout << "digitsToCut:" << digitsToCut << "; digitsToSpare:"
+								<< digitsToSpare;
 						if (!(digitsToCut >= digitsToSpare)) {
 							cutOffset = digitsToCut;
 						} else {
@@ -201,8 +199,7 @@ void CCDecimal::constructFromString(std::string numberStr) {
 					}
 
 				} else {
-					std::cout
-							<< "\n trimmed number empty. assuming value zero.\n";
+					std::cout << "\n trimmed number empty. assuming value zero.\n";
 					shift = 0;
 					used = 0;
 				}
@@ -263,7 +260,7 @@ bool CCDecimal::operator ==(const CCDecimal& op2) const {
 
 void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 
-//determine the most and the least precise decimal
+	//determine the most and the least precise decimal
 	const CCDecimal* pMostPrec = this;
 	const CCDecimal* pLeastPrec = &op2;
 	if (op2.shift < shift) {
@@ -275,12 +272,13 @@ void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 	int shift_delta = pLeastPrec->shift - pMostPrec->shift; //dpPos_gap
 	int size = max(pMostPrec->used, shift_delta + pLeastPrec->used); //calculate coalesced size
 
-//calculate amount of expendable digits
+	//calculate amount of expendable digits
 	int digToSpend = -precision - shift_min;
 
-//calculate amount of digits needed to be cut to meet size requirements
+	//calculate amount of digits needed to be cut to meet size requirements
 	int digToCut = size - MAX; //size - 31 = digits to cut
-//requiered to cut
+
+	//requiered to cut
 	int opOffsetMost = 0;
 	int opOffsetLeast = 0;
 	if (digToCut > 0) {
@@ -305,17 +303,17 @@ void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 		}
 	}
 
-//add operand 1 to the result
+	//add operand 1 to the result
 	for (unsigned int i = 0; i + opOffsetMost < used; i++) {
 		result->digit[i] = digit[i + opOffsetMost];
 	}
 
-//add operand 2 to the result
+	//add operand 2 to the result
 	for (unsigned int i = 0; i + opOffsetLeast < op2.used; i++) {
 		result->digit[i + shift_delta] += op2.digit[i + opOffsetLeast];
 	}
 
-//forward carries
+	//forward carries
 	for (int i = 0; i < size; i++) {
 		if (result->digit[i] >= 10) {
 			result->digit[i] -= 10;
@@ -329,7 +327,7 @@ void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 		result->used++;
 	}
 
-//remove trailing zeros
+	//remove trailing zeros
 	if (result->digit[0] == 0) {
 
 		int nonZero = 1; //TODO non zero
@@ -354,10 +352,10 @@ void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 }
 
 void CCDecimal::setDefaultPrecision(unsigned int precision) {
-	CCDecimal::defaultPrecision = precision;
+	CCDecimal::defaultPrecision = precision + 1;
 }
 
 unsigned int CCDecimal::getDefaultPrecision() {
-	return CCDecimal::defaultPrecision;
+	return CCDecimal::defaultPrecision - 1;
 }
 
