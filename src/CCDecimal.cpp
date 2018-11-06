@@ -268,86 +268,81 @@ void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 		pLeastPrec = this;
 	}
 
-	int shift_min = pMostPrec->shift; //dpPos_min
+	int shift_result = pMostPrec->shift; //dpPos_min
 	int shift_delta = pLeastPrec->shift - pMostPrec->shift; //dpPos_gap
-	int size = max(pMostPrec->used, shift_delta + pLeastPrec->used); //calculate coalesced size
+	int used_result = max(pMostPrec->used, pLeastPrec->used + shift_delta); //calculate coalesced size
 
-	//calculate amount of expendable digits
-	int digToSpend = -precision - shift_min;
+	//calculate amount of expendable digits (digits to spend)
+	int digToSpend = -precision - shift_result;
 
-	//calculate amount of digits needed to be cut to meet size requirements
-	int digToCut = size - MAX; //size - 31 = digits to cut
+	//calculate amount of digits needed to be cut to meet size requirements (digits to cut)
+	int digToCut = max(used_result - MAX, 0);
 
-	//requiered to cut
-	int opOffsetMost = 0;
-	int opOffsetLeast = 0;
+	//check, if cutting of decimal places is necessary
 	if (digToCut > 0) {
-		size = MAX;
 
 		if (digToSpend < digToCut) { //overflow
 			throw std::overflow_error(
 					"Result is too large to store in Decimal. Keep values in range or reduce precision!");
+		}
 
-		} else { //cut
-			shift_min += digToCut; //adjust shift_min
-			opOffsetMost = digToCut;
+		//cut decimal places
+		used_result = MAX;
+		shift_result += digToCut;
 
-//			if (digToCut > shift_delta) { //this case is not needed, because reasons
-//				opOffsetLeast = digToCut - shift_delta;
-//				shift_delta = 0; //experimental
-//
-//			} else
-			if (digToCut <= shift_delta) {
-				shift_delta -= -digToCut;
-			}
+		if (digToCut <= shift_delta) {
+			shift_delta -= -digToCut;
 		}
 	}
 
-	//add operand 1 to the result
-	for (unsigned int i = 0; i + opOffsetMost < used; i++) {
-		result->digit[i] = digit[i + opOffsetMost];
+	//add most precise operand to the result
+	for (unsigned int i = 0; i + digToCut < pMostPrec->used; i++) {
+		result->digit[i] = pMostPrec->digit[i + digToCut];
 	}
 
-	//add operand 2 to the result
-	for (unsigned int i = 0; i + opOffsetLeast < op2.used; i++) {
-		result->digit[i + shift_delta] += op2.digit[i + opOffsetLeast];
+	//add least precise operand to the result
+	for (unsigned int i = 0; i < pLeastPrec->used; i++) {
+		result->digit[i + shift_delta] += pLeastPrec->digit[i];
 	}
 
 	//forward carries
-	for (int i = 0; i < size; i++) {
+	for (int i = 0; i < used_result; i++) {
 		if (result->digit[i] >= 10) {
 			result->digit[i] -= 10;
 			result->digit[i + 1]++;
 		}
 	}
-
-	result->used = size;
-	result->shift = shift_min;
-	if (result->digit[size] > 0) {
-		result->used++;
+	if (result->digit[used_result] > 0) {
+		used_result++;
 	}
 
 	//remove trailing zeros
 	if (result->digit[0] == 0) {
 
-		int nonZero = 1; //TODO non zero
-		while (result->digit[nonZero] == 0 && nonZero < MAX) {
-			nonZero++;
+		int trailingZeroes = 1;
+		while (result->digit[trailingZeroes] == 0 && trailingZeroes < MAX) {
+			trailingZeroes++;
 		}
-		for (int i = nonZero; i <= MAX; i++) {
-			result->digit[i - nonZero] = result->digit[i];
+		for (int i = trailingZeroes; i <= MAX; i++) {
+			result->digit[i - trailingZeroes] = result->digit[i];
 		}
-		result->used -= nonZero;
-		result->shift += nonZero;
+
+		//decrease used and increase shift according to the number of leading zeroes
+		used_result -= trailingZeroes;
+		shift_result += trailingZeroes;
+
+		//clear overflow flag
 		result->digit[MAX] = 0;
 	}
 
 	if (result->digit[MAX] > 0) {
-
 		//overflow
 		throw std::overflow_error(
 				"Result is too large to store in Decimal. Keep values in range or reduce precision!");
 	}
+
+	result->used = used_result;
+	result->shift = shift_result;
 
 }
 
