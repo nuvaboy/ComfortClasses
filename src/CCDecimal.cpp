@@ -29,16 +29,20 @@ CCDecimal::CCDecimal() {
 }
 
 CCDecimal::CCDecimal(std::string numberStr) :
-	CCDecimal() {
+		CCDecimal() {
 	constructFromString(numberStr);
 }
 
-void CCDecimal::constructFromString(std::string numberStr){
+void CCDecimal::constructFromString(std::string numberStr) {
 	if (!numberStr.empty()) {
 		unsigned int begin = numberStr.find_first_of("-+.0987654321", 0);
 		unsigned int end = numberStr.find_first_not_of("-+.0987654321", begin);
 
-		if (begin == std::string::npos || end == std::string::npos) {
+		if (begin == std::string::npos)
+			std::cout << "\n didn't find beginning \n";
+		if (end == std::string::npos)
+			std::cout << "\n didn't find end \n";
+		if (begin != std::string::npos && end != std::string::npos) {
 
 			std::string numCandidate = numberStr.substr(begin, end - 1);
 
@@ -183,12 +187,11 @@ void CCDecimal::constructFromString(std::string numberStr){
 						int digitsToCut = used - MAX;
 						int digitsToSpare = -*pPrecision + shift;
 						std::cout << "digitsToCut:" << digitsToCut
-							<< "; digitsToSpare:" << digitsToSpare;
+								<< "; digitsToSpare:" << digitsToSpare;
 						if (!(digitsToCut >= digitsToSpare)) {
 							cutOffset = digitsToCut;
-						}
-						else {
-							std::cout << "\n overflow. \n";
+						} else {
+							throw std::overflow_error("Digits to store surpassing precision limit");
 						}
 					}
 					//TODO copy digits into array
@@ -197,16 +200,16 @@ void CCDecimal::constructFromString(std::string numberStr){
 					while (i <= MAX && rit != numCandidate.rend()) {
 						if (*rit == '.' || *rit == '+' || *rit == '-') {
 							rit++;
-						}
-						else {
+						} else {
 							digit[i] = ((*rit) - '0');
 							i++;
 							rit++;
 						}
 					}
-				}
-				else {
-					std::cout << "\n trimmed number empty. assuming value zero.\n";
+
+				} else {
+					std::cout
+							<< "\n trimmed number empty. assuming value zero.\n";
 					shift = 0;
 					used = 0;
 				}
@@ -268,7 +271,7 @@ bool CCDecimal::operator ==(const CCDecimal& op2) const {
 
 void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 
-	//determine the most and the least precise decimal
+//determine the most and the least precise decimal
 	const CCDecimal* pMostPrec = this;
 	const CCDecimal* pLeastPrec = &op2;
 	if (op2.shift < shift) {
@@ -280,13 +283,13 @@ void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 	int shift_delta = pLeastPrec->shift - pMostPrec->shift;
 	int size = max(pMostPrec->used, shift_delta + pLeastPrec->used); //calculate coalesced size
 
-	//calculate amount of expendable digits
+//calculate amount of expendable digits
 	int digToSpend = -precision - shift_min;
 
-	//calculate amount of digits needed to be cut to meet size requirements
+//calculate amount of digits needed to be cut to meet size requirements
 	int digToCut = size - MAX; //size - 31 = digits to cut
 
-	//requiered to cut
+//requiered to cut
 	int opOffsetMost = 0;
 	int opOffsetLeast = 0;
 	if (digToCut > 0) {
@@ -309,17 +312,17 @@ void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 		}
 	}
 
-	//add operand 1 to the result
+//add operand 1 to the result
 	for (unsigned int i = 0; i + opOffsetMost < used; i++) {
 		result->digit[i] = digit[i + opOffsetMost];
 	}
 
-	//add operand 2 to the result
+//add operand 2 to the result
 	for (unsigned int i = 0; i + opOffsetLeast < op2.used; i++) {
 		result->digit[i + shift_delta] += op2.digit[i + opOffsetLeast];
 	}
 
-	//forward carries
+//forward carries
 	for (int i = 0; i < size; i++) {
 		if (result->digit[i] >= 10) {
 			result->digit[i] -= 10;
@@ -333,7 +336,7 @@ void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 		result->used++;
 	}
 
-	//remove trailing zeros
+//remove trailing zeros
 	if (result->digit[0] == 0) {
 
 		int nonZero = 1; //TODO non zero
