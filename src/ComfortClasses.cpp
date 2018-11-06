@@ -63,24 +63,25 @@ int main() {
 		".7",
 		"-.00036000",
 		"+40.",
-		"-52.79876543210987654321098765432"
+		"-52.79876543210987654321098765432",
+		"98765432109876543210987654321098"
 	};
 	for (std::string testCase : testCasesStr) {
 		CCDecimal test(testCase);
 		std::cout << testCase << " liefert " << test.toString() << std::endl;
 	}
-	std::vector<double> testCasesD = {
-		000987.,
-		+1098765432109876543210987654321000.,
-		.7,
-		-.00036000,
-		+40.,
-		-52.79876543210987654321098765432
-	};
-	for (double testCase : testCasesD) {
-		CCDecimal test(testCase);
-		std::cout << std::setprecision(std::numeric_limits<double>::digits10) << testCase << " liefert " << test.toString() << std::endl;
-	}
+//	std::vector<double> testCasesD = {
+//		000987.,
+//		+1098765432109876543210987654321000.,
+//		.7,
+//		-.00036000,
+//		+40.,
+//		-52.79876543210987654321098765432
+//	};
+//	for (double testCase : testCasesD) {
+//		CCDecimal test(testCase);
+//		std::cout << std::setprecision(std::numeric_limits<double>::digits10) << testCase << " liefert " << test.toString() << std::endl;
+//	}
 	std::string input;
 	std::cin >> input;
 }

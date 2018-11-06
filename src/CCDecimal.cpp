@@ -176,6 +176,7 @@ void CCDecimal::constructFromString(std::string numberStr) {
 					//TODO check for fit in type
 					int cutOffset = 0;
 					if (used > MAX) {
+
 						int digitsToCut = used - MAX;
 						int digitsToSpare = -*pPrecision + shift;
 						std::cout << "digitsToCut:" << digitsToCut
@@ -189,7 +190,7 @@ void CCDecimal::constructFromString(std::string numberStr) {
 					//TODO copy digits into array
 					int i = 0;
 					rit = numCandidate.rbegin() + cutOffset;
-					while (i <= MAX && rit != numCandidate.rend()) {
+					while (rit != numCandidate.rend() && i <= MAX) {
 						if (*rit == '.' || *rit == '+' || *rit == '-') {
 							rit++;
 						} else {
