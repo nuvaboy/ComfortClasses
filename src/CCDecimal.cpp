@@ -61,7 +61,6 @@ CCDecimal::CCDecimal(std::string number) :
 			while (it != numCandidate.end()) {
 				switch (validator) {
 				case start:
-					std::cout << "in start\n";
 					validator =
 							(it == numCandidate.end()) ?
 									(error) :
@@ -78,12 +77,10 @@ CCDecimal::CCDecimal(std::string number) :
 																	(error))))));
 					break;
 				case sign_negative:
-					std::cout << "in sign_negative\n";
 					//set sign
 					isNegative = true;
 					/* no break */
 				case sign_positive:
-					std::cout << "in sign_positive\n";
 					//next state
 					it++;
 					validator =
@@ -95,7 +92,6 @@ CCDecimal::CCDecimal(std::string number) :
 													(digit_after_sign) : (error)));
 					break;
 				case point_after_sign:
-					std::cout << "in point_after_sign\n";
 					//next state
 					it++;
 					validator =
@@ -105,7 +101,6 @@ CCDecimal::CCDecimal(std::string number) :
 											(digit_after_point) : (error));
 					break;
 				case digit_after_sign:
-					std::cout << "in digit_after_sign\n";
 					//tracking digit
 					used++;
 					//next state
@@ -119,7 +114,6 @@ CCDecimal::CCDecimal(std::string number) :
 													(validator) : (error)));
 					break;
 				case point_after_digit:
-					std::cout << "in point_after_digit\n";
 					//next state
 					it++;
 					validator =
@@ -129,7 +123,6 @@ CCDecimal::CCDecimal(std::string number) :
 											(digit_after_point) : (error));
 					break;
 				case digit_after_point:
-					std::cout << "in digit_after_point\n";
 					//tracking shift
 					shift--;
 					//tracking digit
@@ -143,7 +136,6 @@ CCDecimal::CCDecimal(std::string number) :
 											(validator) : (error));
 					break;
 				case error:
-					std::cout << "in error\n";
 					it++;
 					break;
 				default:
@@ -161,15 +153,7 @@ CCDecimal::CCDecimal(std::string number) :
 					it++;
 				}
 				while (it != numCandidate.end() && *it == '0') {
-//					std::cout << *it;
-//					std::cout << " erasing " << *(it) << " ";
 					numCandidate.erase(it);
-/*					if (it != numCandidate.end()) { 
-						std::cout << *it << std::endl; 
-					} else
-					{
-						std::cout << " end of string " << std::endl;
-					}*/
 					used--;
 					//skip over decimal point
 					if (it != numCandidate.end() && *it == '.') {
@@ -179,16 +163,7 @@ CCDecimal::CCDecimal(std::string number) :
 				//remove trailing zeroes
 				auto rit = numCandidate.rbegin();
 				while (rit != numCandidate.rend() && *rit == '0') {
-//					std::cout << *rit;
-//					std::cout << " erasing " << *(rit.base() - 1) << " ";
 					numCandidate.erase(rit.base() - 1);
-/*					if (rit != numCandidate.rend()) {
-						std::cout << *rit << std::endl;
-					}
-					else
-					{
-						std::cout << " end of string " << std::endl;
-					}*/
 					shift++;
 					used--;
 					rit++;
@@ -209,7 +184,7 @@ CCDecimal::CCDecimal(std::string number) :
 							cutOffset = digitsToCut;
 						}
 						else {
-							std::cout << "\noverflow\n";
+							std::cout << "\n overflow. \n";
 						}
 					}
 					//TODO copy digits into array
@@ -221,16 +196,13 @@ CCDecimal::CCDecimal(std::string number) :
 						}
 						else {
 							digit[i] = ((*rit) - '0');
-							std::cout << "digit[" << i << "] = "
-								<< (int)((*rit) - '0') << " (originally " << *rit
-								<< ")\n";
 							i++;
 							rit++;
 						}
 					}
 				}
 				else {
-					std::cout << "\n empty string remaining. assuming value zero.\n";
+					std::cout << "\n trimmed number empty. assuming value zero.\n";
 					shift = 0;
 					used = 0;
 				}
@@ -238,16 +210,16 @@ CCDecimal::CCDecimal(std::string number) :
 			} else {
 				//dunno, init to zero maybe?
 				//reset everything changed within validation (shift, used, sign)
-				std::cout << "\ninvalid number\n";
+				std::cout << "\n invalid number. \n";
 				shift = 0;
 				used = 0;
 				isNegative = false;
 			}
 		} else {
-			std::cout << "\n string cannot contain a number \n";
+			std::cout << "\n string cannot contain a number. \n";
 		}
 	} else {
-		std::cout << "\n empty string\n";
+		std::cout << "\n empty string. \n";
 	}
 }
 
