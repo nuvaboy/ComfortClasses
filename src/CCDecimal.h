@@ -8,7 +8,7 @@
 #ifndef CCDECIMAL_H_
 #define CCDECIMAL_H_
 
-//#define MAX 9
+#define MAX 31
 
 
 #include <stdint.h>
@@ -20,10 +20,10 @@ using namespace std;
 
 class CCDecimal {
 private:
-	const static int MAX = 9;
-	int8_t digit[CCDecimal::MAX + 1];
+	int8_t digit[MAX + 1];
 	unsigned int used = 0;
 	int shift = 0;
+	bool isNegative = false;
 	int precision = 2;
 	bool negative = false;
 
@@ -50,6 +50,9 @@ public:
 		if (pos >= used && value != 0) {
 			used = pos + 1;
 		}
+	}
+	void setNegative(bool isNegative){
+		this->isNegative = isNegative;
 	}
 	void setDigits(int count, ...) {
 		//cout << count << endl;
@@ -117,13 +120,13 @@ public:
 			if (c >= '0' && c <= '9') {
 				digit[pos] = c - 48;
 				pos++;
-				cout << digit[pos-1] << endl;
+				//cout << digit[pos-1] << endl;
 				//print();
 			} else if (!hasDp && c == '.') {
 				hasDp = true;
 				shift = -pos;
 			} else {
-				cout << "some failure: " << i << " " << endl;
+				//cout << "some failure: " << i << " " << endl;
 				throw std::exception();
 			}
 		}
@@ -141,8 +144,8 @@ public:
 		used = pos + 1;
 
 
-		cout << "used: " << used  << endl;
-		cout << "shift: " <<  shift<< endl;
+		//cout << "used: " << used  << endl;
+		//cout << "shift: " <<  shift<< endl;
 
 		return *this;
 	}
@@ -155,6 +158,8 @@ public:
 		*this = s;
 	}
 
+
+
 //	CCDecimal(const string& str){
 //		*this = str;
 //	}
@@ -163,6 +168,46 @@ public:
 //		string s = str;
 //		*this = s;
 //	}
+
+	string toString() const{
+
+		if (used == 0){
+			return "0";
+		}
+
+		string result = "";
+
+		if (isNegative){
+			result ="-";
+		}
+
+		//shift = -3 =>          3 2 1 0 -1 -2 -3
+		//5.3
+
+		int b = shift+(int)used;
+		if (b <= 0){
+			result += "0.";
+			for (int i = b; i <= -1; i++){
+				result += '0';
+			}
+		}
+
+		for (int i = used-1; i>=0;i--){
+			result += (char)(digit[i]+48);
+			if (i==-shift && i != 0){
+				result += '.';
+			}
+		}
+
+		for (int i = 0; i < shift; i++){
+			result += '0';
+		}
+
+
+		return result;
+	}
+
+
 
 };
 

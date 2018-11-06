@@ -15,7 +15,7 @@
 
 using namespace std;
 
-unsigned int CCDecimal::defaultPrecision = 6;
+unsigned int CCDecimal::defaultPrecision = 2;
 
 CCDecimal::CCDecimal() {
 	pPrecision = &CCDecimal::defaultPrecision;
@@ -238,7 +238,7 @@ CCDecimal CCDecimal::operator +(const CCDecimal& op2) const {
 
 bool CCDecimal::operator ==(const CCDecimal& op2) const {
 	if (used != op2.used || shift != op2.shift) {
-		cout << "false, shift or used" << endl;
+		//cout << "false, shift or used" << endl;
 		return false;
 	}
 
@@ -314,6 +314,9 @@ void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 
 	result->used = size;
 	result->shift = shift_min;
+	if (result->digit[size] > 0) {
+		result->used++;
+	}
 
 	//remove trailing zeros
 	if (result->digit[0] == 0) {
@@ -346,4 +349,5 @@ void CCDecimal::setDefaultPrecision(unsigned int precision) {
 unsigned int CCDecimal::getDefaultPrecision() {
 	return CCDecimal::defaultPrecision;
 }
+
 
