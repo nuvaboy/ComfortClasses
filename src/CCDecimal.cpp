@@ -15,9 +15,14 @@
 
 using namespace std;
 
+//initialize static properties
 unsigned int CCDecimal::defaultPrecision = 2;
 
-CCDecimal::CCDecimal() {
+
+//constructors
+CCDecimal::CCDecimal() { /* construct as default */
+
+	//precision should be the default precision, unless explicitly changed for an instance
 	pPrecision = &CCDecimal::defaultPrecision;
 
 	//initialize all digits to zero
@@ -28,12 +33,38 @@ CCDecimal::CCDecimal() {
 	shift = 0;
 }
 
-CCDecimal::CCDecimal(std::string numberStr) :
+CCDecimal::CCDecimal(const string& numberStr) /* construct from string */ :
 		CCDecimal() {
 	constructFromString(numberStr);
 }
 
-void CCDecimal::constructFromString(std::string numberStr) {
+CCDecimal::CCDecimal(double number) { /* construct from double */
+	pPrecision = &CCDecimal::defaultPrecision;
+	std::stringstream stringStream;
+	std::string numberStr;
+
+	stringStream << std::setprecision(std::numeric_limits<double>::digits10) << number;
+
+	numberStr = stringStream.str();
+
+	constructFromString(numberStr);
+}
+
+CCDecimal::~CCDecimal() {
+}
+
+
+//public setter/getter
+unsigned int CCDecimal::getDefaultPrecision() {
+	return CCDecimal::defaultPrecision - 1;
+}
+
+void CCDecimal::setDefaultPrecision(unsigned int precision) {
+	CCDecimal::defaultPrecision = precision + 1;
+}
+
+//utility functions
+void CCDecimal::constructFromString(const string& numberStr) {
 	if (!numberStr.empty()) {
 		unsigned int begin = numberStr.find_first_of("-+.0987654321", 0);
 		unsigned int end = numberStr.find_first_not_of("-+.0987654321", begin);
@@ -220,44 +251,7 @@ void CCDecimal::constructFromString(std::string numberStr) {
 	}
 }
 
-CCDecimal::CCDecimal(double number) {
-	pPrecision = &CCDecimal::defaultPrecision;
-	std::stringstream stringStream;
-	std::string numberStr;
-
-	stringStream << std::setprecision(std::numeric_limits<double>::digits10) << number;
-
-	numberStr = stringStream.str();
-
-	constructFromString(numberStr);
-}
-
-CCDecimal::~CCDecimal() {
-
-}
-
-CCDecimal CCDecimal::operator +(const CCDecimal& op2) const {
-	CCDecimal result;
-	add(&result, op2);
-
-	return result;
-}
-
-bool CCDecimal::operator ==(const CCDecimal& op2) const {
-	if (used != op2.used || shift != op2.shift) {
-		//cout << "false, shift or used" << endl;
-		return false;
-	}
-
-	for (unsigned int i = 0; i < used; i++) {
-		if (digit[i] != op2.digit[i]) {
-			//cout << "Index: " << i << " op1: " << digit[i] << " op2: " << op2.digit[i] << endl;
-			return false;
-		}
-	}
-	return true;
-}
-
+//core functionality
 void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 
 	//determine the most and the least precise decimal
@@ -346,11 +340,36 @@ void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 
 }
 
-void CCDecimal::setDefaultPrecision(unsigned int precision) {
-	CCDecimal::defaultPrecision = precision + 1;
+
+//others
+CCDecimal CCDecimal::operator +(const CCDecimal& op2) const {
+	CCDecimal result;
+	add(&result, op2);
+
+	return result;
 }
 
-unsigned int CCDecimal::getDefaultPrecision() {
-	return CCDecimal::defaultPrecision - 1;
+bool CCDecimal::operator ==(const CCDecimal& op2) const {
+
+	//return false, if either used or shift is not equal
+	if (used != op2.used || shift != op2.shift) {
+		return false;
+	}
+
+	//compares each individual digit, return false as soon as a mismatch is found
+	for (unsigned int i = 0; i < used; i++) {
+		if (digit[i] != op2.digit[i]) {
+			return false;
+		}
+	}
+
+	//return true if neither of the above checks fails
+	return true;
 }
+
+
+
+
+
+
 
