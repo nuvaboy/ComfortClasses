@@ -267,7 +267,7 @@ void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 	int used_result = max(pMostPrec->used, pLeastPrec->used + shift_delta); //calculate coalesced size
 
 	//calculate amount of expendable digits (digits to spend)
-	int digToSpend = -precision - shift_result;
+	int digToSpend = -*pPrecision - shift_result;
 
 	//calculate amount of digits needed to be cut to meet size requirements (digits to cut)
 	int digToCut = max(used_result - MAX, 0);

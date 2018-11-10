@@ -23,7 +23,6 @@ private:
 	unsigned int used = 0;
 	int shift = 0;
 	bool isNegative = false;
-	int precision = 2;
 
 	unsigned int* pPrecision;
 	static unsigned int defaultPrecision;
@@ -170,16 +169,48 @@ public:
 //		*this = s;
 //	}
 
-	string toString() const {
+	void round(CCDecimal* pDec, unsigned int precOut) const {
 
-		//catch zero case
-		if (used == 0) {
-			return "0";
+		//not enough places after the decimal point
+		if ((int) precOut > -pDec->shift) {
+			return;
 		}
 
-		/*CCDecimal copy(*this);
-		int pos = 0;
-		while (pos < 0)*/
+		int roundIndex = -shift - (int) precOut - 1;
+
+		//roundIndex is out of bounds (invisible zero)
+		if (roundIndex < 0 || roundIndex >= (int) pDec->used) {
+			return;
+		}
+		unsigned int validIndex = roundIndex + 1;
+
+		if (pDec->digit[roundIndex] >= 5) {
+
+			while (validIndex < pDec->used && pDec->digit[validIndex] >= 9) { //end condition needed?
+				validIndex++;
+			}
+			pDec->digit[validIndex]++;
+		}
+
+		//remove trailing zeroes
+		for (unsigned int i = validIndex; i <= used; i++) {
+			pDec->digit[i - validIndex] = pDec->digit[i];
+		}
+		pDec->digit[used] = 0;
+		pDec->used -= validIndex;
+		pDec->shift += validIndex;
+	}
+
+	string toString() const {
+
+		//create a copy to round without changing the original
+		CCDecimal copy(*this);
+		round(&copy, *pPrecision -1);
+
+		//catch zero case
+		if (copy.used == 0) {
+			return "0";
+		}
 
 		string result = "";
 
@@ -188,16 +219,8 @@ public:
 			result = "-";
 		}
 
-//		int arr[used];
-//		int val = digit[used - 1];
-//		if (val >= 5) {
-//			arr[used] = 0;
-//			arr[used - 1]++;
-//
-//		}
-
 		//append leading zeroes
-		int lz_end = shift + (int) used;
+		int lz_end = copy.shift + (int) copy.used;
 		if (lz_end <= 0) {
 			result += "0.";
 			for (int i = lz_end; i <= -1; i++) {
@@ -206,24 +229,24 @@ public:
 		}
 
 		//append digits before the decimal point
-		int dp = max(-shift, 0);
-		for (int i = used - 1; i >= dp; i--) {
+		int dp = max(-copy.shift, 0);
+		for (int i = copy.used - 1; i >= dp; i--) {
 
-			result += (char) (digit[i] + 48);
+			result += (char) (copy.digit[i] + 48);
 		}
 
 		//append decimal point
-		if (-shift > 0) {
+		if (-copy.shift > 0) {
 			result += '.';
 		}
 
 		//append digits after decimal point
 		for (int i = dp - 1; i >= 0; i--) {
-			result += (char) (digit[i] + 48);
+			result += (char) (copy.digit[i] + 48);
 		}
 
 		//append trailing zeroes
-		for (int i = 0; i < shift; i++) {
+		for (int i = 0; i < copy.shift; i++) {
 			result += '0';
 		}
 
