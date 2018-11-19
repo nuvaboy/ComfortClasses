@@ -18,12 +18,14 @@
 using namespace std;
 
 class CCDecimal {
+
 private:
 	int8_t digit[MAX + 1];
 	unsigned int used = 0;
 	int shift = 0;
 	bool isNegative = false;
 
+	unsigned int precision = 0;
 	unsigned int* pPrecision;
 	static unsigned int defaultPrecision;
 
@@ -31,9 +33,22 @@ private:
 	void constructFromString(const string& numberStr);
 
 public:
+	unsigned int getPrecision() {
+		return *pPrecision;
+	}
+	void setPrecision(unsigned int p) {
+		precision = p;
+		pPrecision = &precision;
+	}
+
 	//constructors
+
 	CCDecimal();
+	CCDecimal(const CCDecimal& d2);
+	CCDecimal(const char* str);
+
 	CCDecimal(const string& numberStr);
+	//CCDecimal(const char* str);
 	CCDecimal(double number);
 	virtual ~CCDecimal();
 
@@ -94,78 +109,62 @@ public:
 		cout << 'E';
 		cout << shift;
 	}
-	CCDecimal& operator =(string& str) {
-
-		shift = 0;
-		int lz = 0;
-		bool hasDp = false;
-
-		unsigned int pos = 0;
-
-		int i = str.length() - 1;
-		while (str[i] == '0') {
-			i--;
-		}
-		lz = str.length() - i - 1;
-
-		for (; i >= 0; i--) {
-
-			if (pos >= MAX) {
-				throw std::exception();
-			}
-
-			char c = str[i];
-
-			if (c >= '0' && c <= '9') {
-				digit[pos] = c - 48;
-				pos++;
-				//cout << digit[pos-1] << endl;
-				//print();
-			} else if (!hasDp && c == '.') {
-				hasDp = true;
-				shift = -pos;
-			} else {
-				//cout << "some failure: " << i << " " << endl;
-				throw std::exception();
-			}
-		}
-
-		if (hasDp == false) {
-			shift = lz;
-		}
-		//used = pos;
-
-		//remove leading zeroes
-		pos--;
-		while (pos > 0 && (digit[pos] == 0)) {
-			pos--;
-		}
-		used = pos + 1;
-
-		//cout << "used: " << used  << endl;
-		//cout << "shift: " <<  shift<< endl;
-
-		return *this;
-	}
-
-	/*CCDecimal(const string& str) : CCDecimal(){
-	 *this = str;
-	 }*/
-	CCDecimal(const char* str) :
-			CCDecimal() {
-		string s(str);
-		*this = s;
-	}
-	CCDecimal(const CCDecimal& d2) {
-		*this = d2;
-	}
-
-//	CCDecimal(const string& str){
-//		*this = str;
-//	}
+//	CCDecimal& operator =(string& str) {
 //
+//		shift = 0;
+//		int lz = 0;
+//		bool hasDp = false;
+//
+//		unsigned int pos = 0;
+//
+//		int i = str.length() - 1;
+//		while (str[i] == '0') {
+//			i--;
+//		}
+//		lz = str.length() - i - 1;
+//
+//		for (; i >= 0; i--) {
+//
+//			if (pos >= MAX) {
+//				throw std::exception();
+//			}
+//
+//			char c = str[i];
+//
+//			if (c >= '0' && c <= '9') {
+//				digit[pos] = c - 48;
+//				pos++;
+//				//cout << digit[pos-1] << endl;
+//				//print();
+//			} else if (!hasDp && c == '.') {
+//				hasDp = true;
+//				shift = -pos;
+//			} else {
+//				//cout << "some failure: " << i << " " << endl;
+//				throw std::exception();
+//			}
+//		}
+//
+//		if (hasDp == false) {
+//			shift = lz;
+//		}
+//		//used = pos;
+//
+//		//remove leading zeroes
+//		pos--;
+//		while (pos > 0 && (digit[pos] == 0)) {
+//			pos--;
+//		}
+//		used = pos + 1;
+//
+//		//cout << "used: " << used  << endl;
+//		//cout << "shift: " <<  shift<< endl;
+//
+//		return *this;
+//	}
+
 //	CCDecimal(const char* str){
-//		string s = str;
+//		string s(str);
 //		*this = s;
 //	}
 
@@ -205,7 +204,7 @@ public:
 
 		//create a copy to round without changing the original
 		CCDecimal copy(*this);
-		round(&copy, *pPrecision -1);
+		round(&copy, *pPrecision - 1);
 
 		//catch zero case
 		if (copy.used == 0) {
@@ -221,17 +220,13 @@ public:
 
 		//append leading zeroes
 		int lz_end = copy.shift + (int) copy.used;
-		if (lz_end <= 0) {
-			result += "0.";
-			for (int i = lz_end; i <= -1; i++) {
-				result += '0';
-			}
+		for (int i = lz_end; i <= 0; i++) {
+			result += '0';
 		}
 
 		//append digits before the decimal point
 		int dp = max(-copy.shift, 0);
 		for (int i = copy.used - 1; i >= dp; i--) {
-
 			result += (char) (copy.digit[i] + 48);
 		}
 

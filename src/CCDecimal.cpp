@@ -18,7 +18,6 @@ using namespace std;
 //initialize static properties
 unsigned int CCDecimal::defaultPrecision = 2;
 
-
 //constructors
 CCDecimal::CCDecimal() { /* construct as default */
 
@@ -33,7 +32,20 @@ CCDecimal::CCDecimal() { /* construct as default */
 	shift = 0;
 }
 
-CCDecimal::CCDecimal(const string& numberStr) /* construct from string */ :
+CCDecimal::CCDecimal(const CCDecimal& d2) :
+		CCDecimal() {
+	*this = d2;
+	if (pPrecision == &d2.precision){
+		pPrecision = &precision;
+	}
+}
+
+CCDecimal::CCDecimal(const char* str){
+	string s(str);
+	*this = s;
+}
+
+CCDecimal::CCDecimal(const string& numberStr) /* construct from string */:
 		CCDecimal() {
 	constructFromString(numberStr);
 }
@@ -52,7 +64,6 @@ CCDecimal::CCDecimal(double number) { /* construct from double */
 
 CCDecimal::~CCDecimal() {
 }
-
 
 //public setter/getter
 unsigned int CCDecimal::getDefaultPrecision() {
@@ -340,7 +351,6 @@ void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 
 }
 
-
 //others
 CCDecimal CCDecimal::operator +(const CCDecimal& op2) const {
 	CCDecimal result;
@@ -366,10 +376,4 @@ bool CCDecimal::operator ==(const CCDecimal& op2) const {
 	//return true if neither of the above checks fails
 	return true;
 }
-
-
-
-
-
-
 
