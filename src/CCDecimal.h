@@ -29,10 +29,12 @@ private:
 	unsigned int* pPrecision;
 	static unsigned int defaultPrecision;
 
-	void add(CCDecimal* result, const CCDecimal&) const;
+	void add(CCDecimal* result, const CCDecimal& op2) const;
+
 	void constructFromString(const string& numberStr);
 
 public:
+	void mult(CCDecimal* result, const CCDecimal& op2) const;
 	unsigned int getPrecision() {
 		return *pPrecision;
 	}
@@ -58,6 +60,10 @@ public:
 
 	//others
 	CCDecimal operator +(const CCDecimal&) const;
+	CCDecimal operator *(const CCDecimal&) const;
+	CCDecimal& operator *=(const CCDecimal&);
+
+
 	bool operator ==(const CCDecimal&) const;
 
 	//testing only

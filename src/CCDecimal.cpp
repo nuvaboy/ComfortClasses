@@ -16,7 +16,7 @@
 using namespace std;
 
 //initialize static properties
-unsigned int CCDecimal::defaultPrecision = 2;
+unsigned int CCDecimal::defaultPrecision = 3;
 
 //constructors
 CCDecimal::CCDecimal() { /* construct as default */
@@ -35,12 +35,12 @@ CCDecimal::CCDecimal() { /* construct as default */
 CCDecimal::CCDecimal(const CCDecimal& d2) :
 		CCDecimal() {
 	*this = d2;
-	if (pPrecision == &d2.precision){
+	if (pPrecision == &d2.precision) {
 		pPrecision = &precision;
 	}
 }
 
-CCDecimal::CCDecimal(const char* str){
+CCDecimal::CCDecimal(const char* str) {
 	string s(str);
 	*this = s;
 }
@@ -351,6 +351,70 @@ void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 
 }
 
+void CCDecimal::mult(CCDecimal* result, const CCDecimal& op2) const {
+
+	//determine the decimal numbers with most and least digits
+	const CCDecimal* pSmall = this;
+	const CCDecimal* pBig = &op2;
+	if (op2.used < used) {
+		pSmall = &op2;
+		pBig = this;
+	}
+
+	bool tzFlag = true; //flag is set while a result of 0 at an index means a trailing zero
+	unsigned int resultUsedMax = pSmall->used + pBig->used - 1; //index of the
+
+	int resultIndex = 0; //current position in the result
+
+	//index is the currently calculated coefficient of the result
+	for (unsigned int index = 0; index < resultUsedMax; index++) {
+
+		//calculate all multiplications for the current index
+		cout << index << ": ";
+		unsigned int i_begin = max<int>(index - pSmall->used + 1, 0);
+		int j = index - i_begin;
+
+		for (unsigned int i = i_begin; j >= 0 && i < pBig->used; i++) {
+			cout << "(" << i << ", " << j << ")";
+			result->digit[resultIndex] += pBig->digit[i] * pSmall->digit[j];
+			j--;
+		}
+		cout << endl;
+
+		//correct result and calculate carry
+		unsigned int carry = result->digit[resultIndex] / 10;
+		result->digit[resultIndex] -= carry * 10;
+
+		//remove trailing Zeroes
+		if (tzFlag) {
+			if (result->digit[resultIndex] == 0) {
+				resultIndex--;
+			} else {
+				tzFlag = false; //result was not 0, so where can not be more trailing zeroes
+			}
+		}
+
+		//apply carry
+		if (resultIndex < MAX){
+			result->digit[resultIndex + 1] += carry;
+		}
+
+		//overflow
+		if (result->digit[MAX] > 0) {
+			throw std::overflow_error(
+					"Result is too large to store in Decimal. Keep values in range or reduce precision!");
+		}
+
+		resultIndex++; //increment according to index unless trailing Zeroes were removed
+	}
+
+	//adjust the used and shift of the result
+	result->used = resultIndex;
+	int tzCount = resultUsedMax - resultIndex; //amount of invisible trailing Zeroes
+	result->shift = shift + op2.shift + tzCount;
+
+}
+
 //others
 CCDecimal CCDecimal::operator +(const CCDecimal& op2) const {
 	CCDecimal result;
@@ -358,22 +422,34 @@ CCDecimal CCDecimal::operator +(const CCDecimal& op2) const {
 
 	return result;
 }
+CCDecimal CCDecimal::operator *(const CCDecimal& op2) const {
+	CCDecimal result;
+	result.isNegative = isNegative != op2.isNegative;
+	mult(&result, op2);
+
+	return result;
+}
+CCDecimal& CCDecimal::operator *=(const CCDecimal& op2) {
+
+	*this = *this * op2;
+	return *this;
+}
 
 bool CCDecimal::operator ==(const CCDecimal& op2) const {
 
-	//return false, if either used or shift is not equal
+//return false, if either used or shift is not equal
 	if (used != op2.used || shift != op2.shift) {
 		return false;
 	}
 
-	//compares each individual digit, return false as soon as a mismatch is found
+//compares each individual digit, return false as soon as a mismatch is found
 	for (unsigned int i = 0; i < used; i++) {
 		if (digit[i] != op2.digit[i]) {
 			return false;
 		}
 	}
 
-	//return true if neither of the above checks fails
+//return true if neither of the above checks fails
 	return true;
 }
 
