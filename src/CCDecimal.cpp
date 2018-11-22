@@ -55,7 +55,8 @@ CCDecimal::CCDecimal(double number) { /* construct from double */
 	std::stringstream stringStream;
 	std::string numberStr;
 
-	stringStream << std::setprecision(std::numeric_limits<double>::digits10) << number;
+	stringStream << std::setprecision(std::numeric_limits<double>::digits10)
+			<< number;
 
 	numberStr = stringStream.str();
 
@@ -77,8 +78,8 @@ void CCDecimal::setDefaultPrecision(unsigned int precision) {
 //utility functions
 void CCDecimal::constructFromString(const string& numberStr) {
 	if (!numberStr.empty()) {
-		unsigned int begin = numberStr.find_first_of("-+.0987654321", 0);
-		unsigned int end = numberStr.find_first_not_of("-+.0987654321", begin);
+		unsigned int begin = numberStr.find_first_of("-+.0987654321e", 0);
+		unsigned int end = numberStr.find_first_not_of("-+.0987654321e", begin);
 
 		if (begin == std::string::npos)
 			std::cout << "\n didn't find beginning \n";
@@ -101,10 +102,17 @@ void CCDecimal::constructFromString(const string& numberStr) {
 				point_after_digit,
 				end_after_point,
 				digit_after_point,
+				exponent_after_digit,
+				exponent_positive,
+				exponent_negative,
+				digit_after_exponent,
 				valid_end
 			};
 
 			ValidatorStates validator = start;
+			int exponent = 0;
+			int exponentSign = 1;
+
 			auto it = numCandidate.begin();
 			while (it != numCandidate.end()) {
 				switch (validator) {
@@ -118,8 +126,11 @@ void CCDecimal::constructFromString(const string& numberStr) {
 													(sign_positive) :
 													((*it == '.') ?
 															(point_after_sign) :
-															((('0' <= *it && *it <= '9') ?
-																	(digit_after_sign) : (error))))));
+															((('0' <= *it
+																	&& *it
+																			<= '9') ?
+																	(digit_after_sign) :
+																	(error))))));
 					break;
 				case sign_negative:
 					//set sign
@@ -142,7 +153,8 @@ void CCDecimal::constructFromString(const string& numberStr) {
 					validator =
 							(it == numCandidate.end()) ?
 									(error) :
-									(('0' <= *it && *it <= '9') ? (digit_after_point) : (error));
+									(('0' <= *it && *it <= '9') ?
+											(digit_after_point) : (error));
 					break;
 				case digit_after_sign:
 					//tracking digit
@@ -154,7 +166,8 @@ void CCDecimal::constructFromString(const string& numberStr) {
 									(valid_end) :
 									((*it == '.') ?
 											(point_after_digit) :
-											(('0' <= *it && *it <= '9') ? (validator) : (error)));
+											(('0' <= *it && *it <= '9') ?
+													(validator) : (error)));
 					break;
 				case point_after_digit:
 					//next state
@@ -162,7 +175,8 @@ void CCDecimal::constructFromString(const string& numberStr) {
 					validator =
 							(it == numCandidate.end()) ?
 									(valid_end) :
-									(('0' <= *it && *it <= '9') ? (digit_after_point) : (error));
+									(('0' <= *it && *it <= '9') ?
+											(digit_after_point) : (error));
 					break;
 				case digit_after_point:
 					//tracking shift
@@ -174,19 +188,66 @@ void CCDecimal::constructFromString(const string& numberStr) {
 					validator =
 							(it == numCandidate.end()) ?
 									(valid_end) :
-									(('0' <= *it && *it <= '9') ? (validator) : (error));
+									(('0' <= *it && *it <= '9') ?
+											(validator) :
+											((*it == 'e') ?
+													(exponent_after_digit) :
+													(error)));
+					break;
+				case exponent_after_digit:
+					//next state
+					numCandidate.erase(it); //remove so not present in following processing
+					validator =
+							(it == numCandidate.end()) ?
+									(error) :
+									((*it == '+') ?
+											(exponent_positive) :
+											((*it == '-') ?
+													(exponent_negative) :
+													(error)));
+					break;
+				case exponent_negative:
+					exponentSign = -1;
+					/* no break */
+				case exponent_positive:
+					//next state
+					numCandidate.erase(it); //remove so not present in following processing
+					validator =
+							(it == numCandidate.end()) ?
+									(error) :
+									(('0' <= *it && *it <= '9') ?
+											(digit_after_exponent) : (error));
+					break;
+				case digit_after_exponent:
+					//change exponent
+					exponent *= 10;	//basically shift all current digits
+					exponent += exponentSign * (*it - '0'); //add current digit in
+
+					//next state
+					numCandidate.erase(it); //remove so not present in following processing
+					validator =
+							(it == numCandidate.end()) ?
+									(valid_end) :
+									(('0' <= *it && *it <= '9') ?
+											(validator) : (error));
 					break;
 				case error:
 					it++;
 					break;
 				default:
-					std::cout << "FSM in default. This should not happen." << std::endl;
+					std::cout << "FSM in default. This should not happen."
+							<< std::endl;
 				}
 			}
 
 			//if valid string representation of a double
 			if (validator == valid_end) {
-				//TODO trim number
+//				numCandidate = numCandidate.substr(0,
+//						numCandidate.find_first_not_of("-+.0987654321", 0) - 1);
+
+				/* add present exponent in (if not applicable, is zero)*/
+				shift += exponent;
+				/* trim number */
 				//remove leading zeroes
 				auto it = numCandidate.begin();
 				if (*it == '+' || *it == '-') {
@@ -219,12 +280,13 @@ void CCDecimal::constructFromString(const string& numberStr) {
 
 						int digitsToCut = used - MAX;
 						int digitsToSpare = -*pPrecision + shift;
-						std::cout << "digitsToCut:" << digitsToCut << "; digitsToSpare:"
-								<< digitsToSpare;
+						std::cout << "digitsToCut:" << digitsToCut
+								<< "; digitsToSpare:" << digitsToSpare;
 						if (!(digitsToCut >= digitsToSpare)) {
 							cutOffset = digitsToCut;
 						} else {
-							throw std::overflow_error("Digits to store surpassing precision limit");
+							throw std::overflow_error(
+									"Digits to store surpassing precision limit");
 						}
 					}
 					//TODO copy digits into array
@@ -241,7 +303,8 @@ void CCDecimal::constructFromString(const string& numberStr) {
 					}
 
 				} else {
-					std::cout << "\n trimmed number empty. assuming value zero.\n";
+					std::cout
+							<< "\n trimmed number empty. assuming value zero.\n";
 					shift = 0;
 					used = 0;
 				}

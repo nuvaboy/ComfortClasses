@@ -55,7 +55,7 @@ void deleteTest() {
 	std::cin >> str;
 }
 
-int main() {
+void constructTest() {
 	//deleteTest();
 	std::vector<std::string> testCasesStr = {
 		"000987",
@@ -72,7 +72,8 @@ int main() {
 	}
 	std::vector<double> testCasesD = {
 		000987.,
-		+1098765432109876543210987654321000.,
+		+1098765432109876543210987654321000675865687587587585876534234567.,
+		0.0000000000000002345234523452342345234523452345,
 		.7,
 		-.00036000,
 		+40.,
@@ -86,3 +87,8 @@ int main() {
 	std::cin >> input;
 }
 
+
+
+int main(){
+	constructTest();
+}
