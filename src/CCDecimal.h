@@ -29,16 +29,19 @@ private:
 	unsigned int* pPrecision;
 	static unsigned int defaultPrecision;
 
+	bool lessThan(const CCDecimal& op2) const;
 	void add(CCDecimal* result, const CCDecimal& op2) const;
 
 	void constructFromString(const string& numberStr);
 
 public:
+	void sub(CCDecimal* result, const CCDecimal& op2) const;
+
 	void mult(CCDecimal* result, const CCDecimal& op2) const;
-	unsigned int getPrecision() {
+	unsigned int getLocalPrecision() {
 		return *pPrecision;
 	}
-	void setPrecision(unsigned int p) {
+	void setLocalPrecision(unsigned int p) {
 		precision = p;
 		pPrecision = &precision;
 	}
@@ -55,8 +58,8 @@ public:
 	virtual ~CCDecimal();
 
 	//getter/setter
-	static void setDefaultPrecision(unsigned int);
-	static unsigned int getDefaultPrecision();
+	static void setGlobalPrecision(unsigned int);
+	static unsigned int getGlobalPrecision();
 
 	//others
 	CCDecimal operator +(const CCDecimal&) const;
