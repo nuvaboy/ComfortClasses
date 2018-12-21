@@ -312,7 +312,9 @@ void CCDecimal::constructFromString(const string& numberStr) {
 		}
 
 	} else {
-		throw std::invalid_argument("Empty string.");
+		std::cout << "\n string empty. assuming value zero.\n";
+		shift = 0;
+		used = 0;
 	}
 }
 
