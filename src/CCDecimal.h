@@ -36,7 +36,7 @@ private:
 
 public:
 	void sub(CCDecimal* result, const CCDecimal& op2) const;
-
+	CCDecimal sub2(const CCDecimal& opSmall) const;
 	void mult(CCDecimal* result, const CCDecimal& op2) const;
 	unsigned int getLocalPrecision() {
 		return *pPrecision;
