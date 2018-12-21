@@ -10,6 +10,7 @@
 #include <iomanip>
 #include <limits>
 #include <algorithm>
+#include <exception>
 
 #include "CCDecimal.h"
 
@@ -50,13 +51,12 @@ CCDecimal::CCDecimal(const string& numberStr) /* construct from string */:
 	constructFromString(numberStr);
 }
 
-CCDecimal::CCDecimal(double number) { /* construct from double */
-	pPrecision = &CCDecimal::defaultPrecision;
+CCDecimal::CCDecimal(double number) /* construct from double */:
+		CCDecimal() {
 	std::stringstream stringStream;
 	std::string numberStr;
 
 	stringStream << std::setprecision(std::numeric_limits<double>::digits10) << number;
-
 	numberStr = stringStream.str();
 
 	constructFromString(numberStr);
@@ -160,7 +160,8 @@ void CCDecimal::constructFromString(const string& numberStr) {
 									(valid_end) :
 									((*it == '.') ?
 											(point_after_digit) :
-											(('0' <= *it && *it <= '9') ? (validator) : (error)));
+											(('0' <= *it && *it <= '9') ? (validator) : (
+													(*it == 'e') ? (exponent_after_digit) : (error))));
 					break;
 				case point_after_digit:
 					//next state
@@ -192,7 +193,8 @@ void CCDecimal::constructFromString(const string& numberStr) {
 									(error) :
 									((*it == '+') ?
 											(exponent_positive) :
-											((*it == '-') ? (exponent_negative) : (error)));
+											((*it == '-') ? (exponent_negative) : (
+													('0' <= *it && *it <= '9') ? (digit_after_exponent) : (error))));
 					break;
 				case exponent_negative:
 					exponentSign = -1;
@@ -299,18 +301,18 @@ void CCDecimal::constructFromString(const string& numberStr) {
 			else {
 				//dunno, init to zero maybe?
 				//reset everything changed within validation (shift, used, sign)
-				std::cout << "\n invalid number. \n";
+				throw std::invalid_argument("Invalid number.");
 				shift = 0;
 				used = 0;
 				isNegative = false;
 			}
+
+		} else {
+			throw std::invalid_argument("String cannot contain a number.");
 		}
-		else {
-			std::cout << "\n string cannot contain a number. \n";
-		}
-	}
-	else {
-		std::cout << "\n empty string. \n";
+
+	} else {
+		throw std::invalid_argument("Empty string.");
 	}
 }
 
