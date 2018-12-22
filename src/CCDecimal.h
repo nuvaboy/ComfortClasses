@@ -223,16 +223,14 @@ public:
 		string result = "";
 
 		//append sign
-		if (isNegative) {
-			result = "-";
-		}
+		if (isNegative)	result = "-";
 
-		//append leading zeroes
+
 		int lz_end = copy.shift + (int) copy.used;
-		for (int i = lz_end; i <= 0; i++) {
-			result += '0';
-		}
+		if (lz_end <= 0)result += '0';
 
+
+//0,5
 		//append digits before the decimal point
 		int dp = max(-copy.shift, 0);
 		for (int i = copy.used - 1; i >= dp; i--) {
@@ -240,12 +238,17 @@ public:
 		}
 
 		//append decimal point
-		if (-copy.shift > 0) {
+		if (copy.shift < 0) {
 			result += '.';
 		}
 
+		//append leading zeroes
+		for (int i = lz_end; i < 0; i++) {
+			result += '0';
+		}
+
 		//append digits after decimal point
-		for (int i = dp - 1; i >= 0; i--) {
+		for (int i = min<int>(dp - 1, used-1); i >= 0; i--) {
 			result += (char) (copy.digit[i] + 48);
 		}
 
