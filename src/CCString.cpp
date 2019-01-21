@@ -32,3 +32,21 @@ std::string CCString::toString() {
 	return internalStr;
 }
 
+CCString& CCString::append(CCString& ccStr) {
+	return append(ccStr.internalStr);
+}
+
+CCString& CCString::append(const char* cstr){
+	return append(std::string(cstr));
+}
+
+CCString& CCString::append(char c){
+	this->internalStr.push_back(c);
+	return *this;
+}
+
+CCString& CCString::append(std::string str) {
+	this->internalStr.append(str);
+	return *this;
+}
+

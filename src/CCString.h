@@ -22,9 +22,11 @@ public:
 
 	std::string toString();
 
-//	CCString& append(CCString& ccStr);
-//	CCString& append(std::string str);
-//	CCString& append(char c);
+	CCString& append(CCString& ccStr);
+	CCString& append(std::string str);
+	CCString& append(const char* cstr);
+	CCString& append(char c);
+//	/* + addition operator */
 //
 //	CCString& replace(CCString);
 //	CCString& replace(char c, int pos);
