@@ -7,12 +7,28 @@
 
 #include "CCString.h"
 
-CCString::CCString() {
-	// TODO Auto-generated constructor stub
+#include <string>
+
+//CCString::CCString() {
+//	// TODO Auto-generated constructor stub
+//
+//}
+
+CCString::CCString(std::string str) :
+		CCString() {
+	internalStr = str;
+}
+
+CCString::CCString(const char* cstr) :
+		CCString(std::string(cstr)) {
 
 }
 
 CCString::~CCString() {
 	// TODO Auto-generated destructor stub
+}
+
+std::string CCString::toString() {
+	return internalStr;
 }
 
