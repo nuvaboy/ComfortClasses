@@ -29,43 +29,37 @@ private:
 	unsigned int* pPrecision;
 	static unsigned int defaultPrecision;
 
-	bool lessThan(const CCDecimal& op2) const;
-	void add(CCDecimal* result, const CCDecimal& op2) const;
-
 	void constructFromString(const string& numberStr);
 
+	void add(CCDecimal* result, const CCDecimal& op2) const;
+void sub(CCDecimal* result, const CCDecimal& opSmall) const;
 public:
-	void sub(CCDecimal* result, const CCDecimal& op2) const;
-	CCDecimal sub2(const CCDecimal& opSmall) const;
+//core functionality
+	bool lessThan(const CCDecimal& op2) const;
+
 	void mult(CCDecimal* result, const CCDecimal& op2) const;
-	unsigned int getLocalPrecision() {
-		return *pPrecision;
-	}
-	void setLocalPrecision(unsigned int p) {
-		precision = p;
-		pPrecision = &precision;
-	}
 
 	//constructors
-
 	CCDecimal();
 	CCDecimal(const CCDecimal& d2);
-	CCDecimal(const char* str);
 
+	CCDecimal(const char* str);
 	CCDecimal(const string& numberStr);
-	//CCDecimal(const char* str);
 	CCDecimal(double number);
 	virtual ~CCDecimal();
 
 	//getter/setter
+	unsigned int getLocalPrecision();
+	void setLocalPrecision(unsigned int prec);
+
 	static void setGlobalPrecision(unsigned int);
 	static unsigned int getGlobalPrecision();
 
-	//others
+	//operators
 	CCDecimal operator +(const CCDecimal&) const;
+	CCDecimal operator -(const CCDecimal&) const;
 	CCDecimal operator *(const CCDecimal&) const;
 	CCDecimal& operator *=(const CCDecimal&);
-
 
 	bool operator ==(const CCDecimal&) const;
 
@@ -81,15 +75,18 @@ public:
 		// Adds the next value in argument list to sum.
 		va_end(arguments);
 	}
+
 	void setDigit(unsigned int pos, int8_t value) {
 		digit[pos] = value;
 		if (pos >= used && value != 0) {
 			used = pos + 1;
 		}
 	}
+
 	void setNegative(bool isNegative) {
 		this->isNegative = isNegative;
 	}
+
 	void setDigits(int count, ...) {
 		//cout << count << endl;
 
@@ -104,9 +101,11 @@ public:
 		va_end(arguments);
 
 	}
+
 	void setShift(int shift) {
 		this->shift = shift;
 	}
+
 	void print() const {
 		for (int i = used - 1; i >= 0; i--) {
 
@@ -118,65 +117,8 @@ public:
 		cout << 'E';
 		cout << shift;
 	}
-//	CCDecimal& operator =(string& str) {
-//
-//		shift = 0;
-//		int lz = 0;
-//		bool hasDp = false;
-//
-//		unsigned int pos = 0;
-//
-//		int i = str.length() - 1;
-//		while (str[i] == '0') {
-//			i--;
-//		}
-//		lz = str.length() - i - 1;
-//
-//		for (; i >= 0; i--) {
-//
-//			if (pos >= MAX) {
-//				throw std::exception();
-//			}
-//
-//			char c = str[i];
-//
-//			if (c >= '0' && c <= '9') {
-//				digit[pos] = c - 48;
-//				pos++;
-//				//cout << digit[pos-1] << endl;
-//				//print();
-//			} else if (!hasDp && c == '.') {
-//				hasDp = true;
-//				shift = -pos;
-//			} else {
-//				//cout << "some failure: " << i << " " << endl;
-//				throw std::exception();
-//			}
-//		}
-//
-//		if (hasDp == false) {
-//			shift = lz;
-//		}
-//		//used = pos;
-//
-//		//remove leading zeroes
-//		pos--;
-//		while (pos > 0 && (digit[pos] == 0)) {
-//			pos--;
-//		}
-//		used = pos + 1;
-//
-//		//cout << "used: " << used  << endl;
-//		//cout << "shift: " <<  shift<< endl;
-//
-//		return *this;
-//	}
 
-//	CCDecimal(const char* str){
-//		string s(str);
-//		*this = s;
-//	}
-
+	//others
 	void round(CCDecimal* pDec, unsigned int precOut) const {
 
 		//not enough places after the decimal point
@@ -223,12 +165,10 @@ public:
 		string result = "";
 
 		//append sign
-		if (isNegative)	result = "-";
-
+		if (isNegative) result = "-";
 
 		int lz_end = copy.shift + (int) copy.used;
-		if (lz_end <= 0)result += '0';
-
+		if (lz_end <= 0) result += '0';
 
 //0,5
 		//append digits before the decimal point
@@ -248,7 +188,7 @@ public:
 		}
 
 		//append digits after decimal point
-		for (int i = min<int>(dp - 1, used-1); i >= 0; i--) {
+		for (int i = min<int>(dp - 1, used - 1); i >= 0; i--) {
 			result += (char) (copy.digit[i] + 48);
 		}
 

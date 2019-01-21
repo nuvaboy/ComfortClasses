@@ -20,7 +20,7 @@ using namespace std;
 unsigned int CCDecimal::defaultPrecision = 3;
 
 //constructors
-CCDecimal::CCDecimal() { /* construct as default */
+CCDecimal::CCDecimal() { /* construct with default value (0) */
 
 	//precision should be the default precision, unless explicitly changed for an instance
 	pPrecision = &CCDecimal::defaultPrecision;
@@ -33,15 +33,15 @@ CCDecimal::CCDecimal() { /* construct as default */
 	shift = 0;
 }
 
-CCDecimal::CCDecimal(const CCDecimal& d2) :
+CCDecimal::CCDecimal(const CCDecimal& d2) : /* construct as a copy */
 		CCDecimal() {
 	*this = d2;
-	if (pPrecision == &d2.precision) {
-		pPrecision = &precision;
+	if (pPrecision == &d2.precision) { //local precision of d2 was set
+		pPrecision = &precision; //correct pointer due to shallow copy
 	}
 }
 
-CCDecimal::CCDecimal(const char* str) {
+CCDecimal::CCDecimal(const char* str) /* construct from C-string */{
 	string s(str);
 	*this = s;
 }
@@ -66,10 +66,17 @@ CCDecimal::~CCDecimal() {
 }
 
 //public setter/getter
+unsigned int CCDecimal::getLocalPrecision() {
+	return *pPrecision;
+}
+void CCDecimal::setLocalPrecision(unsigned int p) {
+	precision = p;
+	pPrecision = &precision;
+}
+
 unsigned int CCDecimal::getGlobalPrecision() {
 	return CCDecimal::defaultPrecision - 1;
 }
-
 void CCDecimal::setGlobalPrecision(unsigned int precision) {
 	CCDecimal::defaultPrecision = precision + 1;
 }
@@ -160,8 +167,9 @@ void CCDecimal::constructFromString(const string& numberStr) {
 									(valid_end) :
 									((*it == '.') ?
 											(point_after_digit) :
-											(('0' <= *it && *it <= '9') ? (validator) : (
-													(*it == 'e') ? (exponent_after_digit) : (error))));
+											(('0' <= *it && *it <= '9') ?
+													(validator) :
+													((*it == 'e') ? (exponent_after_digit) : (error))));
 					break;
 				case point_after_digit:
 					//next state
@@ -193,8 +201,10 @@ void CCDecimal::constructFromString(const string& numberStr) {
 									(error) :
 									((*it == '+') ?
 											(exponent_positive) :
-											((*it == '-') ? (exponent_negative) : (
-													('0' <= *it && *it <= '9') ? (digit_after_exponent) : (error))));
+											((*it == '-') ?
+													(exponent_negative) :
+													(('0' <= *it && *it <= '9') ?
+															(digit_after_exponent) : (error))));
 					break;
 				case exponent_negative:
 					exponentSign = -1;
@@ -307,11 +317,13 @@ void CCDecimal::constructFromString(const string& numberStr) {
 				isNegative = false;
 			}
 
-		} else {
+		}
+		else {
 			throw std::invalid_argument("String cannot contain a number.");
 		}
 
-	} else {
+	}
+	else {
 		std::cout << "\n string empty. assuming value zero.\n";
 		shift = 0;
 		used = 0;
@@ -321,12 +333,12 @@ void CCDecimal::constructFromString(const string& numberStr) {
 //core functionality
 bool CCDecimal::lessThan(const CCDecimal& op2) const {
 
-	if (used + shift > op2.used + op2.shift) return false;
+	if ((int)used + shift > (int)op2.used + op2.shift) return false;
 
-	if (used + shift < op2.used + op2.shift) return true;
+	if ((int)used + shift < (int)op2.used + op2.shift) return true;
 
-	int i = used - 1;
-	int j = op2.used - 1;
+	int i = (int)used - 1;
+	int j = (int)op2.used - 1;
 
 	while (i >= 0 && j >= 0) {
 		if (digit[i] > op2.digit[j]) return false;
@@ -428,11 +440,10 @@ void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 
 }
 
-CCDecimal CCDecimal::sub2(const CCDecimal& opSmall) const {
+void CCDecimal::sub(CCDecimal* result, const CCDecimal& opSmall) const {
 
 	//create empty decimal
-	CCDecimal result;
-	if (opSmall.used == 0) return result;
+	if (opSmall.used == 0) return; //result;
 
 	int pos_curr = 0;
 	bool carry = true;
@@ -447,39 +458,37 @@ CCDecimal CCDecimal::sub2(const CCDecimal& opSmall) const {
 		tail_length = -shift_delta;
 
 		//subtract tail and append to the result (propagate carry)
-		result.digit[0] = 10 - opSmall.digit[0];
+		result->digit[0] = 10 - opSmall.digit[0];
 		for (int i = 1; i < min<int>(tail_length, opSmall.used); i++) {
-			result.digit[i] = 9 - opSmall.digit[i];
+			result->digit[i] = 9 - opSmall.digit[i];
 		}
 		pos_curr = min<int>(tail_length, opSmall.used);
 	}
 
 	//step 2: append body
 	int tz_count = 0;
-	if (opSmall.shift + (int) opSmall.used > shift) { //body exists
 
+	if (shift == opSmall.shift) { //no tail
 
-		if (shift == opSmall.shift) {
-			//remove trailing zeroes (where can not be trailing zeroes if tail caused a carry)
-			while (tz_count < (int) opSmall.used && digit[tz_count] == opSmall.digit[tz_count]) {
-				tz_count++;
-			}
+		//remove trailing zeroes (where can not be trailing zeroes if tail caused a carry)
+		while (tz_count < (int) opSmall.used && digit[tz_count] == opSmall.digit[tz_count]) {
+			tz_count++;
 		}
-		else {
-			//append non intersecting part of the body
-			for (int i = 0; i < shift_delta; i++) {
-				result.digit[pos_curr] = digit[i];
-				pos_curr++;
-			}
-		}
-
-		//subtract body and append to result (propagate carry)
-		for (int i = tail_length + tz_count; i < (int) opSmall.used; i++) {
-			int temp = digit[i - tail_length + max(0, shift_delta)] - opSmall.digit[i] - carry;
-			if ((carry = temp < 0)) temp += 10;
-			result.digit[pos_curr] = temp;
+	}
+	else {
+		//append non intersecting part of the body (if existing)
+		for (int i = 0; i < shift_delta; i++) {
+			result->digit[pos_curr] = digit[i];
 			pos_curr++;
 		}
+	}
+
+	//subtract body and append to result (propagate carry)
+	for (int i = tail_length + tz_count; i < (int) opSmall.used; i++) {
+		int temp = digit[i - tail_length + max(0, shift_delta)] - opSmall.digit[i] - carry;
+		if ((carry = temp < 0)) temp += 10;
+		result->digit[pos_curr] = temp;
+		pos_curr++;
 	}
 
 	//step 3.1: leading zeroes in head
@@ -490,20 +499,27 @@ CCDecimal CCDecimal::sub2(const CCDecimal& opSmall) const {
 	if (hasHead) { //head exists
 		head_length = min(used, shift + used - opSmall.shift - (int) opSmall.used);
 
-		//will head be eliminated by leading zeroes
+		//check for leading zero in case of a carry (where can only be one)
 		if (carry && digit[used - 1] == 1) {
-			int i = head_length - 1;
+
+			int j = (int) used - 2; //index to begin   e 5 4 3
+
+			//can carry be propagated to the msd (example: 1000 - 0.1 = [0]999.9)
 			if ((hasHead = head_length > 1)) {
-				while (digit[i] == 0)
-					i--;
+				while (j > (int) used - 1 - head_length && digit[j] == 0) {
+					j--;
+				}
 			}
-			if (i == 0) lz_count = 1;
+			//carry at msd
+			if (j == (int) used - 1 - head_length) lz_count = 1; //10-7=[0]3
 		}
 	}
 
 	//step 3.2: leading zeroes in body and tail
-	if (!hasHead && pos_curr > 0) {
-		while (result.digit[pos_curr - 1] == 0) {
+	//hint: if where is a head leading zeroes can only remove one digit
+	//therefore in this case body and tail can not contain leading zeroes
+	else if (!hasHead && pos_curr > 0) {
+		while (result->digit[pos_curr - 1] == 0) {
 			pos_curr--;
 			lz_count++;
 		}
@@ -518,12 +534,12 @@ CCDecimal CCDecimal::sub2(const CCDecimal& opSmall) const {
 		if (digToSpend < digToCut) {
 			//overflow
 			cout << "overflow" << endl;
-			return result;
+			return;
 		}
 
 		//cut digits
 		for (int i = digToCut; i < pos_curr; i++) {
-			result.digit[i - digToCut] = result.digit[i];
+			result->digit[i - digToCut] = result->digit[i];
 		}
 		pos_curr -= digToCut;
 		result_used = MAX;
@@ -533,7 +549,7 @@ CCDecimal CCDecimal::sub2(const CCDecimal& opSmall) const {
 	//propagate carry through gap
 	if (carry) {
 		while (pos_curr < tail_length - tz_count) {
-			result.digit[pos_curr++] = 9;
+			result->digit[pos_curr++] = 9;
 		}
 	}
 
@@ -541,213 +557,13 @@ CCDecimal CCDecimal::sub2(const CCDecimal& opSmall) const {
 	for (int i = used - head_length; i < (int) used - lz_count; i++) {
 		int temp = digit[i] - carry;
 		if ((carry = temp < 0)) temp += 10;
-		result.digit[pos_curr] = temp;
+		result->digit[pos_curr] = temp;
 		pos_curr++;
 	}
 
-	result.used = result_used;
-	result.shift = result_shift;
-
-	return result;
-
-}
-void CCDecimal::sub(CCDecimal* result, const CCDecimal& opSmall) const {
-
-//copy itself to the result
-	*result = *this;
-
-//exit by 0 - 0 = 0
-	if (used == 0) return;
-
-	int shift_delta = opSmall.shift - shift;
-
-//calculate and apply carry in advance for the least significant digit of the bigger decimal (this)
-	if (shift_delta < 0) result->digit[0]--;
-
-	bool carry = false; //shift_delta < 0;
-
-	int unhandled = (int) opSmall.used;
-
-//the decimals have an intersection
-	if (opSmall.shift + (int) opSmall.used >= shift) {
-
-		//set small_pos to the position of the first intersecting digit in opSmall (save amount of unhandled alias non-intersecting digits)
-		int small_pos = unhandled = (shift_delta < 0) ? -shift_delta : 0;
-
-		//subtract intersecting digits
-		while (small_pos < (int) opSmall.used) {
-			int temp = result->digit[small_pos + shift_delta] - opSmall.digit[small_pos] - carry;
-			carry = (temp < 0);
-			if (carry) temp += 10;
-			result->digit[small_pos + shift_delta] = temp;
-			small_pos++;
-		}
-
-		//propagate carry
-		while (carry) {
-			int temp = result->digit[small_pos + shift_delta] - 1;
-			carry = (temp < 0);
-			if (carry) temp += 10;
-			result->digit[small_pos + shift_delta] = temp;
-			small_pos++;
-		}
-	}
-
-//count trailing zeroes
-	int tz_count = 0;
-	if (shift == opSmall.shift) {
-		while (tz_count < (int) used && result->digit[tz_count] == 0) {
-			tz_count++;
-		}
-	}
-
-//count leading zeroes
-	int lz_count = 0;
-	if (tz_count != (int) used) {
-		for (int i = used - 1; i >= 0 && result->digit[i] == 0; i--) {
-			lz_count++;
-		}
-	}
-
-//calculate the amount of used digits for the result in advance
-	int result_used = used - min(shift_delta, 0) - lz_count - tz_count;
-	cout << "calculate result.used in advance: " << result_used << endl;
-
-	int digToCut = max(result_used - MAX, 0);
-	cout << "digits to cut: " << digToCut << endl;
-
-	int digToSpend = -min(shift, opSmall.shift) - *pPrecision;
-	cout << "digits to spend: " << digToSpend << endl;
-
-//overflow detection
-	if (digToCut > digToSpend) {
-		cout << "overflow, precision requirements do not hold" << endl;
-	}
-
-	if (tz_count > 0) {
-
-		//right shift to remove trailing zeroes
-		for (int i = 0; i <= (int) used; i++) {
-			result->digit[i] = result->digit[i + tz_count];
-		}
-	}
-	else if (-shift_delta - digToCut > 0) {
-
-		int movLeft = -shift_delta - digToCut;
-
-		//left shift to make space for unhandled digits
-		for (int i = used; i >= 0; i--) {
-			result->digit[i + movLeft] = result->digit[i];
-			result->digit[i] = 0;
-		}
-
-		//insert unhandled digits
-		carry = false;
-		for (int i = 0; i < unhandled - digToCut; i++) {
-			result->digit[i] = 10 - opSmall.digit[digToCut + i] - carry;
-			carry = true;
-		}
-
-		//propagate carry
-		for (int i = unhandled - digToCut; i < -shift_delta; i++) {
-			result->digit[i] = 9;
-		}
-
-	}
-
 	result->used = result_used;
-	result->shift = min(opSmall.shift, shift) + digToCut + tz_count;
-///   123
-///  123 123
-//step 2: subtract second part
+	result->shift = result_shift;
 
-//	int shift_delta = opSmall.shift - shift;
-//	int b0 = max(0, shift_delta);
-//	int s0 = max(0,-shift_delta);
-//	int b1 = 0;
-//
-//
-//	int carry = s0 > 0; //smallest operand has highest precision (implicit carry)
-//
-//	if  (opSmall.shift + (int)opSmall.used > shift){ //has intersection
-//
-//		cout << "b0: " << b0  <<  ", s0: " << s0 << endl;
-//
-//		//subtract and copy intersection
-//		for (int i = s0; i < (int)opSmall.used; i++){
-//			int temp =digit[i-s0+b0] - opSmall.digit[i] - carry;
-//			carry = temp < 0;
-//			if (carry)temp += 10;
-//			result->digit[i-s0] = temp;
-//		}
-//		b1 = -s0+b0 + opSmall.used;
-//	}
-//
-//	//copy head
-//	for (int i = b1; i < (int)used; i++){
-//		int temp = digit[i]-carry;
-//		carry = temp < 0;
-//		if(carry)temp+=10;
-//		result->digit[i-b0] = temp;
-//	}
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//	int offset = -1;
-//	if (opSmall.shift + (int)opSmall.used <= shift){ //separated
-//		offset = -1;
-//	}else if (opSmall.shift < shift){ //joined
-//		offset = shift - opSmall.shift; //-shift_delta
-//		//-offset
-//		cout << "joined:" << endl;
-//	}else{ //included
-//		offset = 0;
-//		//+abs(shift_delta)
-//	}
-//	cout << "offset: " << offset << endl;
-//
-//	bool hasBody = opSmall.shift+opSmall.used > shift;
-//	int body_size = max<int>(opSmall.shift+opSmall.used-shift, 0);
-//	//-> shift_delta
-//					//0
-//
-//	int head_size = used - body_size;
-//	//body_size, body_offset,
-//	//1. copy opBig to result
-//	//if (hasFoot)
-//	//
-//	//else
-//	//
-//
-//	//22 - 11.25 = 10.75
-//
-//	int foot_size = shift_delta < 0 ? 0 : shift_delta;
-//	//int head_size;// = opBig.shift + opBig.used - shift - used;
-//	//int body_size;// = opBig.used - head_size - foot_size;
 }
 
 void CCDecimal::mult(CCDecimal* result, const CCDecimal& op2) const {
@@ -809,7 +625,7 @@ void CCDecimal::mult(CCDecimal* result, const CCDecimal& op2) const {
 	}
 
 //adjust the used and shift of the result
-	result->used = resultIndex;
+	result->used = resultIndex + 1;
 	int tzCount = resultUsedMax - resultIndex; //amount of invisible trailing Zeroes
 	result->shift = shift + op2.shift + tzCount;
 
@@ -818,10 +634,48 @@ void CCDecimal::mult(CCDecimal* result, const CCDecimal& op2) const {
 //others
 CCDecimal CCDecimal::operator +(const CCDecimal& op2) const {
 	CCDecimal result;
-	add(&result, op2);
+
+	if (isNegative == op2.isNegative) {
+		add(&result, op2);
+	}
+	else {
+		if (lessThan(op2)) {
+			op2.sub(&result, *this); //-3 + 10 = 7
+			result.isNegative = op2.isNegative;
+		}
+		else {
+			sub(&result, op2); //-10 + 3 = -7
+			result.isNegative = isNegative;
+		}
+	}
 
 	return result;
 }
+CCDecimal CCDecimal::operator -(const CCDecimal& op2) const {
+	CCDecimal result;
+
+	if (isNegative != op2.isNegative) {
+		add(&result, op2);
+		result.isNegative = isNegative;
+	}
+	else {
+		//+5 - 10 = -5
+		//-5 - (-10) = 5
+		if (lessThan(op2)) {
+			op2.sub(&result, *this);
+			result.isNegative = !isNegative;
+		}
+		//+10 - 5 = 5
+		//-10 - (-5) = -5
+		else {
+			sub(&result, op2);
+			result.isNegative = isNegative;
+		}
+	}
+
+	return result;
+}
+
 CCDecimal CCDecimal::operator *(const CCDecimal& op2) const {
 	CCDecimal result;
 	result.isNegative = isNegative != op2.isNegative;
@@ -837,19 +691,19 @@ CCDecimal& CCDecimal::operator *=(const CCDecimal& op2) {
 
 bool CCDecimal::operator ==(const CCDecimal& op2) const {
 
-//return false, if either used or shift is not equal
+	//return false, if either used or shift is not equal
 	if (used != op2.used || shift != op2.shift) {
 		return false;
 	}
 
-//compares each individual digit, return false as soon as a mismatch is found
+	//compares each individual digit, return false as soon as a mismatch is found
 	for (unsigned int i = 0; i < used; i++) {
 		if (digit[i] != op2.digit[i]) {
 			return false;
 		}
 	}
 
-//return true if neither of the above checks fails
+	//return true if neither of the above checks fails
 	return true;
 }
 
