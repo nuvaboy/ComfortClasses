@@ -53,6 +53,19 @@ CCString& CCString::append(char c) {
 	return *this;
 }
 
+CCString& CCString::operator+=(const CCString& ccStr) {
+	return append(ccStr);
+}
+CCString& CCString::operator+=(const std::string& str) {
+	return append(str);
+}
+CCString& CCString::operator+=(const char* cstr) {
+	return append(cstr);
+}
+CCString& CCString::operator+=(char c) {
+	return append(c);
+}
+
 CCString& CCString::replace(size_t pos, const CCString& ccStr) {
 	return replace(pos, ccStr.internalStr);
 }

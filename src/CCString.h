@@ -29,7 +29,11 @@ public:
 	CCString& append(const std::string& str);
 	CCString& append(const char* cstr);
 	CCString& append(char c);
-//	/* + addition operator */
+
+	CCString& operator+=(const CCString& ccStr);
+	CCString& operator+=(const std::string& str);
+	CCString& operator+=(const char* cstr);
+	CCString& operator+=(char c);
 
 	CCString& replace(size_t pos, const CCString& ccStr);
 	CCString& replace(size_t pos, const std::string& str);
