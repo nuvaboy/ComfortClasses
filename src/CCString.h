@@ -38,10 +38,12 @@ public:
 	CCString& replace(size_t pos, const CCString& ccStr);
 	CCString& replace(size_t pos, const std::string& str);
 	CCString& replace(size_t pos, const char* cstr);
+	CCString& replace(size_t pos, char c);
 
 	CCString& insert(size_t pos, const CCString& ccStr);
 	CCString& insert(size_t pos, const std::string& str);
 	CCString& insert(size_t pos, const char* cstr);
+	CCString& insert(size_t pos, char c);
 
 	CCString& erase(size_t pos, size_t length);
 

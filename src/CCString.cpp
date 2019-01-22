@@ -80,6 +80,11 @@ CCString& CCString::replace(size_t pos, const char* cstr) {
 	return *this;
 }
 
+CCString& CCString::replace(size_t pos, char c) {
+	internalStr.at(pos) = c;
+	return *this;
+}
+
 CCString& CCString::insert(size_t pos, const CCString& ccStr) {
 	return insert(pos, ccStr.internalStr);
 }
@@ -91,6 +96,11 @@ CCString& CCString::insert(size_t pos, const std::string& str) {
 
 CCString& CCString::insert(size_t pos, const char* cstr) {
 	internalStr.insert(pos, cstr);
+	return *this;
+}
+
+CCString& CCString::insert(size_t pos, char c) {
+	internalStr.insert(pos, 1, c);
 	return *this;
 }
 
