@@ -4,7 +4,7 @@
  *  Created on: 24.10.2018
  *      Author: marlo
  */
-
+#include "gtest/gtest.h"
 #include <string>
 #include <sstream>
 #include <iomanip>
@@ -87,6 +87,8 @@ void CCDecimal::setGlobalPrecision(unsigned int precision) {
 //core functionality
 void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 
+	ASSERT_TRUE((*result == CCDecimal()));
+
 	//determine the most and the least precise decimal
 	const CCDecimal* pMostPrec = this;
 	const CCDecimal* pLeastPrec = &op2;
@@ -117,15 +119,11 @@ void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 		used_result = MAX;
 		shift_result += digToCut;
 
-		if (digToCut <= shift_delta) {
-			shift_delta -= -digToCut;
-		}
+		ASSERT_TRUE(digToCut <= shift_delta);
+		shift_delta -= digToCut;
 	}
 
 	//add most precise operand to the result
-//	for (unsigned int i = 0; i + digToCut < pMostPrec->used; i++) {
-//		result->digit[i] = pMostPrec->digit[i + digToCut];
-//	}
 	for (unsigned int i = digToCut; i < pMostPrec->used; i++) {
 		result->digit[i - digToCut] = pMostPrec->digit[i];
 	}
@@ -306,7 +304,7 @@ void CCDecimal::sub(CCDecimal* result, const CCDecimal& opSmall) const {
 //63
 void CCDecimal::mult(CCDecimal* result, const CCDecimal& op2) const {
 
-	if (used == 0 || op2.used == 0 ) return;
+	if (used == 0 || op2.used == 0) return;
 
 	//determine the decimal numbers with most and least digits
 	const CCDecimal* pSmall = this;
@@ -325,41 +323,28 @@ void CCDecimal::mult(CCDecimal* result, const CCDecimal& op2) const {
 	//index is the currently calculated coefficient of the result
 	for (unsigned int index = 0; index < resultUsedMax; index++) {
 
-		if (index == 1){
-			printf("here is a problem?");
-		}
-
-
-
-		//calculate all multiplications for the current index 2,25 * 5,5 = 12,175
-		cout << index << ": ";
+		//calculate all multiplications for the current index
+		//cout << index << ": ";
 		unsigned int i_begin = max<int>(index - pSmall->used + 1, 0);
 		int j = index - i_begin;
 
 		unsigned int carry = 0;
 
 		for (unsigned int i = i_begin; j >= 0 && i < pBig->used; i++) {
-			cout << "(" << i << ", " << j << ")";
-			if (((int)result->digit[resultIndex]) + pBig->digit[i] * pSmall->digit[j] > 127 ){
-				int a = 58;
+			//cout << "(" << i << ", " << j << ")";
 
-			}
-	//printf("%i + %i * %i\n",result->digit[resultIndex], pBig->digit[i],pSmall->digit[j]);
+			//printf("%i + %i * %i\n",result->digit[resultIndex], pBig->digit[i],pSmall->digit[j]);
 			result->digit[resultIndex] += pBig->digit[i] * pSmall->digit[j];
-
 
 			//fix
 			int temp = result->digit[resultIndex] / 10;
-			carry += temp;
 			result->digit[resultIndex] -= temp * 10;
+			carry += temp;
+
 			//
 			j--;
 		}
-		cout << endl;
-
-		//correct result and calculate carry
-		//unsigned int carry = result->digit[resultIndex] / 10;
-		//result->digit[resultIndex] -= carry * 10;
+		//cout << endl;
 
 		//remove trailing Zeroes
 		if (tzFlag) {
@@ -385,16 +370,11 @@ void CCDecimal::mult(CCDecimal* result, const CCDecimal& op2) const {
 		resultIndex++; //increment according to index unless trailing Zeroes were removed
 	}
 
-
-
 	//adjust the used and shift of the result
 	result->used = resultIndex + 1;
 
 	//quick fix
-	if (result->digit[resultIndex] == 0){
-		result->used --;
-	}
-
+	if (result->digit[resultIndex] == 0) result->used--;
 
 	int tzCount = resultUsedMax - resultIndex; //amount of invisible trailing Zeroes
 	result->shift = shift + op2.shift + tzCount;
@@ -591,7 +571,7 @@ void CCDecimal::constructFromString(const string& numberStr) {
 					}
 				}
 				if (!numCandidate.empty()) {
-					//TODO check for fit in type
+					//TODO check for fit in type alwhoe
 					int cutOffset = 0;
 					if (used > MAX) {
 
@@ -599,7 +579,7 @@ void CCDecimal::constructFromString(const string& numberStr) {
 						int digitsToSpare = -*pPrecision - shift;
 						std::cout << "digitsToCut:" << digitsToCut << "; digitsToSpare:"
 								<< digitsToSpare << std::endl;
-						if (!(digitsToCut >= digitsToSpare)) {
+						if (digitsToCut <= digitsToSpare) {
 							cutOffset = digitsToCut;
 						}
 						else {
