@@ -596,9 +596,9 @@ void CCDecimal::constructFromString(const string& numberStr) {
 					if (used > MAX) {
 
 						int digitsToCut = used - MAX;
-						int digitsToSpare = -*pPrecision + shift;
+						int digitsToSpare = -*pPrecision - shift;
 						std::cout << "digitsToCut:" << digitsToCut << "; digitsToSpare:"
-								<< digitsToSpare;
+								<< digitsToSpare << std::endl;
 						if (!(digitsToCut >= digitsToSpare)) {
 							cutOffset = digitsToCut;
 						}
