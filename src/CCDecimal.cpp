@@ -148,10 +148,10 @@ void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 	if (result->digit[0] == 0) {
 
 		int trailingZeroes = 1;
-		while (result->digit[trailingZeroes] == 0 && trailingZeroes < MAX) {
+		while (result->digit[trailingZeroes] == 0 && trailingZeroes < used_result) {
 			trailingZeroes++;
 		}
-		for (int i = trailingZeroes; i <= MAX; i++) {
+		for (int i = trailingZeroes; i < used_result; i++) { //<resultUsed tatt <=MAX
 			result->digit[i - trailingZeroes] = result->digit[i];
 		}
 
