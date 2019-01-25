@@ -162,8 +162,7 @@ void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 		//clear overflow flag
 		result->digit[MAX] = 0;
 	}
-
-	if (result->digit[MAX] > 0) {
+	else if (result->digit[MAX] > 0) {
 		//overflow
 		throw std::overflow_error(
 				"Result is too large to store in Decimal. Keep values in range or reduce precision!");
@@ -654,6 +653,11 @@ void CCDecimal::round(CCDecimal* pDec, unsigned int precOut) const {
 	}
 
 	//remove trailing zeroes
+	//fix
+	while (pDec->digit[validIndex] == 0){
+		validIndex++;
+	}
+	//fix end
 	for (unsigned int i = validIndex; i <= used; i++) {
 		pDec->digit[i - validIndex] = pDec->digit[i];
 	}
