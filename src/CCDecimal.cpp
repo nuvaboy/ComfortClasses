@@ -558,7 +558,7 @@ void CCDecimal::constructFromString(const string& numberStr) {
 						it++;
 					}
 				}
-				//remove trailing zeroes
+				//remove trailing zeroes before cut
 				auto rit = numCandidate.rbegin();
 				while (rit != numCandidate.rend() && *rit == '0') {
 					numCandidate.erase(rit.base() - 1);
@@ -570,41 +570,57 @@ void CCDecimal::constructFromString(const string& numberStr) {
 						rit++;
 					}
 				}
-				if (!numCandidate.empty()) {
-					//TODO check for fit in type alwhoe
-					int cutOffset = 0;
-					if (used > MAX) {
-
-						int digitsToCut = used - MAX;
-						int digitsToSpare = -*pPrecision - shift;
-						std::cout << "digitsToCut:" << digitsToCut << "; digitsToSpare:"
-								<< digitsToSpare << std::endl;
-						if (digitsToCut <= digitsToSpare) {
-							cutOffset = digitsToCut;
-						}
-						else {
-							throw std::overflow_error("Digits to store surpassing precision limit");
-						}
-					}
-					//TODO copy digits into array
-					int i = 0;
-					rit = numCandidate.rbegin() + cutOffset;
-					while (rit != numCandidate.rend() && i <= MAX) {
-						if (*rit == '.' || *rit == '+' || *rit == '-') {
-							rit++;
-						}
-						else {
-							digit[i] = ((*rit) - '0');
-							i++;
-							rit++;
-						}
-					}
-
-				}
-				else {
-					std::cout << "\n trimmed number empty. assuming value zero.\n";
+				if (numCandidate.empty()) {
+					std::cout
+							<< "\n trimmed number empty. assuming value zero.\n";
 					shift = 0;
 					used = 0;
+					return;
+				}
+				//TODO check for fit in type
+				int cutOffset = 0;
+				if (used > MAX) {
+
+					int digitsToCut = used - MAX;
+					int digitsToSpare = -*pPrecision - shift;
+					std::cout << "digitsToCut:" << digitsToCut
+							<< "; digitsToSpare:" << digitsToSpare << std::endl;
+					if (digitsToCut <= digitsToSpare) {
+						cutOffset = digitsToCut;
+						used -= cutOffset;
+						shift += cutOffset;
+					} else {
+						throw std::overflow_error(
+								"Digits to store surpassing precision limit");
+					}
+				}
+
+				//TODO Quick fix for trailing zeroes after cut:
+				//start with number after cut
+				rit = numCandidate.rbegin() + cutOffset;
+				//move in front of first non-zero digit
+
+				while (rit != numCandidate.rend() && *rit == '0') {
+					numCandidate.erase(rit.base() - 1);
+					shift++;
+					used--;
+					rit++;
+					//skip over decimal point
+					if (rit != numCandidate.rend() && *rit == '.') {
+						rit++;
+					}
+				}
+
+				//TODO copy digits into array
+				int i = 0;
+				while (rit != numCandidate.rend() && i <= MAX) {
+					if (*rit == '.' || *rit == '+' || *rit == '-') {
+						rit++;
+					} else {
+						digit[i] = ((*rit) - '0');
+						i++;
+						rit++;
+					}
 				}
 
 			}
