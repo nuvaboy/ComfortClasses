@@ -25,6 +25,13 @@ public:
 	size_t length() const;
 	char& at(size_t index);
 
+	operator const char*() {
+		return internalStr.c_str();
+	}
+
+	bool operator==(const CCString& other) const;
+	bool operator<(const CCString& other) const;
+
 	CCString& append(const CCString& ccStr);
 	CCString& append(const std::string& str);
 	CCString& append(const char* cstr);
@@ -63,5 +70,19 @@ private:
 	std::string internalStr;
 
 };
+
+/* as per https://en.cppreference.com/w/cpp/language/operators */
+inline bool operator!=(const CCString& lhs, const CCString& rhs) {
+	return !(lhs == rhs);
+}
+inline bool operator>(const CCString& lhs, const CCString& rhs) {
+	return rhs < lhs;
+}
+inline bool operator<=(const CCString& lhs, const CCString& rhs) {
+	return !(lhs > rhs);
+}
+inline bool operator>=(const CCString& lhs, const CCString& rhs) {
+	return !(lhs < rhs);
+}
 
 #endif /* CCSTRING_H_ */

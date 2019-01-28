@@ -34,6 +34,14 @@ char& CCString::at(size_t index) {
 	return internalStr.at(index);
 }
 
+bool CCString::operator==(const CCString& other) const {
+	return internalStr == other.internalStr;
+}
+
+bool CCString::operator<(const CCString& other) const {
+	return internalStr < other.internalStr;
+}
+
 CCString& CCString::append(const CCString& ccStr) {
 	return append(ccStr.internalStr);
 }
