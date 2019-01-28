@@ -29,14 +29,19 @@ private:
 	unsigned int* pPrecision;
 	static unsigned int defaultPrecision;
 
+
 	void constructFromString(const string& numberStr);
 
-	void round(CCDecimal* pDec, unsigned int precOut) const;
+
+
 	bool magnitudeLessThan(const CCDecimal& op2) const;
 	void add(CCDecimal* result, const CCDecimal& op2) const;
 	void sub(CCDecimal* result, const CCDecimal& opSmall) const;
 
 public:
+
+
+	void cfs(const string& numberStr);
 	//constructors
 	CCDecimal();
 	CCDecimal(const CCDecimal& d2);
@@ -57,6 +62,7 @@ public:
 
 
 	//utility functionality
+	static void round(CCDecimal* pDec, unsigned int precOut);
 	string toString() const;
 
 

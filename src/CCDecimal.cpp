@@ -13,6 +13,7 @@
 #include <exception>
 
 #include "CCDecimal.h"
+#include <cctype>
 
 using namespace std;
 
@@ -49,6 +50,7 @@ CCDecimal::CCDecimal(const char* str) /* construct from C-string */{
 CCDecimal::CCDecimal(const string& numberStr) /* construct from string */:
 		CCDecimal() {
 	constructFromString(numberStr);
+	//cfs(numberStr);
 }
 
 CCDecimal::CCDecimal(double number) /* construct from double */:
@@ -145,13 +147,13 @@ void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 	}
 
 	//remove trailing zeros
-	if (result->digit[0] == 0) {
+	if (used_result > 0 && result->digit[0] == 0) {
 
 		int trailingZeroes = 1;
-		while (result->digit[trailingZeroes] == 0 && trailingZeroes < MAX) {
+		while (result->digit[trailingZeroes] == 0 && trailingZeroes < used_result) {
 			trailingZeroes++;
 		}
-		for (int i = trailingZeroes; i <= MAX; i++) {
+		for (int i = trailingZeroes; i < used_result; i++) { //<resultUsed tatt <=MAX
 			result->digit[i - trailingZeroes] = result->digit[i];
 		}
 
@@ -162,8 +164,7 @@ void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 		//clear overflow flag
 		result->digit[MAX] = 0;
 	}
-
-	if (result->digit[MAX] > 0) {
+	else if (result->digit[MAX] > 0) {
 		//overflow
 		throw std::overflow_error(
 				"Result is too large to store in Decimal. Keep values in range or reduce precision!");
@@ -571,8 +572,7 @@ void CCDecimal::constructFromString(const string& numberStr) {
 					}
 				}
 				if (numCandidate.empty()) {
-					std::cout
-							<< "\n trimmed number empty. assuming value zero.\n";
+					std::cout << "\n trimmed number empty. assuming value zero.\n";
 					shift = 0;
 					used = 0;
 					return;
@@ -583,15 +583,15 @@ void CCDecimal::constructFromString(const string& numberStr) {
 
 					int digitsToCut = used - MAX;
 					int digitsToSpare = -*pPrecision - shift;
-					std::cout << "digitsToCut:" << digitsToCut
-							<< "; digitsToSpare:" << digitsToSpare << std::endl;
+					std::cout << "digitsToCut:" << digitsToCut << "; digitsToSpare:"
+							<< digitsToSpare << std::endl;
 					if (digitsToCut <= digitsToSpare) {
 						cutOffset = digitsToCut;
 						used -= cutOffset;
 						shift += cutOffset;
-					} else {
-						throw std::overflow_error(
-								"Digits to store surpassing precision limit");
+					}
+					else {
+						throw std::overflow_error("Digits to store surpassing precision limit");
 					}
 				}
 
@@ -616,7 +616,8 @@ void CCDecimal::constructFromString(const string& numberStr) {
 				while (rit != numCandidate.rend() && i <= MAX) {
 					if (*rit == '.' || *rit == '+' || *rit == '-') {
 						rit++;
-					} else {
+					}
+					else {
 						digit[i] = ((*rit) - '0');
 						i++;
 						rit++;
@@ -645,44 +646,51 @@ void CCDecimal::constructFromString(const string& numberStr) {
 		used = 0;
 	}
 }
+void CCDecimal::round(CCDecimal* pDec, unsigned int precOut) {
 
-void CCDecimal::round(CCDecimal* pDec, unsigned int precOut) const {
+	//skip rounding, if precision less than precOut (implicit check: shift < 0)
+	if ((int)precOut >= -pDec->shift) return;
 
-	//not enough places after the decimal point
-	if ((int) precOut > -pDec->shift) {
-		return;
-	}
+	//calculate index that indicates rounding up or down
+	int roundIndex = -pDec->shift - (int)precOut -1;
+	int validIndex = roundIndex+1;
 
-	int roundIndex = -shift - (int) precOut - 1;
-
-	//roundIndex is out of bounds (invisible zero)
-	if (roundIndex < 0 || roundIndex >= (int) pDec->used) {
-		return;
-	}
-	unsigned int validIndex = roundIndex + 1;
-
-	if (pDec->digit[roundIndex] >= 5) {
-
-		while (validIndex < pDec->used && pDec->digit[validIndex] >= 9) { //end condition needed?
+	if (pDec->digit[roundIndex] >= 5){ //round up
+		while (pDec->digit[validIndex] == 9){ //propagate carry
 			validIndex++;
 		}
+
+		//apply carry
 		pDec->digit[validIndex]++;
+
+		if (pDec->digit[pDec->used] > 0){ //carry into unoccupied space
+			pDec->used++;
+		}
 	}
 
 	//remove trailing zeroes
-	for (unsigned int i = validIndex; i <= used; i++) {
-		pDec->digit[i - validIndex] = pDec->digit[i];
+	while (pDec->digit[validIndex] == 0){
+		validIndex++;
 	}
-	pDec->digit[used] = 0;
-	pDec->used -= validIndex;
-	pDec->shift += validIndex;
-}
 
+	//shift digits [used-1 : validIndex] to the right
+	for(int i = validIndex; i < (int)pDec->used; i++){
+		pDec->digit[i-validIndex] = pDec->digit[i];
+	}
+	pDec->digit[pDec->used] = 0;
+
+	//adjust used and shift
+	pDec->used-=validIndex;
+	pDec->shift+=validIndex;
+
+
+
+}
 string CCDecimal::toString() const {
 
 	//create a copy to round without changing the original
 	CCDecimal copy(*this);
-	round(&copy, *pPrecision - 1);
+	CCDecimal::round(&copy, *pPrecision - 1);
 
 	//catch zero case
 	if (copy.used == 0) {
