@@ -454,7 +454,7 @@ void CCDecimal::constructFromString(std::string numCandidate) {
 			it++;
 			validator =
 					(it == numCandidate.end()) ?
-							(error) :
+							(valid_end) :
 							((*it == '.') ?
 									(point_after_sign) :
 									(('0' <= *it && *it <= '9') ?
@@ -465,7 +465,7 @@ void CCDecimal::constructFromString(std::string numCandidate) {
 			it++;
 			validator =
 					(it == numCandidate.end()) ?
-							(error) :
+							(valid_end) :
 							(('0' <= *it && *it <= '9') ?
 									(digit_after_point) : (error));
 			break;
