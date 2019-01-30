@@ -30,7 +30,7 @@ private:
 	static unsigned int defaultPrecision;
 
 
-	void constructFromString(const string& numberStr);
+	void constructFromString(string numCandidate);
 
 
 
