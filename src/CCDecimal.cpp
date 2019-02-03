@@ -59,7 +59,8 @@ CCDecimal::CCDecimal(double number) /* construct from double */:
 	std::stringstream stringStream;
 	std::string numberStr;
 
-	stringStream << std::setprecision(std::numeric_limits<double>::digits10) << number;
+	stringStream << std::setprecision(std::numeric_limits<double>::digits10)
+			<< number;
 	numberStr = stringStream.str();
 
 	constructFromString(numberStr);
@@ -151,7 +152,8 @@ void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 	if (used_result > 0 && result->digit[0] == 0) {
 
 		int trailingZeroes = 1;
-		while (result->digit[trailingZeroes] == 0 && trailingZeroes < used_result) {
+		while (result->digit[trailingZeroes] == 0
+				&& trailingZeroes < used_result) {
 			trailingZeroes++;
 		}
 		for (int i = trailingZeroes; i < used_result; i++) { //<resultUsed tatt <=MAX
@@ -164,8 +166,7 @@ void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 
 		//clear overflow flag
 		result->digit[MAX] = 0;
-	}
-	else if (result->digit[MAX] > 0) {
+	} else if (result->digit[MAX] > 0) {
 		//overflow
 		throw std::overflow_error(
 				"Result is too large to store in Decimal. Keep values in range or reduce precision!");
@@ -224,6 +225,7 @@ void CCDecimal::sub(CCDecimal* result, const CCDecimal& opSmall) const {
 				}
 				else {
 					search_pos = MAX + 1; //end search for trailing zeroes
+
 				}
 			}
 
@@ -303,6 +305,7 @@ void CCDecimal::sub(CCDecimal* result, const CCDecimal& opSmall) const {
 	//read head
 	for (int i = max<int>((int) opSmall.used + shift_delta, 0) + tz_head; i < (int) used; i++) {
 		int temp = digit[i] - carry;
+
 		if ((carry = temp < 0)) temp += 10;
 		result->digit[result_pos++] = temp;
 	}
@@ -331,7 +334,8 @@ void CCDecimal::sub(CCDecimal* result, const CCDecimal& opSmall) const {
 //63
 void CCDecimal::mult(CCDecimal* result, const CCDecimal& op2) const {
 
-	if (used == 0 || op2.used == 0) return;
+	if (used == 0 || op2.used == 0)
+		return;
 
 //determine the decimal numbers with most and least digits
 	const CCDecimal* pSmall = this;
@@ -377,8 +381,7 @@ void CCDecimal::mult(CCDecimal* result, const CCDecimal& op2) const {
 		if (tzFlag) {
 			if (result->digit[resultIndex] == 0) {
 				resultIndex--;
-			}
-			else {
+			} else {
 				tzFlag = false; //result was not 0, so where can not be more trailing zeroes
 			}
 		}
@@ -409,275 +412,272 @@ void CCDecimal::mult(CCDecimal* result, const CCDecimal& op2) const {
 }
 
 //utility functions
-void CCDecimal::constructFromString(const string& numberStr) {
-	if (!numberStr.empty()) {
-		unsigned int begin = numberStr.find_first_of("-+.0987654321e", 0);
-		unsigned int end = numberStr.find_first_not_of("-+.0987654321e", begin);
-
-		if (begin == std::string::npos) std::cout << "\n didn't find beginning \n";
-		if (begin != std::string::npos) {
-
-			std::string numCandidate = numberStr.substr(begin, end - 1);
-
-			/*
-			 * validate: max one sign; max one point; sign at the beginning,
-			 * then digits, then point, if point, then more digits
-			 * uses state-machine-ish behaviour, result valid if in valid_end.
-			 */
-			enum ValidatorStates {
-				error = -1,
-				start,
-				sign_negative,
-				sign_positive,
-				point_after_sign,
-				digit_after_sign,
-				point_after_digit,
-				end_after_point,
-				digit_after_point,
-				exponent_after_digit,
-				exponent_positive,
-				exponent_negative,
-				digit_after_exponent,
-				valid_end
-			};
-
-			ValidatorStates validator = start;
-			int exponent = 0;
-			int exponentSign = 1;
-
-			auto it = numCandidate.begin();
-			while (it != numCandidate.end()) {
-				switch (validator) {
-				case start:
-					validator =
-							(it == numCandidate.end()) ?
-									(error) :
-									((*it == '-') ?
-											(sign_negative) :
-											((*it == '+') ?
-													(sign_positive) :
-													((*it == '.') ?
-															(point_after_sign) :
-															((('0' <= *it && *it <= '9') ?
-																	(digit_after_sign) : (error))))));
-					break;
-				case sign_negative:
-					//set sign
-					isNegative = true;
-					/* no break */
-				case sign_positive:
-					//next state
-					it++;
-					validator =
-							(it == numCandidate.end()) ?
-									(error) :
-									((*it == '.') ?
-											(point_after_sign) :
-											(('0' <= *it && *it <= '9') ?
-													(digit_after_sign) : (error)));
-					break;
-				case point_after_sign:
-					//next state
-					it++;
-					validator =
-							(it == numCandidate.end()) ?
-									(error) :
-									(('0' <= *it && *it <= '9') ? (digit_after_point) : (error));
-					break;
-				case digit_after_sign:
-					//tracking digit
-					used++;
-					//next state
-					it++;
-					validator =
-							(it == numCandidate.end()) ?
-									(valid_end) :
-									((*it == '.') ?
-											(point_after_digit) :
-											(('0' <= *it && *it <= '9') ?
-													(validator) :
-													((*it == 'e') ? (exponent_after_digit) : (error))));
-					break;
-				case point_after_digit:
-					//next state
-					it++;
-					validator =
-							(it == numCandidate.end()) ?
-									(valid_end) :
-									(('0' <= *it && *it <= '9') ? (digit_after_point) : (error));
-					break;
-				case digit_after_point:
-					//tracking shift
-					shift--;
-					//tracking digit
-					used++;
-					//next state
-					it++;
-					validator =
-							(it == numCandidate.end()) ?
-									(valid_end) :
-									(('0' <= *it && *it <= '9') ?
-											(validator) :
-											((*it == 'e') ? (exponent_after_digit) : (error)));
-					break;
-				case exponent_after_digit:
-					//next state
-					numCandidate.erase(it); //remove so not present in following processing
-					validator =
-							(it == numCandidate.end()) ?
-									(error) :
-									((*it == '+') ?
-											(exponent_positive) :
-											((*it == '-') ?
-													(exponent_negative) :
-													(('0' <= *it && *it <= '9') ?
-															(digit_after_exponent) : (error))));
-					break;
-				case exponent_negative:
-					exponentSign = -1;
-					/* no break */
-				case exponent_positive:
-					//next state
-					numCandidate.erase(it); //remove so not present in following processing
-					validator =
-							(it == numCandidate.end()) ?
-									(error) :
-									(('0' <= *it && *it <= '9') ? (digit_after_exponent) : (error));
-					break;
-				case digit_after_exponent:
-					//change exponent
-					exponent *= 10;	//basically shift all current digits
-					exponent += exponentSign * (*it - '0'); //add current digit in
-
-					//next state
-					numCandidate.erase(it); //remove so not present in following processing
-					validator =
-							(it == numCandidate.end()) ?
-									(valid_end) :
-									(('0' <= *it && *it <= '9') ? (validator) : (error));
-					break;
-				case error:
-					it++;
-					break;
-				default:
-					std::cout << "FSM in default. This should not happen." << std::endl;
-				}
-			}
-
-			//if valid string representation of a double
-			if (validator == valid_end) {
-//				numCandidate = numCandidate.substr(0,
-//						numCandidate.find_first_not_of("-+.0987654321", 0) - 1);
-
-				/* add present exponent in (if not applicable, is zero)*/
-				shift += exponent;
-				/* trim number */
-				//remove leading zeroes
-				auto it = numCandidate.begin();
-				if (*it == '+' || *it == '-') {
-					it++;
-				}
-				while (it != numCandidate.end() && *it == '0') {
-					numCandidate.erase(it);
-					used--;
-					//skip over decimal point
-					if (it != numCandidate.end() && *it == '.') {
-						it++;
-					}
-				}
-				//remove trailing zeroes before cut
-				auto rit = numCandidate.rbegin();
-				while (rit != numCandidate.rend() && *rit == '0') {
-					numCandidate.erase(rit.base() - 1);
-					shift++;
-					used--;
-					rit++;
-					//skip over decimal point
-					if (rit != numCandidate.rend() && *rit == '.') {
-						rit++;
-					}
-				}
-				if (numCandidate.empty()) {
-					std::cout << "\n trimmed number empty. assuming value zero.\n";
-					shift = 0;
-					used = 0;
-					return;
-				}
-				//TODO check for fit in type
-				int cutOffset = 0;
-				if (used > MAX) {
-
-					int digitsToCut = used - MAX;
-					int digitsToSpare = -*pPrecision - shift;
-					std::cout << "digitsToCut:" << digitsToCut << "; digitsToSpare:"
-							<< digitsToSpare << std::endl;
-					if (digitsToCut <= digitsToSpare) {
-						cutOffset = digitsToCut;
-						used -= cutOffset;
-						shift += cutOffset;
-					}
-					else {
-						throw std::overflow_error("Digits to store surpassing precision limit");
-					}
-				}
-
-				//TODO Quick fix for trailing zeroes after cut:
-				//start with number after cut
-				rit = numCandidate.rbegin() + cutOffset;
-				//move in front of first non-zero digit
-
-				while (rit != numCandidate.rend() && *rit == '0') {
-					numCandidate.erase(rit.base() - 1);
-					shift++;
-					used--;
-					rit++;
-					//skip over decimal point
-					if (rit != numCandidate.rend() && *rit == '.') {
-						rit++;
-					}
-				}
-
-				//TODO copy digits into array
-				int i = 0;
-				while (rit != numCandidate.rend() && i <= MAX) {
-					if (*rit == '.' || *rit == '+' || *rit == '-') {
-						rit++;
-					}
-					else {
-						digit[i] = ((*rit) - '0');
-						i++;
-						rit++;
-					}
-				}
-
-			}
-			else {
-				//dunno, init to zero maybe?
-				//reset everything changed within validation (shift, used, sign)
-				throw std::invalid_argument("Invalid number.");
-				shift = 0;
-				used = 0;
-				isNegative = false;
-			}
-
-		}
-		else {
-			throw std::invalid_argument("String cannot contain a number.");
-		}
-
-	}
-	else {
+void CCDecimal::constructFromString(std::string numCandidate) {
+	if (numCandidate.empty()) {
 		std::cout << "\n string empty. assuming value zero.\n";
 		shift = 0;
 		used = 0;
 	}
+
+	if (numCandidate.find_first_not_of("-+.0987654321eE") != std::string::npos) {
+		throw std::invalid_argument("String contains invalid characters.");
+	}
+
+	/*
+	 * validate: max one sign; max one point; sign at the beginning,
+	 * then digits, then point, if point, then more digits
+	 * uses state-machine-ish behaviour, result valid if in valid_end.
+	 */
+	enum ValidatorStates {
+		error = -1,
+		start,
+		sign_negative,
+		sign_positive,
+		point_after_sign,
+		digit_after_sign,
+		point_after_digit,
+		end_after_point,
+		digit_after_point,
+		exponent_after_digit,
+		exponent_positive,
+		exponent_negative,
+		digit_after_exponent,
+		valid_end
+	};
+
+	ValidatorStates validator = start;
+	int exponent = 0;
+	int exponentSign = 1;
+
+	auto it = numCandidate.begin();
+	while (it != numCandidate.end()) {
+		switch (validator) {
+		case start:
+			validator =
+					(it == numCandidate.end()) ?
+							(error) :
+							((*it == '-') ?
+									(sign_negative) :
+									((*it == '+') ?
+											(sign_positive) :
+											((*it == '.') ?
+													(point_after_sign) :
+													((('0' <= *it && *it <= '9') ?
+															(digit_after_sign) :
+															(error))))));
+			break;
+		case sign_negative:
+			//set sign
+			isNegative = true;
+			/* no break */
+		case sign_positive:
+			//next state
+			it++;
+			validator =
+					(it == numCandidate.end()) ?
+							(valid_end) :
+							((*it == '.') ?
+									(point_after_sign) :
+									(('0' <= *it && *it <= '9') ?
+											(digit_after_sign) : (error)));
+			break;
+		case point_after_sign:
+			//next state
+			it++;
+			validator =
+					(it == numCandidate.end()) ?
+							(valid_end) :
+							(('0' <= *it && *it <= '9') ?
+									(digit_after_point) : (error));
+			break;
+		case digit_after_sign:
+			//tracking digit
+			used++;
+			//next state
+			it++;
+			validator =
+					(it == numCandidate.end()) ?
+							(valid_end) :
+							((*it == '.') ?
+									(point_after_digit) :
+									(('0' <= *it && *it <= '9') ?
+											(validator) :
+											((*it == 'e' || *it == 'E') ?
+													(exponent_after_digit) :
+													(error))));
+			break;
+		case point_after_digit:
+			//next state
+			it++;
+			validator =
+					(it == numCandidate.end()) ?
+							(valid_end) :
+							(('0' <= *it && *it <= '9') ?
+									(digit_after_point) : (error));
+			break;
+		case digit_after_point:
+			//tracking shift
+			shift--;
+			//tracking digit
+			used++;
+			//next state
+			it++;
+			validator =
+					(it == numCandidate.end()) ?
+							(valid_end) :
+							(('0' <= *it && *it <= '9') ?
+									(validator) :
+									((*it == 'e' || *it == 'E') ?
+											(exponent_after_digit) : (error)));
+			break;
+		case exponent_after_digit:
+			//next state
+			numCandidate.erase(it); //remove so not present in following processing
+			validator =
+					(it == numCandidate.end()) ?
+							(error) :
+							((*it == '+') ?
+									(exponent_positive) :
+									((*it == '-') ?
+											(exponent_negative) :
+											(('0' <= *it && *it <= '9') ?
+													(digit_after_exponent) :
+													(error))));
+			break;
+		case exponent_negative:
+			exponentSign = -1;
+			/* no break */
+		case exponent_positive:
+			//next state
+			numCandidate.erase(it); //remove so not present in following processing
+			validator =
+					(it == numCandidate.end()) ?
+							(error) :
+							(('0' <= *it && *it <= '9') ?
+									(digit_after_exponent) : (error));
+			break;
+		case digit_after_exponent:
+			//change exponent
+			exponent *= 10;	//basically shift all current digits
+			exponent += exponentSign * (*it - '0'); //add current digit in
+
+			//next state
+			numCandidate.erase(it); //remove so not present in following processing
+			validator =
+					(it == numCandidate.end()) ?
+							(valid_end) :
+							(('0' <= *it && *it <= '9') ? (validator) : (error));
+			break;
+		case error:
+			it++;
+			break;
+		default:
+			std::cout << "FSM in default. This should not happen." << std::endl;
+		}
+	}
+
+	//if valid string representation of a double
+	if (validator == valid_end) {
+//				numCandidate = numCandidate.substr(0,
+//						numCandidate.find_first_not_of("-+.0987654321", 0) - 1);
+
+		/* add present exponent in (if not applicable, is zero)*/
+		shift += exponent;
+		/* trim number */
+		//remove leading zeroes
+		auto it = numCandidate.begin();
+		if (*it == '+' || *it == '-') {
+			it++;
+		}
+		while (it != numCandidate.end() && *it == '0') {
+			numCandidate.erase(it);
+			used--;
+			//skip over decimal point
+			if (it != numCandidate.end() && *it == '.') {
+				it++;
+			}
+		}
+		//remove trailing zeroes before cut
+		auto rit = numCandidate.rbegin();
+		while (rit != numCandidate.rend() && *rit == '0') {
+			numCandidate.erase(rit.base() - 1);
+			shift++;
+			used--;
+			rit++;
+			//skip over decimal point
+			if (rit != numCandidate.rend() && *rit == '.') {
+				rit++;
+			}
+		}
+		if (numCandidate.empty()) {
+			std::cout << "\n trimmed number empty. assuming value zero.\n";
+			shift = 0;
+			used = 0;
+			return;
+		}
+		//TODO check for fit in type
+		int cutOffset = 0;
+		if (used > MAX) {
+
+			int digitsToCut = used - MAX;
+			int digitsToSpare = -*pPrecision - shift;
+			std::cout << "digitsToCut:" << digitsToCut << "; digitsToSpare:"
+					<< digitsToSpare << std::endl;
+			if (digitsToCut <= digitsToSpare) {
+				cutOffset = digitsToCut;
+				used -= cutOffset;
+				shift += cutOffset;
+			} else {
+				throw std::overflow_error(
+						"Digits to store surpassing precision limit");
+			}
+		}
+
+		//TODO Quick fix for trailing zeroes after cut:
+		//start with number after cut
+		rit = numCandidate.rbegin() + cutOffset;
+		//move in front of first non-zero digit
+
+		while (rit != numCandidate.rend() && *rit == '0') {
+			numCandidate.erase(rit.base() - 1);
+			shift++;
+			used--;
+			rit++;
+			//skip over decimal point
+			if (rit != numCandidate.rend() && *rit == '.') {
+				rit++;
+			}
+		}
+
+		//TODO copy digits into array
+		int i = 0;
+		while (rit != numCandidate.rend() && i <= MAX) {
+			if (*rit == '.' || *rit == '+' || *rit == '-') {
+				rit++;
+			} else {
+				digit[i] = ((*rit) - '0');
+				i++;
+				rit++;
+			}
+		}
+
+	} else {
+		//dunno, init to zero maybe?
+		//reset everything changed within validation (shift, used, sign)
+		throw std::invalid_argument("Invalid number.");
+		shift = 0;
+		used = 0;
+		isNegative = false;
+	}
+
 }
 void CCDecimal::round(CCDecimal* pDec, unsigned int precOut) {
 
-//skip rounding, if precision less than precOut (implicit check: shift < 0)
+
+	//skip rounding, if precision less than precOut (implicit check: shift < 0)
 	if ((int) precOut >= -pDec->shift) return;
 
-//calculate index that indicates rounding up or down
+	//calculate index that indicates rounding up or down
 	int roundIndex = -pDec->shift - (int) precOut - 1;
 	int validIndex = roundIndex + 1;
 
@@ -694,12 +694,13 @@ void CCDecimal::round(CCDecimal* pDec, unsigned int precOut) {
 		}
 	}
 
-//remove trailing zeroes
+
+	//remove trailing zeroes
 	while (pDec->digit[validIndex] == 0) {
 		validIndex++;
 	}
 
-//shift digits [used-1 : validIndex] to the right
+	//shift digits [used-1 : validIndex] to the right
 	for (int i = validIndex; i < (int) pDec->used; i++) {
 		pDec->digit[i - validIndex] = pDec->digit[i];
 		pDec->digit[i] = 0;
@@ -716,7 +717,8 @@ void CCDecimal::round(CCDecimal* pDec, unsigned int precOut) {
 //	//
 	pDec->digit[pDec->used] = 0;
 
-//adjust used and shift
+
+	//adjust used and shift
 	pDec->used -= validIndex;
 	pDec->shift += validIndex;
 
@@ -771,16 +773,20 @@ string CCDecimal::toString() const {
 
 bool CCDecimal::magnitudeLessThan(const CCDecimal& op2) const {
 
-	if ((int) used + shift > (int) op2.used + op2.shift) return false;
+	if ((int) used + shift > (int) op2.used + op2.shift)
+		return false;
 
-	if ((int) used + shift < (int) op2.used + op2.shift) return true;
+	if ((int) used + shift < (int) op2.used + op2.shift)
+		return true;
 
 	int i = (int) used - 1;
 	int j = (int) op2.used - 1;
 
 	while (i >= 0 && j >= 0) {
-		if (digit[i] > op2.digit[j]) return false;
-		if (digit[i] < op2.digit[j]) return true;
+		if (digit[i] > op2.digit[j])
+			return false;
+		if (digit[i] < op2.digit[j])
+			return true;
 		i--;
 		j--;
 	}
@@ -794,13 +800,11 @@ CCDecimal CCDecimal::operator +(const CCDecimal& op2) const {
 	if (isNegative == op2.isNegative) {
 		add(&result, op2);
 		result.isNegative = isNegative;
-	}
-	else {
+	} else {
 		if (magnitudeLessThan(op2)) {
 			op2.sub(&result, *this); //-3 + 10 = 7
 			result.isNegative = op2.isNegative;
-		}
-		else {
+		} else {
 			sub(&result, op2); //-10 + 3 = -7
 			result.isNegative = isNegative;
 		}
@@ -818,8 +822,7 @@ CCDecimal CCDecimal::operator -(const CCDecimal& op2) const {
 	if (isNegative != op2.isNegative) {
 		add(&result, op2);
 		result.isNegative = isNegative;
-	}
-	else {
+	} else {
 		//+5 - 10 = -5
 		//-5 - (-10) = 5
 		if (magnitudeLessThan(op2)) {
@@ -856,19 +859,21 @@ CCDecimal& CCDecimal::operator *=(const CCDecimal& op2) {
 
 bool CCDecimal::operator ==(const CCDecimal& op2) const {
 
-	if (used == 0 && op2.used == 0) return true;
+	if (used == 0 && op2.used == 0)
+		return true;
 
-//return false, if either used, shift or sign is not equal
+	//return false, if either used, shift or sign is not equal
 	if (used != op2.used || shift != op2.shift || isNegative != op2.isNegative) {
 		return false;
 	}
 
-//compares each individual digit, return false as soon as a mismatch is found
+	//compares each individual digit, return false as soon as a mismatch is found
 	for (unsigned int i = 0; i < used; i++) {
-		if (digit[i] != op2.digit[i]) return false;
+		if (digit[i] != op2.digit[i])
+			return false;
 	}
 
-//return true if neither of the above checks fails
+	//return true if neither of the above checks fails
 	return true;
 }
 
