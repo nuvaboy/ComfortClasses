@@ -37,6 +37,7 @@ private:
 	bool magnitudeLessThan(const CCDecimal& op2) const;
 	void add(CCDecimal* result, const CCDecimal& op2) const;
 	void sub(CCDecimal* result, const CCDecimal& opSmall) const;
+	void sub2(CCDecimal* result, const CCDecimal& opSmall) const;
 
 public:
 
@@ -64,11 +65,14 @@ public:
 	//utility functionality
 	static void round(CCDecimal* pDec, unsigned int precOut);
 	string toString() const;
+	string toString2() const;
 
 
 	//operators
 	CCDecimal operator +(const CCDecimal&) const;
+	CCDecimal& operator +=(const CCDecimal&);
 	CCDecimal operator -(const CCDecimal&) const;
+	CCDecimal& operator -=(const CCDecimal&);
 	CCDecimal operator *(const CCDecimal&) const;
 	CCDecimal& operator *=(const CCDecimal&);
 	bool operator ==(const CCDecimal&) const;

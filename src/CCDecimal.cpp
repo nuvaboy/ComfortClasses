@@ -14,6 +14,7 @@
 
 #include "CCDecimal.h"
 #include <cctype>
+#include <cstdlib>
 
 using namespace std;
 
@@ -175,131 +176,156 @@ void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 
 }
 
-//124
+//124 ====> (284 - 182 + 1 = 103) (329 - 182 + 1 = 148) (329 - 180 + 1 = 150)
 void CCDecimal::sub(CCDecimal* result, const CCDecimal& opSmall) const {
 
-	//create empty decimal
-	if (opSmall.used == 0) return; //result;
+	//Subtract zero
+	if (opSmall.used == 0) return;
 
-	int pos_curr = 0;
-	bool carry = true;
-
-	//calculate shift_delta
 	int shift_delta = opSmall.shift - shift;
 
-	//step 1: append tail
-	int tail_length = 0;
+	int toCut = 0;
 
-	if ((carry = shift_delta < 0)) { //tail exists (a tail always produces a carry for the body)
-		tail_length = -shift_delta;
+	int merged_used = max<int>(-shift_delta, 0) + (int) used;
+	int tail_length = max<int>(-shift_delta, 0);
 
-		//subtract tail and append to the result (propagate carry)
-		result->digit[0] = 10 - opSmall.digit[0];
-		for (int i = 1; i < min<int>(tail_length, opSmall.used); i++) {
-			result->digit[i] = 9 - opSmall.digit[i];
+	//cutting
+	if (merged_used > MAX) {
+		toCut = merged_used - MAX;
+		int toSpend = max<int>(-min<int>(shift, opSmall.shift) - *pPrecision, 0);
+
+		if (toCut > toSpend + 1)
+			throw std::overflow_error("Can not cut result to minimal precision!");
+	}
+
+	bool hasTail = shift_delta < 0;
+
+	//trailing zeroes
+	bool carry = hasTail;
+	int tz_body = 0;
+	int tz_head = 0;
+	if (toCut == -shift_delta) {
+		int search_pos = tail_length;
+
+		if (search_pos == (int) opSmall.used) { //no body, trailing zero into head due to carry
+			if (hasTail && digit[0] == 1) {
+				search_pos++;
+				tz_head++;
+				carry = false;
+			}
 		}
-		pos_curr = min<int>(tail_length, opSmall.used);
-	}
+		else if (search_pos < (int) opSmall.used) {
 
-	//step 2: append body
-	int tz_count = 0;
-
-	if (shift == opSmall.shift) { //no tail
-
-		//remove trailing zeroes (where can not be trailing zeroes if tail caused a carry)
-		while (tz_count < (int) opSmall.used && digit[tz_count] == opSmall.digit[tz_count]) {
-			tz_count++;
-		}
-	}
-	else {
-		//append non intersecting part of the body (if existing)
-		for (int i = 0; i < shift_delta; i++) {
-			result->digit[pos_curr] = digit[i];
-			pos_curr++;
-		}
-	}
-
-	//subtract body and append to result (propagate carry)
-	for (int i = tail_length + tz_count; i < (int) opSmall.used; i++) {
-		int temp = digit[i - tail_length + max(0, shift_delta)] - opSmall.digit[i] - carry;
-		if ((carry = temp < 0)) temp += 10;
-		result->digit[pos_curr] = temp;
-		pos_curr++;
-	}
-
-	//step 3.1: leading zeroes in head
-	int lz_count = 0;
-	int head_length = 0; // = used;
-	bool hasHead = (shift + (int) used > opSmall.shift + (int) opSmall.used);
-
-	if (hasHead) { //head exists
-		head_length = min(used, shift + used - opSmall.shift - (int) opSmall.used);
-
-		//check for leading zero in case of a carry (where can only be one)
-		if (carry && digit[used - 1] == 1) {
-
-			int j = (int) used - 2; //index to begin   e 5 4 3
-
-			//can carry be propagated to the msd (example: 1000 - 0.1 = [0]999.9)
-			if ((hasHead = head_length > 1)) {
-				while (j > (int) used - 1 - head_length && digit[j] == 0) {
-					j--;
+			if (hasTail) { //trailing zero due to carry into body
+				if (digit[search_pos - tail_length] == opSmall.digit[search_pos] + 1) {
+					tz_body++;
+					search_pos++;
+					carry = false;
+				}
+				else {
+					search_pos = MAX + 1; //end search for trailing zeroes
 				}
 			}
-			//carry at msd
-			if (j == (int) used - 1 - head_length) lz_count = 1; //10-7=[0]3
+
+			while (search_pos < (int) opSmall.used
+					&& digit[search_pos - tail_length] == opSmall.digit[search_pos]) {
+				search_pos++;
+				tz_body++;
+			}
+
+		}
+
+		//trailing zeroes in head
+		//HINT:if (search_pos >= (int) opSmall.used) is implicitly true
+		for (; search_pos < (int) used && digit[search_pos - tail_length] == 0; search_pos++) {
+			tz_head++;
 		}
 	}
 
-	//step 3.2: leading zeroes in body and tail
-	//hint: if where is a head leading zeroes can only remove one digit
-	//therefore in this case body and tail can not contain leading zeroes
-	else if (!hasHead && pos_curr > 0) {
-		while (result->digit[pos_curr - 1] == 0) {
-			pos_curr--;
-			lz_count++;
+	//Cut one less?
+	if (toCut > 0 && tz_body == 0 && tz_head == 0) {
+
+		//Compute in advance if the MSD will become zero.
+		if (digit[used - 1] == 1) { //HINT: Where has to be a head, if cutting is necessary.
+
+			//filter leading zeroes
+			int i = used - 2;
+			int end = (int) opSmall.used + shift_delta;
+			for (; i >= end && i >= 0 && digit[i] == 0; i--) {
+			}
+
+			//filter equal digits which in consequence will be zero
+			if (i == end - 1) {
+
+				while (i-- >= 0 && digit[i + 1] == opSmall.digit[i + 1 - shift_delta]) { //shift_delta has to be negative, if cutting
+				}
+
+				if (i < end - 1 && (digit[i + 1] < opSmall.digit[i + 1 - shift_delta] || /* one digit is greater and produces carry */
+				(i == -1 && shift_delta < 0))) { /* all equal and tail produces carry */
+					toCut--;
+					printf("MSD will become zero!\n");
+				}
+
+			}
+
 		}
 	}
 
-	//estimate used digits
-	int result_used = used + max(-shift_delta, 0) - tz_count - lz_count;
-	int result_shift = min(shift, opSmall.shift) + tz_count;
-	int digToCut = max(0, result_used - MAX);
-	if (digToCut > 0) {
-		int digToSpend = -min(shift, opSmall.shift) - *pPrecision;
-		if (digToSpend < digToCut) {
-			//overflow
-			cout << "overflow" << endl;
-			return;
-		}
+	int result_pos = 0;
 
-		//cut digits
-		for (int i = digToCut; i < pos_curr; i++) {
-			result->digit[i - digToCut] = result->digit[i];
+	//read tail (negative shift_delta)
+	int i = toCut;
+	if (hasTail) {
+		if (i == 0) result->digit[result_pos++] = 10 - opSmall.digit[i++]; //LSD has no carry-in
+
+		for (; i < min<int>(-shift_delta, opSmall.used); i++) {
+			result->digit[result_pos++] = 9 - opSmall.digit[i];
 		}
-		pos_curr -= digToCut;
-		result_used = MAX;
-		result_shift += digToCut;
+		for (; i < -shift_delta; i++) {
+			result->digit[result_pos++] = 9;
+		}
 	}
-
-	//propagate carry through gap
-	if (carry) {
-		while (pos_curr < tail_length - tz_count) {
-			result->digit[pos_curr++] = 9;
+	//read (positive shift_delta)
+	else {
+		for (; i < shift_delta; i++) {
+			result->digit[result_pos++] = digit[i];
 		}
 	}
 
-	//append head  (propagate carry)
-	for (int i = used - head_length; i < (int) used - lz_count; i++) {
+	//read body
+	int x = tail_length + tz_body;
+	for (; x < (int) opSmall.used; x++) {
+		int temp = digit[x - tail_length + max(0, shift_delta)] - opSmall.digit[x] - carry;
+		if ((carry = temp < 0)) temp += 10;
+		result->digit[result_pos++] = temp;
+	}
+
+	//read head
+	for (int i = max<int>((int) opSmall.used + shift_delta, 0) + tz_head; i < (int) used; i++) {
 		int temp = digit[i] - carry;
 		if ((carry = temp < 0)) temp += 10;
-		result->digit[pos_curr] = temp;
-		pos_curr++;
+		result->digit[result_pos++] = temp;
 	}
 
-	result->used = result_used;
-	result->shift = result_shift;
+	//last carry
+	if (result_pos > MAX) {
+		result_pos--;
+	}
+	else {
+		result->digit[result_pos] = carry;
+	}
 
+	//leading zeroes
+	while (result->digit[result_pos] == 0) {
+		result_pos--;
+	}
+
+	//overflow detection
+	if (result->digit[MAX] == 1) throw std::overflow_error("test");
+
+	//adjust used and shift
+	result->used = result_pos + 1;
+	result->shift = min<int>(shift, opSmall.shift) + toCut + tz_body + tz_head;
 }
 
 //63
@@ -307,7 +333,7 @@ void CCDecimal::mult(CCDecimal* result, const CCDecimal& op2) const {
 
 	if (used == 0 || op2.used == 0) return;
 
-	//determine the decimal numbers with most and least digits
+//determine the decimal numbers with most and least digits
 	const CCDecimal* pSmall = this;
 	const CCDecimal* pBig = &op2;
 	if (op2.used < used) {
@@ -315,13 +341,13 @@ void CCDecimal::mult(CCDecimal* result, const CCDecimal& op2) const {
 		pBig = this;
 	}
 
-	//53,28 * 89,8965
+//53,28 * 89,8965
 	bool tzFlag = true; //flag is set while a result of 0 at an index means a trailing zero
 	unsigned int resultUsedMax = pSmall->used + pBig->used - 1; //index of the
 
 	int resultIndex = 0; //current position in the result
 
-	//index is the currently calculated coefficient of the result
+//index is the currently calculated coefficient of the result
 	for (unsigned int index = 0; index < resultUsedMax; index++) {
 
 		//calculate all multiplications for the current index
@@ -371,10 +397,10 @@ void CCDecimal::mult(CCDecimal* result, const CCDecimal& op2) const {
 		resultIndex++; //increment according to index unless trailing Zeroes were removed
 	}
 
-	//adjust the used and shift of the result
+//adjust the used and shift of the result
 	result->used = resultIndex + 1;
 
-	//quick fix
+//quick fix
 	if (result->digit[resultIndex] == 0) result->used--;
 
 	int tzCount = resultUsedMax - resultIndex; //amount of invisible trailing Zeroes
@@ -648,92 +674,100 @@ void CCDecimal::constructFromString(const string& numberStr) {
 }
 void CCDecimal::round(CCDecimal* pDec, unsigned int precOut) {
 
-	//skip rounding, if precision less than precOut (implicit check: shift < 0)
-	if ((int)precOut >= -pDec->shift) return;
+//skip rounding, if precision less than precOut (implicit check: shift < 0)
+	if ((int) precOut >= -pDec->shift) return;
 
-	//calculate index that indicates rounding up or down
-	int roundIndex = -pDec->shift - (int)precOut -1;
-	int validIndex = roundIndex+1;
+//calculate index that indicates rounding up or down
+	int roundIndex = -pDec->shift - (int) precOut - 1;
+	int validIndex = roundIndex + 1;
 
-	if (pDec->digit[roundIndex] >= 5){ //round up
-		while (pDec->digit[validIndex] == 9){ //propagate carry
+	if (pDec->digit[roundIndex] >= 5) { //round up
+		while (pDec->digit[validIndex] == 9) { //propagate carry
 			validIndex++;
 		}
 
 		//apply carry
 		pDec->digit[validIndex]++;
 
-		if (pDec->digit[pDec->used] > 0){ //carry into unoccupied space
+		if (pDec->digit[pDec->used] > 0) { //carry into unoccupied space
 			pDec->used++;
 		}
 	}
 
-	//remove trailing zeroes
-	while (pDec->digit[validIndex] == 0){
+//remove trailing zeroes
+	while (pDec->digit[validIndex] == 0) {
 		validIndex++;
 	}
 
-	//shift digits [used-1 : validIndex] to the right
-	for(int i = validIndex; i < (int)pDec->used; i++){
-		pDec->digit[i-validIndex] = pDec->digit[i];
+//shift digits [used-1 : validIndex] to the right
+	for (int i = validIndex; i < (int) pDec->used; i++) {
+		pDec->digit[i - validIndex] = pDec->digit[i];
+		pDec->digit[i] = 0;
 	}
+	for (int i = validIndex - 1; i >= (int) pDec->used - validIndex; i--) {
+		pDec->digit[i] = 0;
+	}
+
+//pDec->used-vaildIndex
+//remove generated leading zeroes fix
+//	for (int i = (int)pDec->used-1; i > (int)pDec->used-validIndex; i--){
+//		pDec->digit[i] = 0;
+//	}
+//	//
 	pDec->digit[pDec->used] = 0;
 
-	//adjust used and shift
-	pDec->used-=validIndex;
-	pDec->shift+=validIndex;
-
-
+//adjust used and shift
+	pDec->used -= validIndex;
+	pDec->shift += validIndex;
 
 }
+
 string CCDecimal::toString() const {
+
+	//zero case
+	if (used == 0) return "0";
 
 	//create a copy to round without changing the original
 	CCDecimal copy(*this);
 	CCDecimal::round(&copy, *pPrecision - 1);
 
-	//catch zero case
-	if (copy.used == 0) {
-		return "0";
-	}
-
 	string result = "";
 
-	//append sign
+	//sign
 	if (isNegative) result = "-";
 
-	int lz_end = copy.shift + (int) copy.used;
-	if (lz_end <= 0) result += '0';
-
-//0,5
-	//append digits before the decimal point
-	int dp = max(-copy.shift, 0);
-	for (int i = copy.used - 1; i >= dp; i--) {
-		result += (char) (copy.digit[i] + 48);
+	//at least one zero before dp
+	if ((int) copy.used <= -copy.shift) {
+		result += "0";
 	}
 
-	//append decimal point
-	if (copy.shift < 0) {
-		result += '.';
+	//digits before dp
+	for (int i = copy.used - 1; i >= max<int>(-copy.shift, 0); i--) {
+		result += (char)(copy.digit[i]+48);
 	}
 
-	//append leading zeroes
-	for (int i = lz_end; i < 0; i++) {
-		result += '0';
+	//dp
+	if (copy.shift < 0) result += ".";
+
+	//trailing zeroes
+	for (int i = copy.used; i < -copy.shift; i++) {
+		result += "0";
 	}
 
-	//append digits after decimal point
-	for (int i = min<int>(dp - 1, used - 1); i >= 0; i--) {
-		result += (char) (copy.digit[i] + 48);
+	//digits after dp
+	for (int i = min<int>(-copy.shift, copy.used) - 1; i >= 0; i--) {
+		result += (char)(copy.digit[i]+48);
 	}
 
-	//append trailing zeroes
-	for (int i = 0; i < copy.shift; i++) {
-		result += '0';
+	//trailing zeroes
+	for (int i = copy.shift; i > 0; i--) {
+		result += "0";
 	}
 
 	return result;
+
 }
+
 
 bool CCDecimal::magnitudeLessThan(const CCDecimal& op2) const {
 
@@ -774,6 +808,10 @@ CCDecimal CCDecimal::operator +(const CCDecimal& op2) const {
 
 	return result;
 }
+CCDecimal& CCDecimal::operator +=(const CCDecimal& op2) {
+	*this = *this + op2;
+	return *this;
+}
 CCDecimal CCDecimal::operator -(const CCDecimal& op2) const {
 	CCDecimal result;
 
@@ -798,6 +836,10 @@ CCDecimal CCDecimal::operator -(const CCDecimal& op2) const {
 
 	return result;
 }
+CCDecimal& CCDecimal::operator -=(const CCDecimal& op2) {
+	*this = *this + op2;
+	return *this;
+}
 
 CCDecimal CCDecimal::operator *(const CCDecimal& op2) const {
 	CCDecimal result;
@@ -816,17 +858,17 @@ bool CCDecimal::operator ==(const CCDecimal& op2) const {
 
 	if (used == 0 && op2.used == 0) return true;
 
-	//return false, if either used, shift or sign is not equal
+//return false, if either used, shift or sign is not equal
 	if (used != op2.used || shift != op2.shift || isNegative != op2.isNegative) {
 		return false;
 	}
 
-	//compares each individual digit, return false as soon as a mismatch is found
+//compares each individual digit, return false as soon as a mismatch is found
 	for (unsigned int i = 0; i < used; i++) {
 		if (digit[i] != op2.digit[i]) return false;
 	}
 
-	//return true if neither of the above checks fails
+//return true if neither of the above checks fails
 	return true;
 }
 
