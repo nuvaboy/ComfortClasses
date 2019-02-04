@@ -59,8 +59,7 @@ CCDecimal::CCDecimal(double number) /* construct from double */:
 	std::stringstream stringStream;
 	std::string numberStr;
 
-	stringStream << std::setprecision(std::numeric_limits<double>::digits10)
-			<< number;
+	stringStream << std::setprecision(std::numeric_limits<double>::digits10) << number;
 	numberStr = stringStream.str();
 
 	constructFromString(numberStr);
@@ -152,8 +151,7 @@ void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 	if (used_result > 0 && result->digit[0] == 0) {
 
 		int trailingZeroes = 1;
-		while (result->digit[trailingZeroes] == 0
-				&& trailingZeroes < used_result) {
+		while (result->digit[trailingZeroes] == 0 && trailingZeroes < used_result) {
 			trailingZeroes++;
 		}
 		for (int i = trailingZeroes; i < used_result; i++) { //<resultUsed tatt <=MAX
@@ -166,7 +164,8 @@ void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 
 		//clear overflow flag
 		result->digit[MAX] = 0;
-	} else if (result->digit[MAX] > 0) {
+	}
+	else if (result->digit[MAX] > 0) {
 		//overflow
 		throw std::overflow_error(
 				"Result is too large to store in Decimal. Keep values in range or reduce precision!");
@@ -334,8 +333,7 @@ void CCDecimal::sub(CCDecimal* result, const CCDecimal& opSmall) const {
 //63
 void CCDecimal::mult(CCDecimal* result, const CCDecimal& op2) const {
 
-	if (used == 0 || op2.used == 0)
-		return;
+	if (used == 0 || op2.used == 0) return;
 
 //determine the decimal numbers with most and least digits
 	const CCDecimal* pSmall = this;
@@ -381,7 +379,8 @@ void CCDecimal::mult(CCDecimal* result, const CCDecimal& op2) const {
 		if (tzFlag) {
 			if (result->digit[resultIndex] == 0) {
 				resultIndex--;
-			} else {
+			}
+			else {
 				tzFlag = false; //result was not 0, so where can not be more trailing zeroes
 			}
 		}
@@ -463,8 +462,7 @@ void CCDecimal::constructFromString(std::string numCandidate) {
 											((*it == '.') ?
 													(point_after_sign) :
 													((('0' <= *it && *it <= '9') ?
-															(digit_after_sign) :
-															(error))))));
+															(digit_after_sign) : (error))))));
 			break;
 		case sign_negative:
 			//set sign
@@ -478,8 +476,7 @@ void CCDecimal::constructFromString(std::string numCandidate) {
 							(valid_end) :
 							((*it == '.') ?
 									(point_after_sign) :
-									(('0' <= *it && *it <= '9') ?
-											(digit_after_sign) : (error)));
+									(('0' <= *it && *it <= '9') ? (digit_after_sign) : (error)));
 			break;
 		case point_after_sign:
 			//next state
@@ -487,8 +484,7 @@ void CCDecimal::constructFromString(std::string numCandidate) {
 			validator =
 					(it == numCandidate.end()) ?
 							(valid_end) :
-							(('0' <= *it && *it <= '9') ?
-									(digit_after_point) : (error));
+							(('0' <= *it && *it <= '9') ? (digit_after_point) : (error));
 			break;
 		case digit_after_sign:
 			//tracking digit
@@ -503,8 +499,7 @@ void CCDecimal::constructFromString(std::string numCandidate) {
 									(('0' <= *it && *it <= '9') ?
 											(validator) :
 											((*it == 'e' || *it == 'E') ?
-													(exponent_after_digit) :
-													(error))));
+													(exponent_after_digit) : (error))));
 			break;
 		case point_after_digit:
 			//next state
@@ -512,8 +507,7 @@ void CCDecimal::constructFromString(std::string numCandidate) {
 			validator =
 					(it == numCandidate.end()) ?
 							(valid_end) :
-							(('0' <= *it && *it <= '9') ?
-									(digit_after_point) : (error));
+							(('0' <= *it && *it <= '9') ? (digit_after_point) : (error));
 			break;
 		case digit_after_point:
 			//tracking shift
@@ -527,8 +521,7 @@ void CCDecimal::constructFromString(std::string numCandidate) {
 							(valid_end) :
 							(('0' <= *it && *it <= '9') ?
 									(validator) :
-									((*it == 'e' || *it == 'E') ?
-											(exponent_after_digit) : (error)));
+									((*it == 'e' || *it == 'E') ? (exponent_after_digit) : (error)));
 			break;
 		case exponent_after_digit:
 			//next state
@@ -541,8 +534,7 @@ void CCDecimal::constructFromString(std::string numCandidate) {
 									((*it == '-') ?
 											(exponent_negative) :
 											(('0' <= *it && *it <= '9') ?
-													(digit_after_exponent) :
-													(error))));
+													(digit_after_exponent) : (error))));
 			break;
 		case exponent_negative:
 			exponentSign = -1;
@@ -553,8 +545,7 @@ void CCDecimal::constructFromString(std::string numCandidate) {
 			validator =
 					(it == numCandidate.end()) ?
 							(error) :
-							(('0' <= *it && *it <= '9') ?
-									(digit_after_exponent) : (error));
+							(('0' <= *it && *it <= '9') ? (digit_after_exponent) : (error));
 			break;
 		case digit_after_exponent:
 			//change exponent
@@ -565,8 +556,7 @@ void CCDecimal::constructFromString(std::string numCandidate) {
 			numCandidate.erase(it); //remove so not present in following processing
 			validator =
 					(it == numCandidate.end()) ?
-							(valid_end) :
-							(('0' <= *it && *it <= '9') ? (validator) : (error));
+							(valid_end) : (('0' <= *it && *it <= '9') ? (validator) : (error));
 			break;
 		case error:
 			it++;
@@ -621,15 +611,15 @@ void CCDecimal::constructFromString(std::string numCandidate) {
 
 			int digitsToCut = used - MAX;
 			int digitsToSpare = -*pPrecision - shift;
-			std::cout << "digitsToCut:" << digitsToCut << "; digitsToSpare:"
-					<< digitsToSpare << std::endl;
+			std::cout << "digitsToCut:" << digitsToCut << "; digitsToSpare:" << digitsToSpare
+					<< std::endl;
 			if (digitsToCut <= digitsToSpare) {
 				cutOffset = digitsToCut;
 				used -= cutOffset;
 				shift += cutOffset;
-			} else {
-				throw std::overflow_error(
-						"Digits to store surpassing precision limit");
+			}
+			else {
+				throw std::overflow_error("Digits to store surpassing precision limit");
 			}
 		}
 
@@ -654,14 +644,16 @@ void CCDecimal::constructFromString(std::string numCandidate) {
 		while (rit != numCandidate.rend() && i <= MAX) {
 			if (*rit == '.' || *rit == '+' || *rit == '-') {
 				rit++;
-			} else {
+			}
+			else {
 				digit[i] = ((*rit) - '0');
 				i++;
 				rit++;
 			}
 		}
 
-	} else {
+	}
+	else {
 		//dunno, init to zero maybe?
 		//reset everything changed within validation (shift, used, sign)
 		throw std::invalid_argument("Invalid number.");
@@ -673,7 +665,6 @@ void CCDecimal::constructFromString(std::string numCandidate) {
 }
 void CCDecimal::round(CCDecimal* pDec, unsigned int precOut) {
 
-
 	//skip rounding, if precision less than precOut (implicit check: shift < 0)
 	if ((int) precOut >= -pDec->shift) return;
 
@@ -681,7 +672,24 @@ void CCDecimal::round(CCDecimal* pDec, unsigned int precOut) {
 	int roundIndex = -pDec->shift - (int) precOut - 1;
 	int validIndex = roundIndex + 1;
 
+	//fix
+
+	if (validIndex >= (int) pDec->used) {
+		if (roundIndex >= (int) pDec->used || pDec->digit[roundIndex] < 5) {
+			pDec->used = 0;
+			pDec->shift = 0;
+			return;
+		}
+
+		pDec->digit[0] = 1;
+		pDec->used = 1;
+		pDec->shift = -precOut;
+		return;
+	}
+	//fix end
+
 	if (pDec->digit[roundIndex] >= 5) { //round up
+
 		while (pDec->digit[validIndex] == 9) { //propagate carry
 			validIndex++;
 		}
@@ -693,7 +701,6 @@ void CCDecimal::round(CCDecimal* pDec, unsigned int precOut) {
 			pDec->used++;
 		}
 	}
-
 
 	//remove trailing zeroes
 	while (pDec->digit[validIndex] == 0) {
@@ -716,7 +723,6 @@ void CCDecimal::round(CCDecimal* pDec, unsigned int precOut) {
 //	}
 //	//
 	pDec->digit[pDec->used] = 0;
-
 
 	//adjust used and shift
 	pDec->used -= validIndex;
@@ -745,7 +751,7 @@ string CCDecimal::toString() const {
 
 	//digits before dp
 	for (int i = copy.used - 1; i >= max<int>(-copy.shift, 0); i--) {
-		result += (char)(copy.digit[i]+48);
+		result += (char) (copy.digit[i] + 48);
 	}
 
 	//dp
@@ -758,7 +764,7 @@ string CCDecimal::toString() const {
 
 	//digits after dp
 	for (int i = min<int>(-copy.shift, copy.used) - 1; i >= 0; i--) {
-		result += (char)(copy.digit[i]+48);
+		result += (char) (copy.digit[i] + 48);
 	}
 
 	//trailing zeroes
@@ -770,23 +776,18 @@ string CCDecimal::toString() const {
 
 }
 
-
 bool CCDecimal::magnitudeLessThan(const CCDecimal& op2) const {
 
-	if ((int) used + shift > (int) op2.used + op2.shift)
-		return false;
+	if ((int) used + shift > (int) op2.used + op2.shift) return false;
 
-	if ((int) used + shift < (int) op2.used + op2.shift)
-		return true;
+	if ((int) used + shift < (int) op2.used + op2.shift) return true;
 
 	int i = (int) used - 1;
 	int j = (int) op2.used - 1;
 
 	while (i >= 0 && j >= 0) {
-		if (digit[i] > op2.digit[j])
-			return false;
-		if (digit[i] < op2.digit[j])
-			return true;
+		if (digit[i] > op2.digit[j]) return false;
+		if (digit[i] < op2.digit[j]) return true;
 		i--;
 		j--;
 	}
@@ -800,11 +801,13 @@ CCDecimal CCDecimal::operator +(const CCDecimal& op2) const {
 	if (isNegative == op2.isNegative) {
 		add(&result, op2);
 		result.isNegative = isNegative;
-	} else {
+	}
+	else {
 		if (magnitudeLessThan(op2)) {
 			op2.sub(&result, *this); //-3 + 10 = 7
 			result.isNegative = op2.isNegative;
-		} else {
+		}
+		else {
 			sub(&result, op2); //-10 + 3 = -7
 			result.isNegative = isNegative;
 		}
@@ -822,7 +825,8 @@ CCDecimal CCDecimal::operator -(const CCDecimal& op2) const {
 	if (isNegative != op2.isNegative) {
 		add(&result, op2);
 		result.isNegative = isNegative;
-	} else {
+	}
+	else {
 		//+5 - 10 = -5
 		//-5 - (-10) = 5
 		if (magnitudeLessThan(op2)) {
@@ -859,8 +863,7 @@ CCDecimal& CCDecimal::operator *=(const CCDecimal& op2) {
 
 bool CCDecimal::operator ==(const CCDecimal& op2) const {
 
-	if (used == 0 && op2.used == 0)
-		return true;
+	if (used == 0 && op2.used == 0) return true;
 
 	//return false, if either used, shift or sign is not equal
 	if (used != op2.used || shift != op2.shift || isNegative != op2.isNegative) {
@@ -869,8 +872,7 @@ bool CCDecimal::operator ==(const CCDecimal& op2) const {
 
 	//compares each individual digit, return false as soon as a mismatch is found
 	for (unsigned int i = 0; i < used; i++) {
-		if (digit[i] != op2.digit[i])
-			return false;
+		if (digit[i] != op2.digit[i]) return false;
 	}
 
 	//return true if neither of the above checks fails
