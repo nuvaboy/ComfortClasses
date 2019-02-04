@@ -180,11 +180,15 @@ void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 void CCDecimal::sub(CCDecimal* result, const CCDecimal& opSmall) const {
 
 	//Subtract zero
-	if (opSmall.used == 0) return;
+	if (opSmall.used == 0) {
+		*result = *this;
+		return;
+	}
 
 	int shift_delta = opSmall.shift - shift;
 
 	int toCut = 0;
+	int toSpend = 0;
 
 	int merged_used = max<int>(-shift_delta, 0) + (int) used;
 	int tail_length = max<int>(-shift_delta, 0);
@@ -192,7 +196,7 @@ void CCDecimal::sub(CCDecimal* result, const CCDecimal& opSmall) const {
 	//cutting
 	if (merged_used > MAX) {
 		toCut = merged_used - MAX;
-		int toSpend = max<int>(-min<int>(shift, opSmall.shift) - *pPrecision, 0);
+		toSpend = max<int>(-min<int>(shift, opSmall.shift) - *pPrecision, 0);
 
 		if (toCut > toSpend + 1)
 			throw std::overflow_error("Can not cut result to minimal precision!");
@@ -278,6 +282,9 @@ void CCDecimal::sub(CCDecimal* result, const CCDecimal& opSmall) const {
 		}
 	}
 
+	if (toCut > toSpend)
+				throw std::overflow_error("Can not cut result to minimal precision!");
+
 	int result_pos = 0;
 
 	//read tail (negative shift_delta)
@@ -324,7 +331,7 @@ void CCDecimal::sub(CCDecimal* result, const CCDecimal& opSmall) const {
 	}
 
 	//leading zeroes
-	while (result->digit[result_pos] == 0) {
+	while (result_pos >= 0 && result->digit[result_pos] == 0) {
 		result_pos--;
 	}
 
@@ -334,6 +341,10 @@ void CCDecimal::sub(CCDecimal* result, const CCDecimal& opSmall) const {
 	//adjust used and shift
 	result->used = result_pos + 1;
 	result->shift = min<int>(shift, opSmall.shift) + toCut + tz_body + tz_head;
+	if (result_pos < 0)
+	{
+		result->shift = 0;
+	}
 }
 
 //63
