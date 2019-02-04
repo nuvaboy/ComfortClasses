@@ -474,7 +474,7 @@ void CCDecimal::constructFromString(std::string numberStr) {
 		case start:
 			validator =
 					(fwdChar == numberStr.end()) ?
-							(error) :
+							(valid_end) :
 							((*fwdChar == '-') ?
 									(sign_negative) :
 									((*fwdChar == '+') ?
