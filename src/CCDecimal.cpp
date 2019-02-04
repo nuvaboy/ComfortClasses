@@ -1,3 +1,4 @@
+
 /*
  * Decimal.cpp
  *
@@ -878,4 +879,5 @@ bool CCDecimal::operator ==(const CCDecimal& op2) const {
 	//return true if neither of the above checks fails
 	return true;
 }
+
 
