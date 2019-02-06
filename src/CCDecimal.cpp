@@ -805,6 +805,8 @@ void CCDecimal::constructFromString(std::string numberStr) {
 
 void CCDecimal::round(CCDecimal* pDec, uint32_t precOut) {
 
+	if (precOut > MAX -1) throw std::out_of_range("CCDecimal does not allow an Output precision greater than the maximal capacity minus one.");
+
 	//skip rounding, if precision less than precOut (implicit check: shift < 0)
 	if ((int32_t) precOut >= -pDec->shift) return;
 
@@ -862,14 +864,14 @@ void CCDecimal::round(CCDecimal* pDec, uint32_t precOut) {
 
 }
 
-string CCDecimal::toString() const {
+string CCDecimal::toString(uint32_t precOut) const {
 
 	//zero case
 	if (used == 0) return "0";
 
 	//create a copy to round without changing the original
 	CCDecimal copy(*this);
-	CCDecimal::round(&copy, *pPrecision - 1);
+	CCDecimal::round(&copy, precOut);
 
 	string result = "";
 
@@ -907,6 +909,11 @@ string CCDecimal::toString() const {
 	return result;
 
 }
+string CCDecimal::toString() const {
+
+	return toString(*pPrecision - 1);
+}
+
 
 bool CCDecimal::magnitudeLessThan(const CCDecimal& op2) const {
 

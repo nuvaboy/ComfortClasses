@@ -66,8 +66,7 @@ public:
 	//utility functionality
 	static void round(CCDecimal* pDec, unsigned int precOut);
 	string toString() const;
-	string toString2() const;
-
+	string toString(uint32_t precOut) const;
 
 	//operators
 	CCDecimal operator +(const CCDecimal&) const;
