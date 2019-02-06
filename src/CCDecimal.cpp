@@ -495,7 +495,8 @@ void CCDecimal::constructFromString(std::string numberStr) {
 	};
 
 	ValidatorStates validator = start;
-	int32_t exponent = 0;
+
+	int64_t exponent = 0;
 	int32_t exponentSign = 1;
 
 	auto fwdChar = numberStr.begin();
@@ -513,8 +514,11 @@ void CCDecimal::constructFromString(std::string numberStr) {
 													(point_after_sign) :
 													(((*fwdChar == '0') ?
 															(zero_after_sign) :
-															(('1' <= *fwdChar && *fwdChar <= '9') ?
-																	(digit_after_sign) : (error)))))));
+															(('1' <= *fwdChar
+																	&& *fwdChar
+																			<= '9') ?
+																	(digit_after_sign) :
+																	(error)))))));
 			break;
 		case sign_negative:
 			//set sign
@@ -560,8 +564,10 @@ void CCDecimal::constructFromString(std::string numberStr) {
 											(validator) :
 											(('1' <= *fwdChar && *fwdChar <= '9') ?
 													(digit_after_sign) :
-													((*fwdChar == 'e' || *fwdChar == 'E') ?
-															(exponent_after_zero) : (error)))));
+													((*fwdChar == 'e'
+															|| *fwdChar == 'E') ?
+															(exponent_after_zero) :
+															(error)))));
 			break;
 		case digit_after_sign:
 			//tracking digit
@@ -576,7 +582,8 @@ void CCDecimal::constructFromString(std::string numberStr) {
 									(('0' <= *fwdChar && *fwdChar <= '9') ?
 											(validator) :
 											((*fwdChar == 'e' || *fwdChar == 'E') ?
-													(exponent_after_digit) : (error))));
+													(exponent_after_digit) :
+													(error))));
 			break;
 		case point_after_zero:
 			//next state
@@ -590,7 +597,8 @@ void CCDecimal::constructFromString(std::string numberStr) {
 									(('1' <= *fwdChar && *fwdChar <= '9') ?
 											(digit_after_point) :
 											((*fwdChar == 'e' || *fwdChar == 'E') ?
-													(exponent_after_zero) : (error))));
+													(exponent_after_zero) :
+													(error))));
 			break;
 		case point_after_digit:
 			//next state
@@ -606,7 +614,8 @@ void CCDecimal::constructFromString(std::string numberStr) {
 			break;
 		case zero_after_point:
 			//tracking shift
-			if (shift < std::numeric_limits<int32_t>::min() + 1) {
+
+			if (shift < -std::numeric_limits<int32_t>::max()) {
 				throw std::overflow_error("Exponent too large");
 			}
 			shift--;
@@ -621,11 +630,13 @@ void CCDecimal::constructFromString(std::string numberStr) {
 									(('1' <= *fwdChar && *fwdChar <= '9') ?
 											(digit_after_point) :
 											((*fwdChar == 'e' || *fwdChar == 'E') ?
-													(exponent_after_zero) : (error))));
+													(exponent_after_zero) :
+													(error))));
 			break;
 		case digit_after_point:
 			//tracking shift
-			if (shift < std::numeric_limits<int32_t>::min() + 1) {
+
+			if (shift < -std::numeric_limits<int32_t>::max()) {
 				throw std::overflow_error("Exponent too large");
 			}
 			shift--;
@@ -657,7 +668,8 @@ void CCDecimal::constructFromString(std::string numberStr) {
 									((*fwdChar == '-') ?
 											(exponent_negative) :
 											(('0' <= *fwdChar && *fwdChar <= '9') ?
-													(digit_after_exponent) : (error))));
+													(digit_after_exponent) :
+													(error))));
 			break;
 		case exponent_negative:
 			exponentSign = -1;
@@ -668,21 +680,21 @@ void CCDecimal::constructFromString(std::string numberStr) {
 			validator =
 					(fwdChar == numberStr.end()) ?
 							(error) :
-							(('0' <= *fwdChar && *fwdChar <= '9') ? (digit_after_exponent) : (error));
+							(('0' <= *fwdChar && *fwdChar <= '9') ?
+									(digit_after_exponent) : (error));
 			break;
 		case digit_after_exponent:
-			//TODO(jan) catch if exponent is too large
 			//check if multiply would fail
-			if (exponent > std::numeric_limits<int32_t>::max() / 10) {
-				throw std::overflow_error("Exponent too large");
+			if (exponent > std::numeric_limits<int64_t>::max() / 10) {
+				throw std::overflow_error("Exponent out of range.");
 			}
-
 			//basically shift all current digits
 			exponent *= 10;
 
 			//check if add would fail
-			if (exponent > std::numeric_limits<int32_t>::max() - (*fwdChar - '0')) {
-				throw std::overflow_error("Exponent too large");
+			if (exponent
+					> std::numeric_limits<int64_t>::max() - (*fwdChar - '0')) {
+				throw std::overflow_error("Exponent out of range.");
 			}
 
 			//add current digit in
@@ -693,7 +705,8 @@ void CCDecimal::constructFromString(std::string numberStr) {
 			validator =
 					(fwdChar == numberStr.end()) ?
 							(valid_end) :
-							(('0' <= *fwdChar && *fwdChar <= '9') ? (validator) : (error));
+							(('0' <= *fwdChar && *fwdChar <= '9') ?
+									(validator) : (error));
 			break;
 		case error:
 			fwdChar++;
@@ -707,15 +720,9 @@ void CCDecimal::constructFromString(std::string numberStr) {
 		throw std::invalid_argument("Invalid number.");
 	}
 
-	/* add present exponent in (if not applicable, is zero) */
-	exponent *= exponentSign;
-	//check if add would fail
-	if (exponent < 0 && exponent < -std::numeric_limits<int32_t>::max() - shift) {
-		throw std::overflow_error("Exponent too large");
-	}
-	shift += exponent;
-
-	/* trim number */
+	/*
+	 * trim number
+	 */
 	//remove trailing zeroes before cut
 	auto revChar = numberStr.rbegin();
 	while (revChar != numberStr.rend() && *revChar == '0') {
@@ -724,12 +731,44 @@ void CCDecimal::constructFromString(std::string numberStr) {
 		revChar++;
 	}
 	if (numberStr.empty()) {
-		std::cout << "\n trimmed number empty. assuming value zero.\n";
 		shift = 0;
 		used = 0;
 		return;
 	}
-	//check for fit in type
+
+	/*
+	 * add present exponent in (if not applicable, is zero)
+	 */
+	//add sign to exponent
+	exponent *= exponentSign;
+
+	//check for overflows
+	int64_t int32max = std::numeric_limits<int32_t>::max();
+	if (shift <= 0) {
+		if (exponent < 0
+				&& exponent < -int32max - static_cast<int64_t>(shift)) {
+			throw std::overflow_error("Exponent out of range.");
+		}
+		if (exponent > int32max
+				&& exponent > int32max - static_cast<int64_t>(shift)) {
+			throw std::overflow_error("Exponent out of range.");
+		}
+	}
+	if (shift > 0) {
+		if (exponent > 0 && exponent > int32max - static_cast<int64_t>(shift)) {
+			throw std::overflow_error("Exponent out of range.");
+		}
+		if (exponent < -int32max
+				&& exponent < -int32max - static_cast<int64_t>(shift)) {
+			throw std::overflow_error("Exponent out of range.");
+		}
+	}
+	//add exponent in
+	shift += static_cast<int32_t>(exponent);
+
+	/*
+	 * check for fit in type
+	 */
 	if (used > MAX) {
 		int32_t cutOffset = 0;
 
@@ -737,7 +776,8 @@ void CCDecimal::constructFromString(std::string numberStr) {
 		int32_t digitsToSpare = -*pPrecision - shift;
 
 		if (digitsToCut > digitsToSpare) {
-			throw std::overflow_error("Digits to store surpassing precision limit");
+			throw std::overflow_error(
+					"Digits to store surpassing precision limit");
 		}
 		cutOffset = digitsToCut;
 		used -= cutOffset;
@@ -752,7 +792,9 @@ void CCDecimal::constructFromString(std::string numberStr) {
 		}
 	}
 
-	/* copy digits into array */
+	/*
+	 * copy digits into array
+	 */
 	int32_t i = 0;
 	while (revChar != numberStr.rend() && i <= MAX) {
 		digit[i] = ((*revChar) - '0');
