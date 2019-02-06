@@ -483,7 +483,6 @@ void CCDecimal::constructFromString(std::string numberStr) {
 		point_after_digit,
 		zero_after_point,
 		digit_after_point,
-		exponent_after_zero,
 		exponent_after_digit,
 		exponent_positive,
 		exponent_negative,
@@ -563,7 +562,7 @@ void CCDecimal::constructFromString(std::string numberStr) {
 													(digit_after_sign) :
 													((*fwdChar == 'e'
 															|| *fwdChar == 'E') ?
-															(exponent_after_zero) :
+															(exponent_after_digit) :
 															(error)))));
 			break;
 		case digit_after_sign:
@@ -594,7 +593,7 @@ void CCDecimal::constructFromString(std::string numberStr) {
 									(('1' <= *fwdChar && *fwdChar <= '9') ?
 											(digit_after_point) :
 											((*fwdChar == 'e' || *fwdChar == 'E') ?
-													(exponent_after_zero) :
+													(exponent_after_digit) :
 													(error))));
 			break;
 		case point_after_digit:
@@ -627,7 +626,7 @@ void CCDecimal::constructFromString(std::string numberStr) {
 									(('1' <= *fwdChar && *fwdChar <= '9') ?
 											(digit_after_point) :
 											((*fwdChar == 'e' || *fwdChar == 'E') ?
-													(exponent_after_zero) :
+													(exponent_after_digit) :
 													(error))));
 			break;
 		case digit_after_point:
@@ -648,11 +647,6 @@ void CCDecimal::constructFromString(std::string numberStr) {
 									(validator) :
 									((*fwdChar == 'e' || *fwdChar == 'E') ?
 											(exponent_after_digit) : (error)));
-			break;
-		case exponent_after_zero:
-			//next state
-			numberStr.erase(fwdChar, numberStr.end());
-			validator = valid_end;
 			break;
 		case exponent_after_digit:
 			//next state
@@ -705,9 +699,6 @@ void CCDecimal::constructFromString(std::string numberStr) {
 							(('0' <= *fwdChar && *fwdChar <= '9') ?
 									(validator) : (error));
 			break;
-		case error:
-			fwdChar++;
-			break;
 		default:
 			std::cerr << "FSM in default. This should not happen." << std::endl;
 		}
@@ -726,11 +717,6 @@ void CCDecimal::constructFromString(std::string numberStr) {
 		shift++;
 		used--;
 		revChar++;
-	}
-	if (numberStr.empty()) {
-		shift = 0;
-		used = 0;
-		return;
 	}
 
 	/*
@@ -762,6 +748,12 @@ void CCDecimal::constructFromString(std::string numberStr) {
 	}
 	//add exponent in
 	shift += static_cast<int32_t>(exponent);
+
+	if (numberStr.empty()) {
+		shift = 0;
+		used = 0;
+		return;
+	}
 
 	/*
 	 * check for fit in type
