@@ -8,7 +8,7 @@
 #ifndef CCDECIMAL_H_
 #define CCDECIMAL_H_
 
-#define MAX 31
+#define MAX 31 //31
 
 #include <stdint.h>
 #include <iostream>

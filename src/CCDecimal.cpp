@@ -282,8 +282,7 @@ void CCDecimal::sub(CCDecimal* result, const CCDecimal& opSmall) const {
 		}
 	}
 
-	if (toCut > toSpend)
-				throw std::overflow_error("Can not cut result to minimal precision!");
+	if (toCut > toSpend) throw std::overflow_error("Can not cut result to minimal precision!");
 
 	int result_pos = 0;
 
@@ -341,8 +340,8 @@ void CCDecimal::sub(CCDecimal* result, const CCDecimal& opSmall) const {
 	//adjust used and shift
 	result->used = result_pos + 1;
 	result->shift = min<int>(shift, opSmall.shift) + toCut + tz_body + tz_head;
-	if (result_pos < 0)
-	{
+
+	if (result_pos < 0) {
 		result->shift = 0;
 	}
 }
@@ -352,7 +351,7 @@ void CCDecimal::mult(CCDecimal* result, const CCDecimal& op2) const {
 
 	if (used == 0 || op2.used == 0) return;
 
-//determine the decimal numbers with most and least digits
+	//determine the decimal numbers with most and least digits
 	const CCDecimal* pSmall = this;
 	const CCDecimal* pBig = &op2;
 	if (op2.used < used) {
@@ -360,14 +359,47 @@ void CCDecimal::mult(CCDecimal* result, const CCDecimal& op2) const {
 		pBig = this;
 	}
 
-//53,28 * 89,8965
+	int carryFromCut = 0;
+	//53,28 * 89,8965
 	bool tzFlag = true; //flag is set while a result of 0 at an index means a trailing zero
 	unsigned int resultUsedMax = pSmall->used + pBig->used - 1; //index of the
 
+	int toCut = 0;
+	if (resultUsedMax > MAX) {
+		toCut = (int) resultUsedMax - MAX;
+		int shift_sum = pSmall->shift + pBig->shift;
+
+		int toSpend = -shift_sum - *pPrecision;
+		if (toSpend < toCut) throw std::overflow_error("");
+
+		////fix fix
+		int ri = 0;
+
+		for (unsigned int index = 0; (int) index < toCut; index++) {
+
+			unsigned int i_begin = max<int>(index - pSmall->used + 1, 0);
+			int j = index - i_begin;
+
+			int x = carryFromCut;
+			carryFromCut = 0;
+			for (unsigned int i = i_begin; j >= 0 && i < pBig->used; i++) {
+				x += pBig->digit[i] * pSmall->digit[j];
+				int temp = x / 10;
+				x -= 10 * temp;
+				carryFromCut += temp;
+				j--;
+			}
+			ri++; //increment according to index unless trailing Zeroes were removed
+		}
+		///end fix fix
+	}
+
 	int resultIndex = 0; //current position in the result
 
-//index is the currently calculated coefficient of the result
-	for (unsigned int index = 0; index < resultUsedMax; index++) {
+	//index is the currently calculated coefficient of the result
+
+	result->digit[0] = carryFromCut;
+	for (unsigned int index = toCut; index < resultUsedMax; index++) {
 
 		//calculate all multiplications for the current index
 		//cout << index << ": ";
@@ -390,6 +422,7 @@ void CCDecimal::mult(CCDecimal* result, const CCDecimal& op2) const {
 			//
 			j--;
 		}
+
 		//cout << endl;
 
 		//remove trailing Zeroes
@@ -416,14 +449,15 @@ void CCDecimal::mult(CCDecimal* result, const CCDecimal& op2) const {
 		resultIndex++; //increment according to index unless trailing Zeroes were removed
 	}
 
+	int tzCount = (resultUsedMax - toCut) - resultIndex; //amount of invisible trailing Zeroes
+
 //adjust the used and shift of the result
 	result->used = resultIndex + 1;
 
 //quick fix
 	if (result->digit[resultIndex] == 0) result->used--;
 
-	int tzCount = resultUsedMax - resultIndex; //amount of invisible trailing Zeroes
-	result->shift = shift + op2.shift + tzCount;
+	result->shift = shift + op2.shift + tzCount + toCut;
 
 }
 
@@ -778,14 +812,6 @@ void CCDecimal::round(CCDecimal* pDec, unsigned int precOut) {
 	for (int i = validIndex - 1; i >= (int) pDec->used - validIndex; i--) {
 		pDec->digit[i] = 0;
 	}
-
-//pDec->used-vaildIndex
-//remove generated leading zeroes fix
-//	for (int i = (int)pDec->used-1; i > (int)pDec->used-validIndex; i--){
-//		pDec->digit[i] = 0;
-//	}
-//	//
-	pDec->digit[pDec->used] = 0;
 
 	//adjust used and shift
 	pDec->used -= validIndex;
