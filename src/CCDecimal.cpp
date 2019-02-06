@@ -86,7 +86,6 @@ void CCDecimal::setGlobalPrecision(uint32_t precision) {
 	CCDecimal::defaultPrecision = precision + 1;
 }
 
-//91
 //core functionality
 void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 
@@ -176,7 +175,6 @@ void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 
 }
 
-//124 ====> (284 - 182 + 1 = 103) (329 - 182 + 1 = 148) (329 - 180 + 1 = 150)
 void CCDecimal::sub(CCDecimal* result, const CCDecimal& opSmall) const {
 
 	//Subtract zero
@@ -347,7 +345,6 @@ void CCDecimal::sub(CCDecimal* result, const CCDecimal& opSmall) const {
 	}
 }
 
-//63
 void CCDecimal::mult(CCDecimal* result, const CCDecimal& op2) const {
 
 	if (used == 0 || op2.used == 0) return;
