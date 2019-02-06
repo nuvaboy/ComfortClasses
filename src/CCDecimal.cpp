@@ -19,7 +19,7 @@
 using namespace std;
 
 //initialize static properties
-unsigned int CCDecimal::defaultPrecision = 3;
+uint32_t CCDecimal::defaultPrecision = 3;
 
 //constructors
 CCDecimal::CCDecimal() { /* construct with default value (0) */
@@ -28,7 +28,7 @@ CCDecimal::CCDecimal() { /* construct with default value (0) */
 	pPrecision = &CCDecimal::defaultPrecision;
 
 	//initialize all digits to zero
-	for (int i = 0; i <= MAX; i++) {
+	for (int32_t i = 0; i <= MAX; i++) {
 		digit[i] = 0;
 	}
 	used = 0;
@@ -59,8 +59,7 @@ CCDecimal::CCDecimal(double number) /* construct from double */:
 	std::stringstream stringStream;
 	std::string numberStr;
 
-	stringStream << std::setprecision(std::numeric_limits<double>::digits10)
-			<< number;
+	stringStream << std::setprecision(std::numeric_limits<double>::digits10) << number;
 	numberStr = stringStream.str();
 
 	constructFromString(numberStr);
@@ -70,20 +69,20 @@ CCDecimal::~CCDecimal() {
 }
 
 //public setter/getter
-unsigned int CCDecimal::getLocalPrecision() {
+uint32_t CCDecimal::getLocalPrecision() {
 	return *pPrecision - 1;
 }
 
-void CCDecimal::setLocalPrecision(unsigned int p) {
+void CCDecimal::setLocalPrecision(uint32_t p) {
 	precision = p + 1;
 	pPrecision = &precision;
 }
 
-unsigned int CCDecimal::getGlobalPrecision() {
+uint32_t CCDecimal::getGlobalPrecision() {
 	return CCDecimal::defaultPrecision - 1;
 }
 
-void CCDecimal::setGlobalPrecision(unsigned int precision) {
+void CCDecimal::setGlobalPrecision(uint32_t precision) {
 	CCDecimal::defaultPrecision = precision + 1;
 }
 
@@ -101,15 +100,15 @@ void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 		pLeastPrec = this;
 	}
 
-	int shift_result = pMostPrec->shift; //dpPos_min
-	int shift_delta = pLeastPrec->shift - pMostPrec->shift; //dpPos_gap
-	int used_result = max(pMostPrec->used, pLeastPrec->used + shift_delta); //calculate coalesced size
+	int32_t shift_result = pMostPrec->shift; //dpPos_min
+	int32_t shift_delta = pLeastPrec->shift - pMostPrec->shift; //dpPos_gap
+	int32_t used_result = max(pMostPrec->used, pLeastPrec->used + shift_delta); //calculate coalesced size
 
 	//calculate amount of expendable digits (digits to spend)
-	int digToSpend = -*pPrecision - shift_result;
+	int32_t digToSpend = -*pPrecision - shift_result;
 
 	//calculate amount of digits needed to be cut to meet size requirements (digits to cut)
-	int digToCut = max(used_result - MAX, 0);
+	int32_t digToCut = max(used_result - MAX, 0);
 
 	//check, if cutting of decimal places is necessary
 	if (digToCut > 0) {
@@ -128,17 +127,17 @@ void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 	}
 
 	//add most precise operand to the result
-	for (unsigned int i = digToCut; i < pMostPrec->used; i++) {
+	for (uint32_t i = digToCut; i < pMostPrec->used; i++) {
 		result->digit[i - digToCut] = pMostPrec->digit[i];
 	}
 
 	//add least precise operand to the result
-	for (unsigned int i = 0; i < pLeastPrec->used; i++) {
+	for (uint32_t i = 0; i < pLeastPrec->used; i++) {
 		result->digit[i + shift_delta] += pLeastPrec->digit[i];
 	}
 
 	//forward carries
-	for (int i = 0; i < used_result; i++) {
+	for (int32_t i = 0; i < used_result; i++) {
 		if (result->digit[i] >= 10) {
 			result->digit[i] -= 10;
 			result->digit[i + 1]++;
@@ -151,12 +150,11 @@ void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 	//remove trailing zeros
 	if (used_result > 0 && result->digit[0] == 0) {
 
-		int trailingZeroes = 1;
-		while (result->digit[trailingZeroes] == 0
-				&& trailingZeroes < used_result) {
+		int32_t trailingZeroes = 1;
+		while (result->digit[trailingZeroes] == 0 && trailingZeroes < used_result) {
 			trailingZeroes++;
 		}
-		for (int i = trailingZeroes; i < used_result; i++) { //<resultUsed tatt <=MAX
+		for (int32_t i = trailingZeroes; i < used_result; i++) { //<resultUsed tatt <=MAX
 			result->digit[i - trailingZeroes] = result->digit[i];
 		}
 
@@ -166,7 +164,8 @@ void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 
 		//clear overflow flag
 		result->digit[MAX] = 0;
-	} else if (result->digit[MAX] > 0) {
+	}
+	else if (result->digit[MAX] > 0) {
 		//overflow
 		throw std::overflow_error(
 				"Result is too large to store in Decimal. Keep values in range or reduce precision!");
@@ -186,56 +185,55 @@ void CCDecimal::sub(CCDecimal* result, const CCDecimal& opSmall) const {
 		return;
 	}
 
-	int shift_delta = opSmall.shift - shift;
+	int32_t shift_delta = opSmall.shift - shift;
 
-	int toCut = 0;
-	int toSpend = 0;
+	int32_t toCut = 0;
+	int32_t toSpend = 0;
 
-	int merged_used = max<int>(-shift_delta, 0) + (int) used;
-	int tail_length = max<int>(-shift_delta, 0);
+	int32_t merged_used = max<int32_t>(-shift_delta, 0) + (int32_t) used;
+	int32_t tail_length = max<int32_t>(-shift_delta, 0);
 
 	//cutting
 	if (merged_used > MAX) {
 		toCut = merged_used - MAX;
-		toSpend = max<int>(-min<int>(shift, opSmall.shift) - *pPrecision, 0);
+		toSpend = max<int32_t>(-min<int32_t>(shift, opSmall.shift) - *pPrecision, 0);
 
 		if (toCut > toSpend + 1)
-			throw std::overflow_error(
-					"Can not cut result to minimal precision!");
+			throw std::overflow_error("Can not cut result to minimal precision!");
 	}
 
 	bool hasTail = shift_delta < 0;
 
 	//trailing zeroes
 	bool carry = hasTail;
-	int tz_body = 0;
-	int tz_head = 0;
+	int32_t tz_body = 0;
+	int32_t tz_head = 0;
 	if (toCut == -shift_delta) {
-		int search_pos = tail_length;
+		int32_t search_pos = tail_length;
 
-		if (search_pos == (int) opSmall.used) { //no body, trailing zero into head due to carry
+		if (search_pos == (int32_t) opSmall.used) { //no body, trailing zero into head due to carry
 			if (hasTail && digit[0] == 1) {
 				search_pos++;
 				tz_head++;
 				carry = false;
 			}
-		} else if (search_pos < (int) opSmall.used) {
+		}
+		else if (search_pos < (int32_t) opSmall.used) {
 
 			if (hasTail) { //trailing zero due to carry into body
-				if (digit[search_pos - tail_length]
-						== opSmall.digit[search_pos] + 1) {
+				if (digit[search_pos - tail_length] == opSmall.digit[search_pos] + 1) {
 					tz_body++;
 					search_pos++;
 					carry = false;
-				} else {
+				}
+				else {
 					search_pos = MAX + 1; //end search for trailing zeroes
 
 				}
 			}
 
-			while (search_pos < (int) opSmall.used
-					&& digit[search_pos - tail_length]
-							== opSmall.digit[search_pos]) {
+			while (search_pos < (int32_t) opSmall.used
+					&& digit[search_pos - tail_length] == opSmall.digit[search_pos]) {
 				search_pos++;
 				tz_body++;
 			}
@@ -243,9 +241,8 @@ void CCDecimal::sub(CCDecimal* result, const CCDecimal& opSmall) const {
 		}
 
 		//trailing zeroes in head
-		//HINT:if (search_pos >= (int) opSmall.used) is implicitly true
-		for (; search_pos < (int) used && digit[search_pos - tail_length] == 0;
-				search_pos++) {
+		//HINT:if (search_pos >= (int32_t) opSmall.used) is implicitly true
+		for (; search_pos < (int32_t) used && digit[search_pos - tail_length] == 0; search_pos++) {
 			tz_head++;
 		}
 	}
@@ -257,27 +254,24 @@ void CCDecimal::sub(CCDecimal* result, const CCDecimal& opSmall) const {
 		if (digit[used - 1] == 1) { //HINT: Where has to be a head, if cutting is necessary.
 
 			//filter leading zeroes
-			int i = (int) used - 2;
+			int32_t i = (int32_t) used - 2;
 			if (i < 0) {
 				toCut--;
 				printf("MSD will become zero!\n");
-			} else {
-				int end = (int) opSmall.used + shift_delta;
+			}
+			else {
+				int32_t end = (int32_t) opSmall.used + shift_delta;
 				for (; i >= end && i >= 0 && digit[i] == 0; i--) {
 				}
 
 				//filter equal digits which in consequence will be zero
 				if (i == end - 1) {
 
-					while (i-- >= 0
-							&& digit[i + 1]
-									== opSmall.digit[i + 1 - shift_delta]) { //shift_delta has to be negative, if cutting
+					while (i-- >= 0 && digit[i + 1] == opSmall.digit[i + 1 - shift_delta]) { //shift_delta has to be negative, if cutting
 					}
 
-					if (i < end - 1
-							&& (digit[i + 1]
-									< opSmall.digit[i + 1 - shift_delta] || /* one digit is greater and produces carry */
-							(i == -1 && shift_delta < 0))) { /* all equal and tail produces carry */
+					if (i < end - 1 && (digit[i + 1] < opSmall.digit[i + 1 - shift_delta] || /* one digit is greater and produces carry */
+					(i == -1 && shift_delta < 0))) { /* all equal and tail produces carry */
 						toCut--;
 						printf("MSD will become zero!\n");
 					}
@@ -290,15 +284,14 @@ void CCDecimal::sub(CCDecimal* result, const CCDecimal& opSmall) const {
 
 	if (toCut > toSpend) throw std::overflow_error("Can not cut result to minimal precision!");
 
-	int result_pos = 0;
+	int32_t result_pos = 0;
 
 	//read tail (negative shift_delta)
-	int i = toCut;
+	int32_t i = toCut;
 	if (hasTail) {
-		if (i == 0)
-			result->digit[result_pos++] = 10 - opSmall.digit[i++]; //LSD has no carry-in
+		if (i == 0) result->digit[result_pos++] = 10 - opSmall.digit[i++]; //LSD has no carry-in
 
-		for (; i < min<int>(-shift_delta, opSmall.used); i++) {
+		for (; i < min<int32_t>(-shift_delta, opSmall.used); i++) {
 			result->digit[result_pos++] = 9 - opSmall.digit[i];
 		}
 		for (; i < -shift_delta; i++) {
@@ -313,29 +306,27 @@ void CCDecimal::sub(CCDecimal* result, const CCDecimal& opSmall) const {
 	}
 
 	//read body
-	int x = tail_length + tz_body;
-	for (; x < (int) opSmall.used; x++) {
-		int temp = digit[x - tail_length + max(0, shift_delta)]
-				- opSmall.digit[x] - carry;
-		if ((carry = temp < 0))
-			temp += 10;
+	int32_t x = tail_length + tz_body;
+	for (; x < (int32_t) opSmall.used; x++) {
+		int32_t temp = digit[x - tail_length + max(0, shift_delta)] - opSmall.digit[x] - carry;
+		if ((carry = temp < 0)) temp += 10;
 		result->digit[result_pos++] = temp;
 	}
 
 	//read head
-	for (int i = max<int>((int) opSmall.used + shift_delta, 0) + tz_head;
-			i < (int) used; i++) {
-		int temp = digit[i] - carry;
+	for (int32_t i = max<int32_t>((int32_t) opSmall.used + shift_delta, 0) + tz_head;
+			i < (int32_t) used; i++) {
+		int32_t temp = digit[i] - carry;
 
-		if ((carry = temp < 0))
-			temp += 10;
+		if ((carry = temp < 0)) temp += 10;
 		result->digit[result_pos++] = temp;
 	}
 
 	//last carry
 	if (result_pos > MAX) {
 		result_pos--;
-	} else {
+	}
+	else {
 		result->digit[result_pos] = carry;
 	}
 
@@ -345,12 +336,11 @@ void CCDecimal::sub(CCDecimal* result, const CCDecimal& opSmall) const {
 	}
 
 	//overflow detection
-	if (result->digit[MAX] == 1)
-		throw std::overflow_error("test");
+	if (result->digit[MAX] == 1) throw std::overflow_error("test");
 
 	//adjust used and shift
 	result->used = result_pos + 1;
-	result->shift = min<int>(shift, opSmall.shift) + toCut + tz_body + tz_head;
+	result->shift = min<int32_t>(shift, opSmall.shift) + toCut + tz_body + tz_head;
 
 	if (result_pos < 0) {
 		result->shift = 0;
@@ -360,8 +350,7 @@ void CCDecimal::sub(CCDecimal* result, const CCDecimal& opSmall) const {
 //63
 void CCDecimal::mult(CCDecimal* result, const CCDecimal& op2) const {
 
-	if (used == 0 || op2.used == 0)
-		return;
+	if (used == 0 || op2.used == 0) return;
 
 	//determine the decimal numbers with most and least digits
 	const CCDecimal* pSmall = this;
@@ -371,32 +360,32 @@ void CCDecimal::mult(CCDecimal* result, const CCDecimal& op2) const {
 		pBig = this;
 	}
 
-	int carryFromCut = 0;
+	int32_t carryFromCut = 0;
 	//53,28 * 89,8965
 	bool tzFlag = true; //flag is set while a result of 0 at an index means a trailing zero
-	unsigned int resultUsedMax = pSmall->used + pBig->used - 1; //index of the
+	uint32_t resultUsedMax = pSmall->used + pBig->used - 1; //index of the
 
-	int toCut = 0;
+	int32_t toCut = 0;
 	if (resultUsedMax > MAX) {
-		toCut = (int) resultUsedMax - MAX;
-		int shift_sum = pSmall->shift + pBig->shift;
+		toCut = (int32_t) resultUsedMax - MAX;
+		int32_t shift_sum = pSmall->shift + pBig->shift;
 
-		int toSpend = -shift_sum - *pPrecision;
+		int32_t toSpend = -shift_sum - *pPrecision;
 		if (toSpend < toCut) throw std::overflow_error("");
 
 		////fix fix
-		int ri = 0;
+		int32_t ri = 0;
 
-		for (unsigned int index = 0; (int) index < toCut; index++) {
+		for (uint32_t index = 0; (int32_t) index < toCut; index++) {
 
-			unsigned int i_begin = max<int>(index - pSmall->used + 1, 0);
-			int j = index - i_begin;
+			uint32_t i_begin = max<int32_t>(index - pSmall->used + 1, 0);
+			int32_t j = index - i_begin;
 
-			int x = carryFromCut;
+			int32_t x = carryFromCut;
 			carryFromCut = 0;
-			for (unsigned int i = i_begin; j >= 0 && i < pBig->used; i++) {
+			for (uint32_t i = i_begin; j >= 0 && i < pBig->used; i++) {
 				x += pBig->digit[i] * pSmall->digit[j];
-				int temp = x / 10;
+				int32_t temp = x / 10;
 				x -= 10 * temp;
 				carryFromCut += temp;
 				j--;
@@ -406,28 +395,28 @@ void CCDecimal::mult(CCDecimal* result, const CCDecimal& op2) const {
 		///end fix fix
 	}
 
-	int resultIndex = 0; //current position in the result
+	int32_t resultIndex = 0; //current position in the result
 
 	//index is the currently calculated coefficient of the result
 
 	result->digit[0] = carryFromCut;
-	for (unsigned int index = toCut; index < resultUsedMax; index++) {
+	for (uint32_t index = toCut; index < resultUsedMax; index++) {
 
 		//calculate all multiplications for the current index
 		//cout << index << ": ";
-		unsigned int i_begin = max<int>(index - pSmall->used + 1, 0);
-		int j = index - i_begin;
+		uint32_t i_begin = max<int32_t>(index - pSmall->used + 1, 0);
+		int32_t j = index - i_begin;
 
-		unsigned int carry = 0;
+		uint32_t carry = 0;
 
-		for (unsigned int i = i_begin; j >= 0 && i < pBig->used; i++) {
+		for (uint32_t i = i_begin; j >= 0 && i < pBig->used; i++) {
 			//cout << "(" << i << ", " << j << ")";
 
 			//printf("%i + %i * %i\n",result->digit[resultIndex], pBig->digit[i],pSmall->digit[j]);
 			result->digit[resultIndex] += pBig->digit[i] * pSmall->digit[j];
 
 			//fix
-			int temp = result->digit[resultIndex] / 10;
+			int32_t temp = result->digit[resultIndex] / 10;
 			result->digit[resultIndex] -= temp * 10;
 			carry += temp;
 
@@ -441,7 +430,8 @@ void CCDecimal::mult(CCDecimal* result, const CCDecimal& op2) const {
 		if (tzFlag) {
 			if (result->digit[resultIndex] == 0) {
 				resultIndex--;
-			} else {
+			}
+			else {
 				tzFlag = false; //result was not 0, so where can not be more trailing zeroes
 			}
 		}
@@ -460,14 +450,13 @@ void CCDecimal::mult(CCDecimal* result, const CCDecimal& op2) const {
 		resultIndex++; //increment according to index unless trailing Zeroes were removed
 	}
 
-	int tzCount = (resultUsedMax - toCut) - resultIndex; //amount of invisible trailing Zeroes
+	int32_t tzCount = (resultUsedMax - toCut) - resultIndex; //amount of invisible trailing Zeroes
 
 //adjust the used and shift of the result
 	result->used = resultIndex + 1;
 
 //quick fix
-	if (result->digit[resultIndex] == 0)
-		result->used--;
+	if (result->digit[resultIndex] == 0) result->used--;
 
 	result->shift = shift + op2.shift + tzCount + toCut;
 
@@ -506,8 +495,8 @@ void CCDecimal::constructFromString(std::string numberStr) {
 	};
 
 	ValidatorStates validator = start;
-	int exponent = 0;
-	int exponentSign = 1;
+	int32_t exponent = 0;
+	int32_t exponentSign = 1;
 
 	auto fwdChar = numberStr.begin();
 	while (validator != valid_end && validator != error) {
@@ -524,11 +513,8 @@ void CCDecimal::constructFromString(std::string numberStr) {
 													(point_after_sign) :
 													(((*fwdChar == '0') ?
 															(zero_after_sign) :
-															(('1' <= *fwdChar
-																	&& *fwdChar
-																			<= '9') ?
-																	(digit_after_sign) :
-																	(error)))))));
+															(('1' <= *fwdChar && *fwdChar <= '9') ?
+																	(digit_after_sign) : (error)))))));
 			break;
 		case sign_negative:
 			//set sign
@@ -574,10 +560,8 @@ void CCDecimal::constructFromString(std::string numberStr) {
 											(validator) :
 											(('1' <= *fwdChar && *fwdChar <= '9') ?
 													(digit_after_sign) :
-													((*fwdChar == 'e'
-															|| *fwdChar == 'E') ?
-															(exponent_after_zero) :
-															(error)))));
+													((*fwdChar == 'e' || *fwdChar == 'E') ?
+															(exponent_after_zero) : (error)))));
 			break;
 		case digit_after_sign:
 			//tracking digit
@@ -592,8 +576,7 @@ void CCDecimal::constructFromString(std::string numberStr) {
 									(('0' <= *fwdChar && *fwdChar <= '9') ?
 											(validator) :
 											((*fwdChar == 'e' || *fwdChar == 'E') ?
-													(exponent_after_digit) :
-													(error))));
+													(exponent_after_digit) : (error))));
 			break;
 		case point_after_zero:
 			//next state
@@ -607,8 +590,7 @@ void CCDecimal::constructFromString(std::string numberStr) {
 									(('1' <= *fwdChar && *fwdChar <= '9') ?
 											(digit_after_point) :
 											((*fwdChar == 'e' || *fwdChar == 'E') ?
-													(exponent_after_zero) :
-													(error))));
+													(exponent_after_zero) : (error))));
 			break;
 		case point_after_digit:
 			//next state
@@ -624,7 +606,7 @@ void CCDecimal::constructFromString(std::string numberStr) {
 			break;
 		case zero_after_point:
 			//tracking shift
-			if (shift < std::numeric_limits<int>::min() + 1) {
+			if (shift < std::numeric_limits<int32_t>::min() + 1) {
 				throw std::overflow_error("Exponent too large");
 			}
 			shift--;
@@ -639,12 +621,11 @@ void CCDecimal::constructFromString(std::string numberStr) {
 									(('1' <= *fwdChar && *fwdChar <= '9') ?
 											(digit_after_point) :
 											((*fwdChar == 'e' || *fwdChar == 'E') ?
-													(exponent_after_zero) :
-													(error))));
+													(exponent_after_zero) : (error))));
 			break;
 		case digit_after_point:
 			//tracking shift
-			if (shift < std::numeric_limits<int>::min() + 1) {
+			if (shift < std::numeric_limits<int32_t>::min() + 1) {
 				throw std::overflow_error("Exponent too large");
 			}
 			shift--;
@@ -676,8 +657,7 @@ void CCDecimal::constructFromString(std::string numberStr) {
 									((*fwdChar == '-') ?
 											(exponent_negative) :
 											(('0' <= *fwdChar && *fwdChar <= '9') ?
-													(digit_after_exponent) :
-													(error))));
+													(digit_after_exponent) : (error))));
 			break;
 		case exponent_negative:
 			exponentSign = -1;
@@ -688,13 +668,12 @@ void CCDecimal::constructFromString(std::string numberStr) {
 			validator =
 					(fwdChar == numberStr.end()) ?
 							(error) :
-							(('0' <= *fwdChar && *fwdChar <= '9') ?
-									(digit_after_exponent) : (error));
+							(('0' <= *fwdChar && *fwdChar <= '9') ? (digit_after_exponent) : (error));
 			break;
 		case digit_after_exponent:
 			//TODO(jan) catch if exponent is too large
 			//check if multiply would fail
-			if (exponent > std::numeric_limits<int>::max() / 10) {
+			if (exponent > std::numeric_limits<int32_t>::max() / 10) {
 				throw std::overflow_error("Exponent too large");
 			}
 
@@ -702,7 +681,7 @@ void CCDecimal::constructFromString(std::string numberStr) {
 			exponent *= 10;
 
 			//check if add would fail
-			if (exponent > std::numeric_limits<int>::max() - (*fwdChar - '0')) {
+			if (exponent > std::numeric_limits<int32_t>::max() - (*fwdChar - '0')) {
 				throw std::overflow_error("Exponent too large");
 			}
 
@@ -714,8 +693,7 @@ void CCDecimal::constructFromString(std::string numberStr) {
 			validator =
 					(fwdChar == numberStr.end()) ?
 							(valid_end) :
-							(('0' <= *fwdChar && *fwdChar <= '9') ?
-									(validator) : (error));
+							(('0' <= *fwdChar && *fwdChar <= '9') ? (validator) : (error));
 			break;
 		case error:
 			fwdChar++;
@@ -732,7 +710,7 @@ void CCDecimal::constructFromString(std::string numberStr) {
 	/* add present exponent in (if not applicable, is zero) */
 	exponent *= exponentSign;
 	//check if add would fail
-	if (exponent < 0 && exponent < -std::numeric_limits<int>::max() - shift) {
+	if (exponent < 0 && exponent < -std::numeric_limits<int32_t>::max() - shift) {
 		throw std::overflow_error("Exponent too large");
 	}
 	shift += exponent;
@@ -753,14 +731,13 @@ void CCDecimal::constructFromString(std::string numberStr) {
 	}
 	//check for fit in type
 	if (used > MAX) {
-		int cutOffset = 0;
+		int32_t cutOffset = 0;
 
-		int digitsToCut = used - MAX;
-		int digitsToSpare = -*pPrecision - shift;
+		int32_t digitsToCut = used - MAX;
+		int32_t digitsToSpare = -*pPrecision - shift;
 
 		if (digitsToCut > digitsToSpare) {
-			throw std::overflow_error(
-					"Digits to store surpassing precision limit");
+			throw std::overflow_error("Digits to store surpassing precision limit");
 		}
 		cutOffset = digitsToCut;
 		used -= cutOffset;
@@ -776,7 +753,7 @@ void CCDecimal::constructFromString(std::string numberStr) {
 	}
 
 	/* copy digits into array */
-	int i = 0;
+	int32_t i = 0;
 	while (revChar != numberStr.rend() && i <= MAX) {
 		digit[i] = ((*revChar) - '0');
 		i++;
@@ -784,20 +761,19 @@ void CCDecimal::constructFromString(std::string numberStr) {
 	}
 }
 
-void CCDecimal::round(CCDecimal* pDec, unsigned int precOut) {
+void CCDecimal::round(CCDecimal* pDec, uint32_t precOut) {
 
 	//skip rounding, if precision less than precOut (implicit check: shift < 0)
-	if ((int) precOut >= -pDec->shift)
-		return;
+	if ((int32_t) precOut >= -pDec->shift) return;
 
 	//calculate index that indicates rounding up or down
-	int roundIndex = -pDec->shift - (int) precOut - 1;
-	int validIndex = roundIndex + 1;
+	int32_t roundIndex = -pDec->shift - (int32_t) precOut - 1;
+	int32_t validIndex = roundIndex + 1;
 
 	//fix
 
-	if (validIndex >= (int) pDec->used) {
-		if (roundIndex >= (int) pDec->used || pDec->digit[roundIndex] < 5) {
+	if (validIndex >= (int32_t) pDec->used) {
+		if (roundIndex >= (int32_t) pDec->used || pDec->digit[roundIndex] < 5) {
 			pDec->used = 0;
 			pDec->shift = 0;
 			return;
@@ -830,11 +806,11 @@ void CCDecimal::round(CCDecimal* pDec, unsigned int precOut) {
 	}
 
 	//shift digits [used-1 : validIndex] to the right
-	for (int i = validIndex; i < (int) pDec->used; i++) {
+	for (int32_t i = validIndex; i < (int32_t) pDec->used; i++) {
 		pDec->digit[i - validIndex] = pDec->digit[i];
 		pDec->digit[i] = 0;
 	}
-	for (int i = validIndex - 1; i >= (int) pDec->used - validIndex; i--) {
+	for (int32_t i = validIndex - 1; i >= (int32_t) pDec->used - validIndex; i--) {
 		pDec->digit[i] = 0;
 	}
 
@@ -847,8 +823,7 @@ void CCDecimal::round(CCDecimal* pDec, unsigned int precOut) {
 string CCDecimal::toString() const {
 
 	//zero case
-	if (used == 0)
-		return "0";
+	if (used == 0) return "0";
 
 	//create a copy to round without changing the original
 	CCDecimal copy(*this);
@@ -857,35 +832,33 @@ string CCDecimal::toString() const {
 	string result = "";
 
 	//sign
-	if (isNegative)
-		result = "-";
+	if (isNegative) result = "-";
 
 	//at least one zero before dp
-	if ((int) copy.used <= -copy.shift) {
+	if ((int32_t) copy.used <= -copy.shift) {
 		result += "0";
 	}
 
 	//digits before dp
-	for (int i = copy.used - 1; i >= max<int>(-copy.shift, 0); i--) {
+	for (int32_t i = copy.used - 1; i >= max<int32_t>(-copy.shift, 0); i--) {
 		result += (char) (copy.digit[i] + 48);
 	}
 
 	//dp
-	if (copy.shift < 0)
-		result += ".";
+	if (copy.shift < 0) result += ".";
 
 	//trailing zeroes
-	for (int i = copy.used; i < -copy.shift; i++) {
+	for (int32_t i = copy.used; i < -copy.shift; i++) {
 		result += "0";
 	}
 
 	//digits after dp
-	for (int i = min<int>(-copy.shift, copy.used) - 1; i >= 0; i--) {
+	for (int32_t i = min<int32_t>(-copy.shift, copy.used) - 1; i >= 0; i--) {
 		result += (char) (copy.digit[i] + 48);
 	}
 
 	//trailing zeroes
-	for (int i = copy.shift; i > 0; i--) {
+	for (int32_t i = copy.shift; i > 0; i--) {
 		result += "0";
 	}
 
@@ -895,20 +868,16 @@ string CCDecimal::toString() const {
 
 bool CCDecimal::magnitudeLessThan(const CCDecimal& op2) const {
 
-	if ((int) used + shift > (int) op2.used + op2.shift)
-		return false;
+	if ((int32_t) used + shift > (int32_t) op2.used + op2.shift) return false;
 
-	if ((int) used + shift < (int) op2.used + op2.shift)
-		return true;
+	if ((int32_t) used + shift < (int32_t) op2.used + op2.shift) return true;
 
-	int i = (int) used - 1;
-	int j = (int) op2.used - 1;
+	int32_t i = (int32_t) used - 1;
+	int32_t j = (int32_t) op2.used - 1;
 
 	while (i >= 0 && j >= 0) {
-		if (digit[i] > op2.digit[j])
-			return false;
-		if (digit[i] < op2.digit[j])
-			return true;
+		if (digit[i] > op2.digit[j]) return false;
+		if (digit[i] < op2.digit[j]) return true;
 		i--;
 		j--;
 	}
@@ -922,11 +891,13 @@ CCDecimal CCDecimal::operator +(const CCDecimal& op2) const {
 	if (isNegative == op2.isNegative) {
 		add(&result, op2);
 		result.isNegative = isNegative;
-	} else {
+	}
+	else {
 		if (magnitudeLessThan(op2)) {
 			op2.sub(&result, *this); //-3 + 10 = 7
 			result.isNegative = op2.isNegative;
-		} else {
+		}
+		else {
 			sub(&result, op2); //-10 + 3 = -7
 			result.isNegative = isNegative;
 		}
@@ -944,7 +915,8 @@ CCDecimal CCDecimal::operator -(const CCDecimal& op2) const {
 	if (isNegative != op2.isNegative) {
 		add(&result, op2);
 		result.isNegative = isNegative;
-	} else {
+	}
+	else {
 		//+5 - 10 = -5
 		//-5 - (-10) = 5
 		if (magnitudeLessThan(op2)) {
@@ -981,19 +953,16 @@ CCDecimal& CCDecimal::operator *=(const CCDecimal& op2) {
 
 bool CCDecimal::operator ==(const CCDecimal& op2) const {
 
-	if (used == 0 && op2.used == 0)
-		return true;
+	if (used == 0 && op2.used == 0) return true;
 
 	//return false, if either used, shift or sign is not equal
-	if (used != op2.used || shift != op2.shift
-			|| isNegative != op2.isNegative) {
+	if (used != op2.used || shift != op2.shift || isNegative != op2.isNegative) {
 		return false;
 	}
 
 	//compares each individual digit, return false as soon as a mismatch is found
-	for (unsigned int i = 0; i < used; i++) {
-		if (digit[i] != op2.digit[i])
-			return false;
+	for (uint32_t i = 0; i < used; i++) {
+		if (digit[i] != op2.digit[i]) return false;
 	}
 
 	//return true if neither of the above checks fails

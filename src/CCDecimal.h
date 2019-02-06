@@ -22,7 +22,8 @@ class CCDecimal {
 private:
 	int8_t digit[MAX + 1];
 	unsigned int used = 0;
-	int shift = 0;
+	//int shift = 0;
+	int32_t shift = 0;
 	bool isNegative = false;
 
 	unsigned int precision = 0;
