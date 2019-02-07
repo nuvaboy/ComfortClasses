@@ -8,7 +8,7 @@
 #ifndef CCDECIMAL_H_
 #define CCDECIMAL_H_
 
-#define MAX 31
+#define MAX 31 //31
 
 #include <stdint.h>
 #include <iostream>
@@ -22,21 +22,28 @@ class CCDecimal {
 private:
 	int8_t digit[MAX + 1];
 	unsigned int used = 0;
-	int shift = 0;
+	//int shift = 0;
+	int32_t shift = 0;
 	bool isNegative = false;
 
 	unsigned int precision = 0;
 	unsigned int* pPrecision;
 	static unsigned int defaultPrecision;
 
-	void constructFromString(const string& numberStr);
 
-	void round(CCDecimal* pDec, unsigned int precOut) const;
+	void constructFromString(string numberStr);
+
+
+
 	bool magnitudeLessThan(const CCDecimal& op2) const;
 	void add(CCDecimal* result, const CCDecimal& op2) const;
 	void sub(CCDecimal* result, const CCDecimal& opSmall) const;
+	void sub2(CCDecimal* result, const CCDecimal& opSmall) const;
 
 public:
+
+
+	void cfs(const string& numberStr);
 	//constructors
 	CCDecimal();
 	CCDecimal(const CCDecimal& d2);
@@ -57,12 +64,15 @@ public:
 
 
 	//utility functionality
+	static void round(CCDecimal* pDec, unsigned int precOut);
 	string toString() const;
-
+	string toString(uint32_t precOut) const;
 
 	//operators
 	CCDecimal operator +(const CCDecimal&) const;
+	CCDecimal& operator +=(const CCDecimal&);
 	CCDecimal operator -(const CCDecimal&) const;
+	CCDecimal& operator -=(const CCDecimal&);
 	CCDecimal operator *(const CCDecimal&) const;
 	CCDecimal& operator *=(const CCDecimal&);
 	bool operator ==(const CCDecimal&) const;

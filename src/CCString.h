@@ -8,6 +8,7 @@
 #ifndef CCSTRING_H_
 #define CCSTRING_H_
 
+#include <cstddef>
 #include <string>
 
 class CCString {
@@ -21,16 +22,39 @@ public:
 	virtual ~CCString();
 
 	std::string toString();
+	size_t length() const;
+	char& at(size_t index);
 
-	CCString& append(CCString& ccStr);
-	CCString& append(std::string str);
+	operator const char*() {
+		return internalStr.c_str();
+	}
+
+	bool operator==(const CCString& other) const;
+	bool operator<(const CCString& other) const;
+
+	CCString& append(const CCString& ccStr);
+	CCString& append(const std::string& str);
 	CCString& append(const char* cstr);
 	CCString& append(char c);
-//	/* + addition operator */
-//
-//	CCString& replace(CCString);
-//	CCString& replace(char c, int pos);
-//
+
+	CCString& operator+=(const CCString& ccStr);
+	CCString& operator+=(const std::string& str);
+	CCString& operator+=(const char* cstr);
+	CCString& operator+=(char c);
+
+	CCString& replace(size_t pos, const CCString& ccStr);
+	CCString& replace(size_t pos, const std::string& str);
+	CCString& replace(size_t pos, const char* cstr);
+	CCString& replace(size_t pos, char c);
+
+	CCString& insert(size_t pos, const CCString& ccStr);
+	CCString& insert(size_t pos, const std::string& str);
+	CCString& insert(size_t pos, const char* cstr);
+	CCString& insert(size_t pos, char c);
+
+	CCString& erase(size_t pos, size_t length);
+
+	CCString subString(size_t pos, size_t length);
 //
 //
 //
@@ -46,5 +70,19 @@ private:
 	std::string internalStr;
 
 };
+
+/* as per https://en.cppreference.com/w/cpp/language/operators */
+inline bool operator!=(const CCString& lhs, const CCString& rhs) {
+	return !(lhs == rhs);
+}
+inline bool operator>(const CCString& lhs, const CCString& rhs) {
+	return rhs < lhs;
+}
+inline bool operator<=(const CCString& lhs, const CCString& rhs) {
+	return !(lhs > rhs);
+}
+inline bool operator>=(const CCString& lhs, const CCString& rhs) {
+	return !(lhs < rhs);
+}
 
 #endif /* CCSTRING_H_ */
