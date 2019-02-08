@@ -424,7 +424,7 @@ void CCDecimal::mult(CCDecimal* result, const CCDecimal& op2) const {
 	}
 
 	//adjust the used and shift of the result
-	int32_t tzCount = (resultUsedMax) - resultIndex; //amount of invisible trailing Zeroes
+	int32_t tzCount = resultUsedMax - resultIndex; //amount of invisible trailing Zeroes
 	result->shift = shift + op2.shift + tzCount;
 	result->used = resultIndex;
 
