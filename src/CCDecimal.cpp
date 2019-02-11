@@ -444,6 +444,76 @@ void CCDecimal::mult(CCDecimal* result, const CCDecimal& op2) const {
 
 }
 
+void CCDecimal::div(CCDecimal* result, CCDecimal op2) const {
+
+	CCDecimal op1 = *this;
+
+	int32_t msd_delta = op2.shift + (int32_t)op2.used - shift - (int32_t)used;
+
+
+	uint32_t cnt = 0;
+	if (cnt >> 31 == 1){
+		// * 10
+	}
+
+	//a/=10
+	//a*=2
+
+	//15 / 350
+	//15 - 3,50 //0,01
+	//12,5 -3,5 //0,02
+	//9 -3,5    //0,03
+	//5,5 -3,5  //0,04
+	//2 -0,35   //0,0041
+	//1,65 -0,35   //0,0042
+	//1,3 -0,35    //0,0043
+	//0,95 -0,35   //0,0044
+	//0,6 -0,35    //0,0045
+	//0,25 -0,035
+
+
+	//0,015 / 3,5
+
+	//350 / 15
+
+	if (msd_delta >= 0){
+
+		result->shift += (msd_delta+1);
+		op2.shift -= (msd_delta+1);
+	}
+	else if (op2.magnitudeLessThan(*result)){
+		CCDecimal plus = 1.0;
+		plus.shift += (msd_delta -1);
+		add(result, plus);
+		op2.shift += (msd_delta -1);
+		op1.sub(&op1, op2);
+	}
+	else
+	{
+
+	}
+	if (msd_delta < 0){
+
+	}
+	else{
+
+	}
+	while (){
+		result->shift--;
+	}
+
+		//15/300 = 0,
+		//150/300 = 0
+		//1500/300 = 5
+
+	/*
+	 * 125 : 15 =
+	 * 110
+	 *
+	 *
+	 */
+}
+
 //utility functions
 void CCDecimal::constructFromString(std::string numberStr) {
 	if (numberStr.find_first_not_of("-+.0987654321eE") != std::string::npos) {

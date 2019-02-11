@@ -38,7 +38,8 @@ private:
 	bool magnitudeLessThan(const CCDecimal& op2) const;
 	void add(CCDecimal* result, const CCDecimal& op2) const;
 	void sub(CCDecimal* result, const CCDecimal& opSmall) const;
-	void sub2(CCDecimal* result, const CCDecimal& opSmall) const;
+	void mult(CCDecimal* result, const CCDecimal& op2) const;
+	void div(CCDecimal* result, CCDecimal op2) const;
 
 public:
 
@@ -60,7 +61,7 @@ public:
 	static unsigned int getGlobalPrecision();
 
 	//core functionality
-	void mult(CCDecimal* result, const CCDecimal& op2) const;
+
 
 
 	//utility functionality
