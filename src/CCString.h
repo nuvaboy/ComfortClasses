@@ -13,21 +13,29 @@
 
 class CCString {
 public:
+	static const size_t allOfStringPos = std::string::npos;
+
 	CCString() = default;
 	CCString(const CCString&) = default;
 
 	CCString(std::string);
 	CCString(const char* cstr);
+	CCString(char c);
 
 	virtual ~CCString();
 
-	std::string toString();
-	size_t length() const;
-	char& at(size_t index);
+	std::string toString() const;
+	operator const char*();
 
-	operator const char*() {
-		return internalStr.c_str();
-	}
+	friend std::ostream& operator<<(std::ostream& os, const CCString& ccstr);
+	friend std::istream& operator>>(std::istream& in, CCString& ccstr);
+
+	size_t length() const;
+
+	char& at(size_t index);
+	char& operator[](size_t index);
+	const char& at(size_t index) const;
+	const char& operator[](size_t index) const;
 
 	bool operator==(const CCString& other) const;
 	bool operator<(const CCString& other) const;
@@ -42,6 +50,11 @@ public:
 	CCString& operator+=(const char* cstr);
 	CCString& operator+=(char c);
 
+	friend CCString operator+(CCString lhs, const CCString& rhs);
+	friend CCString operator+(CCString lhs, const std::string& rhs);
+	friend CCString operator+(CCString lhs, const char* rhs);
+	friend CCString operator+(CCString lhs, char rhs);
+
 	CCString& replace(size_t pos, const CCString& ccStr);
 	CCString& replace(size_t pos, const std::string& str);
 	CCString& replace(size_t pos, const char* cstr);
@@ -54,10 +67,20 @@ public:
 
 	CCString& erase(size_t pos, size_t length);
 
-	CCString subString(size_t pos, size_t length);
-//
-//
-//
+	CCString subString(size_t pos, size_t length) const;
+
+	size_t find(const CCString& ccstr, size_t pos = 0) const;
+	size_t find(const std::string& str, size_t pos = 0) const;
+	size_t find(const char* cstr, size_t pos = 0) const;
+	size_t find(char c, size_t pos = 0) const;
+
+	size_t findLast(const CCString& ccstr,
+			size_t pos = std::string::npos) const;
+	size_t findLast(const std::string& str,
+			size_t pos = std::string::npos) const;
+	size_t findLast(const char* cstr, size_t pos = std::string::npos) const;
+	size_t findLast(char c, size_t pos = std::string::npos) const;
+
 //	//iterators for use alongside std::string;
 //	std::string::iterator begin();
 //	std::string::iterator end();
@@ -68,7 +91,6 @@ public:
 
 private:
 	std::string internalStr;
-
 };
 
 /* as per https://en.cppreference.com/w/cpp/language/operators */
