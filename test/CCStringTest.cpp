@@ -7,7 +7,9 @@
 #include "gtest/gtest.h"
 #include "../src/CCString.h"
 
-//#define GROUP_TESTS
+#include <sstream>
+
+#define GROUP_TESTS
 
 #ifdef GROUP_TESTS
 #define GROUP_TEST(GroupName, TestBase, TestName) \
@@ -17,75 +19,107 @@ TEST(TestBase##_##GroupName, TestName)
 TEST(TestBase, TestName)
 #endif
 
-GROUP_TEST(constructors, CCString, constructFromCString) {
+GROUP_TEST(constructors, CCStringTest, fromCString) {
 	CCString ccstr1("abcde");
 	CCString ccstr2 = "fghij";
-	ASSERT_EQ(ccstr1.toString(), std::string("abcde"));
-	ASSERT_EQ(ccstr2.toString(), std::string("fghij"));
+	EXPECT_EQ(ccstr1.toString(), std::string("abcde"));
+	EXPECT_EQ(ccstr2.toString(), std::string("fghij"));
 }
 
-GROUP_TEST(constructors, CCString, constructFromStdString) {
+GROUP_TEST(constructors, CCStringTest, fromStdString) {
 	std::string str1 = "abcde";
 	std::string str2("fghij");
 	CCString ccstr1 = str1;
 	CCString ccstr2(str2);
-	ASSERT_EQ(ccstr1.toString(), str1);
-	ASSERT_EQ(ccstr2.toString(), str2);
+	EXPECT_EQ(ccstr1.toString(), str1);
+	EXPECT_EQ(ccstr2.toString(), str2);
 	//check for independence of copied string
 	str2 += "klmno";
 	str1 += str2;
-	ASSERT_NE(ccstr1.toString(), str1);
-	ASSERT_NE(ccstr1.toString(), str2);
+	EXPECT_NE(ccstr1.toString(), str1);
+	EXPECT_NE(ccstr1.toString(), str2);
 }
 
-GROUP_TEST(constructors, CCString, constructCopy) {
+GROUP_TEST(constructors, CCStringTest, copy) {
 	CCString ccstr1("abc");
 	CCString ccstr2(ccstr1);
 	ccstr1 = "def";
-	ASSERT_NE(ccstr1.toString(), ccstr2.toString());
-	ASSERT_EQ(ccstr1.toString(), std::string("def"));
-	ASSERT_EQ(ccstr2.toString(), std::string("abc"));
+	EXPECT_NE(ccstr1.toString(), ccstr2.toString());
+	EXPECT_EQ(ccstr1.toString(), std::string("def"));
+	EXPECT_EQ(ccstr2.toString(), std::string("abc"));
 }
 
-GROUP_TEST(comparisons, CCString, operatorEqual) {
+GROUP_TEST(comparisons, CCStringTest, operatorEqual) {
 	CCString ccstr1("a"), ccstr2("b"), ccstr3("b");
-	ASSERT_NE(ccstr1, ccstr2);
-	ASSERT_NE(ccstr1, ccstr3);
-	ASSERT_EQ(ccstr2, ccstr3);
+	EXPECT_NE(ccstr1, ccstr2);
+	EXPECT_NE(ccstr1, ccstr3);
+	EXPECT_EQ(ccstr2, ccstr3);
 }
 
-GROUP_TEST(comparisons, CCString, operatorLessThan) {
+GROUP_TEST(comparisons, CCStringTest, operatorLessThan) {
 	CCString ccstr1("a"), ccstr2("aa"), ccstr3("b");
-	ASSERT_EQ(ccstr2 <= ccstr2, ccstr2 >= ccstr2);
-	ASSERT_LT(ccstr1, ccstr2);
-	ASSERT_GT(ccstr3, ccstr2);
-	ASSERT_EQ(ccstr1 < ccstr3, ccstr2 < ccstr3);
+	EXPECT_EQ(ccstr2 <= ccstr2, ccstr2 >= ccstr2);
+	EXPECT_LT(ccstr1, ccstr2);
+	EXPECT_GT(ccstr3, ccstr2);
+	EXPECT_EQ(ccstr1 < ccstr3, ccstr2 < ccstr3);
 }
 
-GROUP_TEST(conversions, CCString, castToConstCString) {
+GROUP_TEST(conversions, CCStringTest, castToConstCString) {
 	CCString ccstr("abc");
-	ASSERT_NO_FATAL_FAILURE(static_cast<std::string>(ccstr));
+	EXPECT_NO_FATAL_FAILURE(static_cast<std::string>(ccstr));
 	std::string str = static_cast<std::string>(ccstr);
 	str.append("def");
-	ASSERT_EQ(str, "abcdef");
+	EXPECT_EQ(str, "abcdef");
 	EXPECT_NE(ccstr, "abcdef");
 	ccstr = str;
-	ASSERT_EQ(ccstr, "abcdef");
+	EXPECT_EQ(ccstr, "abcdef");
 
 	ccstr = "abc";
 	char cstr[10];
 	strcpy(cstr, static_cast<const char*>(ccstr));
-	ASSERT_EQ(ccstr, cstr);
-
-	std::stringstream sstream;
-	ASSERT_NO_FATAL_FAILURE(sstream << ccstr);
+	EXPECT_EQ(ccstr, cstr);
 }
 
-GROUP_TEST(append, CCString, append_operator) {
+GROUP_TEST(append, CCStringTest, appendMethod) {
+	CCString ccstr;
+	ccstr.append("abc");
+	ccstr.append(std::string("def"));
+	ccstr.append(CCString("ghi"));
+	ccstr.append('j');
+	EXPECT_EQ(ccstr, CCString("abcdefghij"));
+}
+
+GROUP_TEST(append, CCStringTest, appendOperator) {
 	CCString ccstr;
 	ccstr += "abc";
 	ccstr += std::string("def");
 	ccstr += CCString("ghi");
 	ccstr += 'j';
-	ASSERT_EQ(ccstr, "abcdefghij");
+	EXPECT_EQ(ccstr, CCString("abcdefghij"));
+}
+
+GROUP_TEST(append, CCStringTest, concatenateOperator) {
+	CCString ccstr;
+	ccstr = std::string("abc") + "def" + 'g' + CCString("hij");
+	EXPECT_EQ(ccstr, CCString("abcdefghij"));
+}
+
+GROUP_TEST(stream, CCStringTest, streamOperator) {
+	std::stringstream strBuf;
+	CCString ccstr1("123");
+	CCString ccstr2("456");
+	strBuf << ccstr1 << ccstr2;
+	CCString ccstr3;
+	strBuf >> ccstr3;
+	EXPECT_EQ(ccstr3, CCString("123456"));
+}
+
+GROUP_TEST(find, CCStringTest, finds) {
+	CCString ccstr("abcdefgdefhdef");
+	EXPECT_EQ(ccstr.find(CCString("bcd")), (size_t )1);
+	EXPECT_EQ(ccstr.findLast(CCString("fgd")), (size_t )5);
+	EXPECT_EQ(ccstr.find("def", ccstr.find(std::string("efg"))),
+			ccstr.findLast("def", ccstr.findLast(std::string("hde"))));
+	EXPECT_EQ(ccstr.find("123"), (size_t )-1);
+	EXPECT_EQ(ccstr.findLast("123"), (size_t )-1);
 }
