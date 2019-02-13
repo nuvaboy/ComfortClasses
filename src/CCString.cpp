@@ -31,7 +31,6 @@ CCString::operator const char*() {
 }
 
 std::ostream& operator<<(std::ostream& os, const CCString& ccstr) {
-	// write obj to stream
 	os << ccstr.internalStr;
 	return os;
 }

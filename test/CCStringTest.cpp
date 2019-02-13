@@ -100,15 +100,46 @@ GROUP_TEST(append, CCStringTest, appendOperator) {
 
 GROUP_TEST(append, CCStringTest, concatenateOperator) {
 	CCString ccstr;
-	ccstr = std::string("abc") + "def" + 'g' + CCString("hij");
+	ccstr = ccstr + std::string("abc");
+	ccstr = ccstr + "def";
+	ccstr = ccstr + 'g';
+	ccstr = ccstr + CCString("hij");
+	EXPECT_EQ(ccstr, CCString("abcdefghij"));
+}
+
+GROUP_TEST(edit, CCStringTest, replace) {
+	CCString ccstr = "1234567890";
+	ccstr.replace(0, CCString("abc"));
+	EXPECT_EQ(ccstr, CCString("abc4567890"));
+	ccstr.replace(3, std::string("def"));
+	EXPECT_EQ(ccstr, CCString("abcdef7890"));
+	ccstr.replace(6, "ghi");
+	EXPECT_EQ(ccstr, CCString("abcdefghi0"));
+	ccstr.replace(9, 'j');
+	EXPECT_EQ(ccstr, CCString("abcdefghij"));
+}
+
+GROUP_TEST(edit, CCStringTest, insert_erase) {
+	CCString ccstr = "1234567890";
+	ccstr.insert(0, CCString("abc"));
+	ccstr.erase(3, 3);
+	EXPECT_EQ(ccstr, CCString("abc4567890"));
+	ccstr.insert(3, std::string("def"));
+	ccstr.erase(6, 3);
+	EXPECT_EQ(ccstr, CCString("abcdef7890"));
+	ccstr.insert(6, "ghi");
+	ccstr.erase(9, 3);
+	EXPECT_EQ(ccstr, CCString("abcdefghi0"));
+	ccstr.insert(9, 'j');
+	ccstr.erase(10, 1);
 	EXPECT_EQ(ccstr, CCString("abcdefghij"));
 }
 
 GROUP_TEST(stream, CCStringTest, streamOperator) {
 	std::stringstream strBuf;
 	CCString ccstr1("123");
-	CCString ccstr2("456");
-	strBuf << ccstr1 << ccstr2;
+	CCString ccstr2('4');
+	strBuf << ccstr1 << ccstr2 << '5' << 6;
 	CCString ccstr3;
 	strBuf >> ccstr3;
 	EXPECT_EQ(ccstr3, CCString("123456"));
@@ -120,6 +151,6 @@ GROUP_TEST(find, CCStringTest, finds) {
 	EXPECT_EQ(ccstr.findLast(CCString("fgd")), (size_t )5);
 	EXPECT_EQ(ccstr.find("def", ccstr.find(std::string("efg"))),
 			ccstr.findLast("def", ccstr.findLast(std::string("hde"))));
-	EXPECT_EQ(ccstr.find("123"), (size_t )-1);
-	EXPECT_EQ(ccstr.findLast("123"), (size_t )-1);
+	EXPECT_EQ(ccstr.find('1'), (size_t )-1);
+	EXPECT_EQ(ccstr.findLast('1'), (size_t )-1);
 }
