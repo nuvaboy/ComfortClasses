@@ -34,9 +34,10 @@ public:
 	CCString(float number, bool hiPrec = false);
 	CCString(double number, bool hiPrec = false);
 	CCString(long double number, bool hiPrec = false);
-
-	template<typename type> //catch invalid types
-	/*can't convert to CCString     */CCString(type) = delete;
+	
+	//catch invalid types; if needed, add constructor above
+	template<typename type>
+	/*  can't convert to CCString    */CCString(type) = delete;
 
 	virtual ~CCString();
 
@@ -59,18 +60,18 @@ public:
 	CCString& append(const CCString& ccStr);
 	template<typename type>
 	CCString& append(const type& input) {
-		/*needs conversion             */return append(CCString(input));
+		/* needs conversion             */return append(CCString(input));
 	}
 
 	template<typename type>
 	CCString& operator+=(const type& input) {
-		/*needs conversion             */return append(CCString(input));
+		/* needs conversion             */return append(CCString(input));
 	}
 
 	template<typename leftType, typename rightType>
 	friend CCString operator+(const leftType& lhs, const rightType& rhs) {
-		CCString copy(lhs);
-		/*needs conversion             */copy += CCString(rhs);
+		/* needs conversion             */CCString copy(lhs);
+		/* needs conversion             */copy += CCString(rhs);
 		return copy;
 	}
 
@@ -94,13 +95,13 @@ public:
 	CCString& replace(size_t pos, const CCString& ccStr);
 	template<typename type>
 	CCString& replace(size_t pos, const type& obj) {
-		return replace(pos, CCString(obj));
+		/* needs conversion             */return replace(pos, CCString(obj));
 	}
 
 	CCString& insert(size_t pos, const CCString& ccStr);
 	template<typename type>
 	CCString& insert(size_t pos, const type& obj) {
-		return insert(pos, CCString(obj));
+		/* needs conversion             */return insert(pos, CCString(obj));
 	}
 
 	CCString& erase(size_t pos, size_t length);
@@ -110,13 +111,13 @@ public:
 	size_t find(const CCString& ccstr, size_t pos = 0) const;
 	template<typename type>
 	size_t find(const type& obj, size_t pos = 0) const {
-		/*needs conversion			*/return find(CCString(obj), pos);
+		/* needs conversion             */return find(CCString(obj), pos);
 	}
 	size_t findLast(const CCString& ccstr,
 			size_t pos = std::string::npos) const;
 	template<typename type>
 	size_t findLast(const type& obj, size_t pos = std::string::npos) const {
-		/*needs conversion			*/return findLast(CCString(obj), pos);
+		/* needs conversion             */return findLast(CCString(obj), pos);
 	}
 
 private:

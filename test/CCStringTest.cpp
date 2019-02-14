@@ -108,7 +108,7 @@ GROUP_TEST(append, CCStringTest, concatenateOperator) {
 }
 
 GROUP_TEST(edit, CCStringTest, replace) {
-	CCString ccstr = "1234567890";
+	CCString ccstr = 1234567890;
 	ccstr.replace(0, CCString("abc"));
 	EXPECT_EQ(ccstr, CCString("abc4567890"));
 	ccstr.replace(3, std::string("def"));
@@ -120,7 +120,7 @@ GROUP_TEST(edit, CCStringTest, replace) {
 }
 
 GROUP_TEST(edit, CCStringTest, insert_erase) {
-	CCString ccstr = "1234567890";
+	CCString ccstr = 1234567890;
 	ccstr.insert(0, CCString("abc"));
 	ccstr.erase(3, 3);
 	EXPECT_EQ(ccstr, CCString("abc4567890"));
