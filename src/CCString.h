@@ -13,14 +13,30 @@
 
 class CCString {
 public:
-	static const size_t allOfStringPos = std::string::npos;
+//	static const size_t allOfStringPos = std::string::npos;
 
 	CCString() = default;
 	CCString(const CCString&) = default;
 
-	CCString(std::string);
+	//constructors for textual types
+	CCString(const std::string& str);
 	CCString(const char* cstr);
 	CCString(char c);
+	//constructor for boolean type
+	CCString(bool b);
+	//constructors for numeric types:
+	CCString(int16_t number);
+	CCString(int32_t number);
+	CCString(int64_t number);
+	CCString(uint16_t number);
+	CCString(uint32_t number);
+	CCString(uint64_t number);
+	CCString(float number, bool hiPrec = false);
+	CCString(double number, bool hiPrec = false);
+	CCString(long double number, bool hiPrec = false);
+
+	template<typename type> //catch invalid types
+	/*can't convert to CCString     */CCString(type) = delete;
 
 	virtual ~CCString();
 
@@ -41,53 +57,67 @@ public:
 	bool operator<(const CCString& other) const;
 
 	CCString& append(const CCString& ccStr);
-	CCString& append(const std::string& str);
-	CCString& append(const char* cstr);
-	CCString& append(char c);
+	template<typename type>
+	CCString& append(const type& input) {
+		/*needs conversion             */return append(CCString(input));
+	}
 
-	CCString& operator+=(const CCString& ccStr);
-	CCString& operator+=(const std::string& str);
-	CCString& operator+=(const char* cstr);
-	CCString& operator+=(char c);
+	template<typename type>
+	CCString& operator+=(const type& input) {
+		/*needs conversion             */return append(CCString(input));
+	}
 
-	friend CCString operator+(CCString lhs, const CCString& rhs);
-	friend CCString operator+(CCString lhs, const std::string& rhs);
-	friend CCString operator+(CCString lhs, const char* rhs);
-	friend CCString operator+(CCString lhs, char rhs);
+	template<typename leftType, typename rightType>
+	friend CCString operator+(const leftType& lhs, const rightType& rhs) {
+		CCString copy(lhs);
+		/*needs conversion             */copy += CCString(rhs);
+		return copy;
+	}
+
+//	template<typename leftType, typename rightType>
+//	friend CCString operator-(const leftType&, const rightType) = delete;
+//	template<typename leftType, typename rightType>
+//	friend CCString operator*(const leftType&, const rightType) = delete;
+//	template<typename leftType, typename rightType>
+//	friend CCString operator/(const leftType&, const rightType) = delete;
+//	template<typename leftType, typename rightType>
+//	friend CCString operator%(const leftType&, const rightType) = delete;
+//	template<typename leftType, typename rightType>
+//	friend CCString operator&(const leftType&, const rightType) = delete;
+//	template<typename leftType, typename rightType>
+//	friend CCString operator|(const leftType&, const rightType) = delete;
+//	template<typename leftType, typename rightType>
+//	friend CCString operator^(const leftType&, const rightType) = delete;
+//	template<typename type>
+//	friend CCString operator!(const type) = delete;
 
 	CCString& replace(size_t pos, const CCString& ccStr);
-	CCString& replace(size_t pos, const std::string& str);
-	CCString& replace(size_t pos, const char* cstr);
-	CCString& replace(size_t pos, char c);
+	template<typename type>
+	CCString& replace(size_t pos, const type& obj) {
+		return replace(pos, CCString(obj));
+	}
 
 	CCString& insert(size_t pos, const CCString& ccStr);
-	CCString& insert(size_t pos, const std::string& str);
-	CCString& insert(size_t pos, const char* cstr);
-	CCString& insert(size_t pos, char c);
+	template<typename type>
+	CCString& insert(size_t pos, const type& obj) {
+		return insert(pos, CCString(obj));
+	}
 
 	CCString& erase(size_t pos, size_t length);
 
 	CCString subString(size_t pos, size_t length) const;
 
 	size_t find(const CCString& ccstr, size_t pos = 0) const;
-	size_t find(const std::string& str, size_t pos = 0) const;
-	size_t find(const char* cstr, size_t pos = 0) const;
-	size_t find(char c, size_t pos = 0) const;
-
+	template<typename type>
+	size_t find(const type& obj, size_t pos = 0) const {
+		/*needs conversion			*/return find(CCString(obj), pos);
+	}
 	size_t findLast(const CCString& ccstr,
 			size_t pos = std::string::npos) const;
-	size_t findLast(const std::string& str,
-			size_t pos = std::string::npos) const;
-	size_t findLast(const char* cstr, size_t pos = std::string::npos) const;
-	size_t findLast(char c, size_t pos = std::string::npos) const;
-
-//	//iterators for use alongside std::string;
-//	std::string::iterator begin();
-//	std::string::iterator end();
-//	std::string::reverse_iterator rbegin();
-//	std::string::reverse_iterator rend();
-//	std::string::const_iterator cbegin();
-//	std::string::const_iterator cend();
+	template<typename type>
+	size_t findLast(const type& obj, size_t pos = std::string::npos) const {
+		/*needs conversion			*/return findLast(CCString(obj), pos);
+	}
 
 private:
 	std::string internalStr;

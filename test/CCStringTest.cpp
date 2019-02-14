@@ -151,6 +151,6 @@ GROUP_TEST(find, CCStringTest, finds) {
 	EXPECT_EQ(ccstr.findLast(CCString("fgd")), (size_t )5);
 	EXPECT_EQ(ccstr.find("def", ccstr.find(std::string("efg"))),
 			ccstr.findLast("def", ccstr.findLast(std::string("hde"))));
-	EXPECT_EQ(ccstr.find('1'), (size_t )-1);
-	EXPECT_EQ(ccstr.findLast('1'), (size_t )-1);
+	EXPECT_EQ(ccstr.find('1'), static_cast<size_t>(-1));
+	EXPECT_EQ(ccstr.findLast('1'), static_cast<size_t>(-1));
 }
