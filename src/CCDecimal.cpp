@@ -537,8 +537,7 @@ void CCDecimal::constructFromString(std::string numberStr) {
 	enum ValidatorStates {
 		error = -1,
 		start,
-		sign_negative,
-		sign_positive,
+		sign,
 		point_after_sign,
 		zero_after_sign,
 		digit_after_sign,
@@ -547,8 +546,7 @@ void CCDecimal::constructFromString(std::string numberStr) {
 		zero_after_point,
 		digit_after_point,
 		exponent_after_digit,
-		exponent_positive,
-		exponent_negative,
+		exponent_sign,
 		digit_after_exponent,
 		valid_end
 	};
@@ -565,22 +563,18 @@ void CCDecimal::constructFromString(std::string numberStr) {
 			validator =
 					(fwdChar == numberStr.end()) ?
 							(valid_end) :
-							((*fwdChar == '-') ?
-									(sign_negative) :
-									((*fwdChar == '+') ?
-											(sign_positive) :
+							((*fwdChar == '-' || *fwdChar == '+') ?
+									(sign) :
 											((*fwdChar == '.') ?
 													(point_after_sign) :
 													(((*fwdChar == '0') ?
 															(zero_after_sign) :
 															(('1' <= *fwdChar && *fwdChar <= '9') ?
-																	(digit_after_sign) : (error)))))));
+																	(digit_after_sign) : (error))))));
 			break;
-		case sign_negative:
+		case sign:
 			//set sign
-			isNegative = true;
-			/* no break */
-		case sign_positive:
+			isNegative = *fwdChar == '-';
 			//next state
 			//remove sign
 			numberStr.erase(fwdChar);
@@ -709,17 +703,13 @@ void CCDecimal::constructFromString(std::string numberStr) {
 			validator =
 					(fwdChar == numberStr.end()) ?
 							(error) :
-							((*fwdChar == '+') ?
-									(exponent_positive) :
-									((*fwdChar == '-') ?
-											(exponent_negative) :
+							((*fwdChar == '+' || *fwdChar == '-') ?
+									(exponent_sign) :
 											(('0' <= *fwdChar && *fwdChar <= '9') ?
-													(digit_after_exponent) : (error))));
+													(digit_after_exponent) : (error)));
 			break;
-		case exponent_negative:
-			exponentSign = -1;
-			/* no break */
-		case exponent_positive:
+		case exponent_sign:
+			exponentSign = (*fwdChar == '-')?(-1):(1);
 			//next state
 			numberStr.erase(fwdChar); //remove so not present in following processing
 			validator =
