@@ -34,7 +34,7 @@ public:
 	CCString(float number, bool hiPrec = false);
 	CCString(double number, bool hiPrec = false);
 	CCString(long double number, bool hiPrec = false);
-	
+
 	//catch invalid types; if needed, add constructor above
 	template<typename type>
 	/*  can't convert to CCString    */CCString(type) = delete;
@@ -58,71 +58,99 @@ public:
 	bool operator<(const CCString& other) const;
 
 	CCString& append(const CCString& ccStr);
-	template<typename type>
-	CCString& append(const type& input) {
-		/* needs conversion             */return append(CCString(input));
-	}
+	CCString& append(const std::string& str);
+	CCString& append(const char* cstr);
+	CCString& append(char c);
+	CCString& append(int16_t i);
+	CCString& append(int32_t i);
+	CCString& append(int64_t i);
+	CCString& append(uint16_t i);
+	CCString& append(uint32_t i);
+	CCString& append(uint64_t i);
+	CCString& append(float f);
+	CCString& append(double d);
+	CCString& append(long double d);
 
 	template<typename type>
-	CCString& operator+=(const type& input) {
-		/* needs conversion             */return append(CCString(input));
-	}
+	/* operand type not supported   */CCString& append(const type&) = delete;
 
-	template<typename leftType, typename rightType>
-	friend CCString operator+(const leftType& lhs, const rightType& rhs) {
-		/* needs conversion             */CCString copy(lhs);
-		/* needs conversion             */copy += CCString(rhs);
-		return copy;
-	}
+	CCString& operator+=(const CCString& ccStr);
+	CCString& operator+=(const std::string& str);
+	CCString& operator+=(const char* cstr);
+	CCString& operator+=(char c);
+	CCString& operator+=(int16_t i);
+	CCString& operator+=(int32_t i);
+	CCString& operator+=(int64_t i);
+	CCString& operator+=(uint16_t i);
+	CCString& operator+=(uint32_t i);
+	CCString& operator+=(uint64_t i);
+	CCString& operator+=(float f);
+	CCString& operator+=(double d);
+	CCString& operator+=(long double d);
 
-//	template<typename leftType, typename rightType>
-//	friend CCString operator-(const leftType&, const rightType) = delete;
-//	template<typename leftType, typename rightType>
-//	friend CCString operator*(const leftType&, const rightType) = delete;
-//	template<typename leftType, typename rightType>
-//	friend CCString operator/(const leftType&, const rightType) = delete;
-//	template<typename leftType, typename rightType>
-//	friend CCString operator%(const leftType&, const rightType) = delete;
-//	template<typename leftType, typename rightType>
-//	friend CCString operator&(const leftType&, const rightType) = delete;
-//	template<typename leftType, typename rightType>
-//	friend CCString operator|(const leftType&, const rightType) = delete;
-//	template<typename leftType, typename rightType>
-//	friend CCString operator^(const leftType&, const rightType) = delete;
-//	template<typename type>
-//	friend CCString operator!(const type) = delete;
+	template<typename type>
+	/* operand type not supported   */CCString& operator+=(const type&) = delete;
 
 	CCString& replace(size_t pos, const CCString& ccStr);
-	template<typename type>
-	CCString& replace(size_t pos, const type& obj) {
-		/* needs conversion             */return replace(pos, CCString(obj));
-	}
+	CCString& replace(size_t pos, const std::string& str);
+	CCString& replace(size_t pos, const char* cstr);
+	CCString& replace(size_t pos, char c);
 
 	CCString& insert(size_t pos, const CCString& ccStr);
-	template<typename type>
-	CCString& insert(size_t pos, const type& obj) {
-		/* needs conversion             */return insert(pos, CCString(obj));
-	}
+	CCString& insert(size_t pos, const std::string& str);
+	CCString& insert(size_t pos, const char* cstr);
+	CCString& insert(size_t pos, char c);
 
 	CCString& erase(size_t pos, size_t length);
 
 	CCString subString(size_t pos, size_t length) const;
 
 	size_t find(const CCString& ccstr, size_t pos = 0) const;
-	template<typename type>
-	size_t find(const type& obj, size_t pos = 0) const {
-		/* needs conversion             */return find(CCString(obj), pos);
-	}
+	size_t find(const std::string& str, size_t pos) const;
+	size_t find(const char* cstr, size_t pos) const;
+	size_t find(char c, size_t pos) const;
+
 	size_t findLast(const CCString& ccstr,
 			size_t pos = std::string::npos) const;
-	template<typename type>
-	size_t findLast(const type& obj, size_t pos = std::string::npos) const {
-		/* needs conversion             */return findLast(CCString(obj), pos);
-	}
+	size_t findLast(const std::string& str, size_t pos) const;
+	size_t findLast(const char* cstr, size_t pos) const;
+	size_t findLast(char c, size_t pos) const;
 
 private:
 	std::string internalStr;
 };
+
+CCString operator+(const CCString& lhs, const CCString& rhs);
+CCString operator+(const CCString& lhs, const char* rhs);
+CCString operator+(const char* lhs, const CCString& rhs);
+CCString operator+(const CCString& lhs, const std::string& rhs);
+CCString operator+(const std::string& lhs, const CCString& rhs);
+CCString operator+(const CCString& lhs, char rhs);
+CCString operator+(char lhs, const CCString& rhs);
+
+CCString operator+(const CCString& lhs, int16_t rhs);
+CCString operator+(int16_t lhs, const CCString& rhs);
+CCString operator+(const CCString& lhs, int32_t rhs);
+CCString operator+(int32_t lhs, const CCString& rhs);
+CCString operator+(const CCString& lhs, int64_t rhs);
+CCString operator+(int64_t lhs, const CCString& rhs);
+
+CCString operator+(const CCString& lhs, uint16_t rhs);
+CCString operator+(uint16_t lhs, const CCString& rhs);
+CCString operator+(const CCString& lhs, uint32_t rhs);
+CCString operator+(uint32_t lhs, const CCString& rhs);
+CCString operator+(const CCString& lhs, uint64_t rhs);
+CCString operator+(uint64_t lhs, const CCString& rhs);
+
+CCString operator+(const CCString& lhs, float rhs);
+CCString operator+(float lhs, const CCString& rhs);
+CCString operator+(const CCString& lhs, double rhs);
+CCString operator+(double lhs, const CCString& rhs);
+CCString operator+(const CCString& lhs, long double rhs);
+CCString operator+(long double lhs, const CCString& rhs);
+
+template<typename type1, typename type2>
+/* operand type not supported   */CCString operator+(const type1&, const type2&) = delete;
 
 /* as per https://en.cppreference.com/w/cpp/language/operators */
 inline bool operator!=(const CCString& lhs, const CCString& rhs) {

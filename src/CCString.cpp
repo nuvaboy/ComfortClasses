@@ -144,91 +144,236 @@ CCString& CCString::append(const CCString& ccStr) {
 		throw std::exception();
 	}
 }
-//CCString& CCString::append(const std::string& str) {
-//	try {
-//		internalStr.append(str);
-//		return *this;
-//	} catch (std::length_error& e) {
-//		throw std::length_error("Result exceeding max length for a string.");
-//	} catch (std::bad_alloc& e) {
-//		throw std::bad_alloc();
-//	} catch (...) {
-//		throw std::exception();
-//	}
-//}
-//CCString& CCString::append(const char* cstr) {
-//	try {
-//		internalStr.append(cstr);
-//		return *this;
-//	} catch (std::length_error& e) {
-//		throw std::length_error("Result exceeding max length for a string.");
-//	} catch (std::bad_alloc& e) {
-//		throw std::bad_alloc();
-//	} catch (...) {
-//		throw std::exception();
-//	}
-//}
-//CCString& CCString::append(char c) {
-//	try {
-//		internalStr.push_back(c);
-//		return *this;
-//	} catch (std::length_error& e) {
-//		throw std::length_error("Result exceeding max length for a string.");
-//	} catch (std::bad_alloc& e) {
-//		throw std::bad_alloc();
-//	} catch (...) {
-//		throw std::exception();
-//	}
-//}
+CCString& CCString::append(const std::string& str) {
+	try {
+		internalStr.append(str);
+		return *this;
+	} catch (std::length_error& e) {
+		throw std::length_error("Result exceeding max length for a string.");
+	} catch (std::bad_alloc& e) {
+		throw std::bad_alloc();
+	} catch (...) {
+		throw std::exception();
+	}
+}
+CCString& CCString::append(const char* cstr) {
+	try {
+		internalStr.append(cstr);
+		return *this;
+	} catch (std::length_error& e) {
+		throw std::length_error("Result exceeding max length for a string.");
+	} catch (std::bad_alloc& e) {
+		throw std::bad_alloc();
+	} catch (...) {
+		throw std::exception();
+	}
+}
+CCString& CCString::append(char c) {
+	try {
+		internalStr.push_back(c);
+		return *this;
+	} catch (std::length_error& e) {
+		throw std::length_error("Result exceeding max length for a string.");
+	} catch (std::bad_alloc& e) {
+		throw std::bad_alloc();
+	} catch (...) {
+		throw std::exception();
+	}
+}
+CCString& CCString::append(int16_t i) {
+	return append(CCString(i));
+}
+CCString& CCString::append(int32_t i) {
+	return append(CCString(i));
+}
+CCString& CCString::append(int64_t i) {
+	return append(CCString(i));
+}
+CCString& CCString::append(uint16_t i) {
+	return append(CCString(i));
+}
+CCString& CCString::append(uint32_t i) {
+	return append(CCString(i));
+}
+CCString& CCString::append(uint64_t i) {
+	return append(CCString(i));
+}
+CCString& CCString::append(float f) {
+	return append(CCString(f));
+}
+CCString& CCString::append(double d) {
+	return append(CCString(d));
+}
+CCString& CCString::append(long double d) {
+	return append(CCString(d));
+}
 
-//CCString& CCString::operator+=(const CCString& ccStr) {
-//	return append(ccStr);
-//}
-//CCString& CCString::operator+=(const std::string& str) {
-//	return append(str);
-//}
-//CCString& CCString::operator+=(const char* cstr) {
-//	return append(cstr);
-//}
-//CCString& CCString::operator+=(char c) {
-//	return append(c);
-//}
+CCString& CCString::operator+=(const CCString& ccStr) {
+	return append(ccStr);
+}
+CCString& CCString::operator+=(const std::string& str) {
+	return append(str);
+}
+CCString& CCString::operator+=(const char* cstr) {
+	return append(cstr);
+}
+CCString& CCString::operator+=(char c) {
+	return append(c);
+}
+CCString& CCString::operator+=(int16_t i) {
+	return append(CCString(i));
+}
+CCString& CCString::operator+=(int32_t i) {
+	return append(CCString(i));
+}
+CCString& CCString::operator+=(int64_t i) {
+	return append(CCString(i));
+}
+CCString& CCString::operator+=(uint16_t i) {
+	return append(CCString(i));
+}
+CCString& CCString::operator+=(uint32_t i) {
+	return append(CCString(i));
+}
+CCString& CCString::operator+=(uint64_t i) {
+	return append(CCString(i));
+}
+CCString& CCString::operator+=(float f) {
+	return append(CCString(f));
+}
+CCString& CCString::operator+=(double d) {
+	return append(CCString(d));
+}
+CCString& CCString::operator+=(long double d) {
+	return append(CCString(d));
+}
 
-//CCString operator+(const CCString& lhs, const CCString& rhs) {
-//	CCString copy(lhs);
-//	copy += rhs;
-//	return copy;
-//}
-//CCString operator+(const CCString& lhs, const char* rhs) {
-//	CCString copy(lhs);
-//	copy += rhs;
-//	return copy;
-//}
-//CCString operator+(const char* lhs, const CCString& rhs) {
-//	CCString copy(lhs);
-//	copy += rhs;
-//	return copy;
-//}
-//CCString operator+(const CCString& lhs, const std::string& rhs) {
-//	CCString copy(lhs);
-//	copy += rhs;
-//	return copy;
-//}
-//CCString operator+(const std::string& lhs, const CCString& rhs) {
-//	CCString copy(lhs);
-//	copy += rhs;
-//	return copy;
-//}
-//CCString operator+(const CCString& lhs, char rhs) {
-//	CCString copy(lhs);
-//	copy += rhs;
-//	return copy;
-//}
-//CCString operator+(char lhs, const CCString& rhs) {
-//	CCString copy(lhs);
-//	copy += rhs;
-//	return copy;
-//}
+CCString operator+(const CCString& lhs, const CCString& rhs) {
+	CCString copy(lhs);
+	copy += rhs;
+	return copy;
+}
+CCString operator+(const CCString& lhs, const char* rhs) {
+	CCString copy(lhs);
+	copy += rhs;
+	return copy;
+}
+CCString operator+(const char* lhs, const CCString& rhs) {
+	CCString copy(lhs);
+	copy += rhs;
+	return copy;
+}
+CCString operator+(const CCString& lhs, const std::string& rhs) {
+	CCString copy(lhs);
+	copy += rhs;
+	return copy;
+}
+CCString operator+(const std::string& lhs, const CCString& rhs) {
+	CCString copy(lhs);
+	copy += rhs;
+	return copy;
+}
+CCString operator+(const CCString& lhs, char rhs) {
+	CCString copy(lhs);
+	copy += rhs;
+	return copy;
+}
+CCString operator+(char lhs, const CCString& rhs) {
+	CCString copy(lhs);
+	copy += rhs;
+	return copy;
+}
+
+CCString operator+(int16_t lhs, const CCString& rhs) {
+	CCString copy(lhs);
+	copy += rhs;
+	return copy;
+}
+CCString operator+(const CCString& lhs, int32_t rhs) {
+	CCString copy(lhs);
+	copy += rhs;
+	return copy;
+}
+CCString operator+(int32_t lhs, const CCString& rhs) {
+	CCString copy(lhs);
+	copy += rhs;
+	return copy;
+}
+CCString operator+(const CCString& lhs, int64_t rhs) {
+	CCString copy(lhs);
+	copy += rhs;
+	return copy;
+}
+CCString operator+(int64_t lhs, const CCString& rhs) {
+	CCString copy(lhs);
+	copy += rhs;
+	return copy;
+}
+CCString operator+(const CCString& lhs, uint16_t rhs) {
+	CCString copy(lhs);
+	copy += rhs;
+	return copy;
+}
+CCString operator+(uint16_t lhs, const CCString& rhs) {
+	CCString copy(lhs);
+	copy += rhs;
+	return copy;
+}
+CCString operator+(const CCString& lhs, uint32_t rhs) {
+	CCString copy(lhs);
+	copy += rhs;
+	return copy;
+}
+CCString operator+(uint32_t lhs, const CCString& rhs) {
+	CCString copy(lhs);
+	copy += rhs;
+	return copy;
+}
+CCString operator+(const CCString& lhs, uint64_t rhs) {
+	CCString copy(lhs);
+	copy += rhs;
+	return copy;
+}
+CCString operator+(uint64_t lhs, const CCString& rhs) {
+	CCString copy(lhs);
+	copy += rhs;
+	return copy;
+}
+CCString operator+(const CCString& lhs, float rhs) {
+	CCString copy(lhs);
+	copy += rhs;
+	return copy;
+}
+
+CCString operator+(float lhs, const CCString& rhs) {
+	CCString copy(lhs);
+	copy += rhs;
+	return copy;
+}
+
+CCString operator+(const CCString& lhs, double rhs) {
+	CCString copy(lhs);
+	copy += rhs;
+	return copy;
+}
+
+CCString operator+(double lhs, const CCString& rhs) {
+	CCString copy(lhs);
+	copy += rhs;
+	return copy;
+}
+
+CCString operator+(const CCString& lhs, long double rhs) {
+	CCString copy(lhs);
+	copy += rhs;
+	return copy;
+}
+
+CCString operator+(long double lhs, const CCString& rhs) {
+	CCString copy(lhs);
+	copy += rhs;
+	return copy;
+}
 
 CCString& CCString::replace(size_t pos, const CCString& ccStr) {
 	try {
@@ -245,44 +390,44 @@ CCString& CCString::replace(size_t pos, const CCString& ccStr) {
 	}
 
 }
-//CCString& CCString::replace(size_t pos, const std::string& str) {
-//	try {
-//		internalStr.replace(pos, str.length(), str);
-//		return *this;
-//	} catch (std::out_of_range& e) {
-//		throw std::out_of_range("Position pointing outside of the string.");
-//	} catch (std::length_error& e) {
-//		throw std::length_error("Result exceeding max length for a string.");
-//	} catch (std::bad_alloc& e) {
-//		throw std::bad_alloc();
-//	} catch (...) {
-//		throw std::exception();
-//	}
-//}
-//CCString& CCString::replace(size_t pos, const char* cstr) {
-//	try {
-//		internalStr.replace(pos, std::char_traits<char>::length(cstr), cstr);
-//		return *this;
-//	} catch (std::out_of_range& e) {
-//		throw std::out_of_range("Position pointing outside of the string.");
-//	} catch (std::length_error& e) {
-//		throw std::length_error("Result exceeding max length for a string.");
-//	} catch (std::bad_alloc& e) {
-//		throw std::bad_alloc();
-//	} catch (...) {
-//		throw std::exception();
-//	}
-//}
-//CCString& CCString::replace(size_t pos, char c) {
-//	try {
-//		internalStr.at(pos) = c;
-//		return *this;
-//	} catch (std::out_of_range& e) {
-//		throw std::out_of_range("Position pointing outside of the string.");
-//	} catch (...) {
-//		throw std::exception();
-//	}
-//}
+CCString& CCString::replace(size_t pos, const std::string& str) {
+	try {
+		internalStr.replace(pos, str.length(), str);
+		return *this;
+	} catch (std::out_of_range& e) {
+		throw std::out_of_range("Position pointing outside of the string.");
+	} catch (std::length_error& e) {
+		throw std::length_error("Result exceeding max length for a string.");
+	} catch (std::bad_alloc& e) {
+		throw std::bad_alloc();
+	} catch (...) {
+		throw std::exception();
+	}
+}
+CCString& CCString::replace(size_t pos, const char* cstr) {
+	try {
+		internalStr.replace(pos, std::char_traits<char>::length(cstr), cstr);
+		return *this;
+	} catch (std::out_of_range& e) {
+		throw std::out_of_range("Position pointing outside of the string.");
+	} catch (std::length_error& e) {
+		throw std::length_error("Result exceeding max length for a string.");
+	} catch (std::bad_alloc& e) {
+		throw std::bad_alloc();
+	} catch (...) {
+		throw std::exception();
+	}
+}
+CCString& CCString::replace(size_t pos, char c) {
+	try {
+		internalStr.at(pos) = c;
+		return *this;
+	} catch (std::out_of_range& e) {
+		throw std::out_of_range("Position pointing outside of the string.");
+	} catch (...) {
+		throw std::exception();
+	}
+}
 
 CCString& CCString::insert(size_t pos, const CCString& ccStr) {
 	try {
@@ -298,48 +443,48 @@ CCString& CCString::insert(size_t pos, const CCString& ccStr) {
 		throw std::exception();
 	}
 }
-//CCString& CCString::insert(size_t pos, const std::string& str) {
-//	try {
-//		internalStr.insert(pos, str);
-//		return *this;
-//	} catch (std::out_of_range& e) {
-//		throw std::out_of_range("Position pointing outside of the string.");
-//	} catch (std::length_error& e) {
-//		throw std::length_error("Result exceeding max length for a string.");
-//	} catch (std::bad_alloc& e) {
-//		throw std::bad_alloc();
-//	} catch (...) {
-//		throw std::exception();
-//	}
-//}
-//CCString& CCString::insert(size_t pos, const char* cstr) {
-//	try {
-//		internalStr.insert(pos, cstr);
-//		return *this;
-//	} catch (std::out_of_range& e) {
-//		throw std::out_of_range("Position pointing outside of the string.");
-//	} catch (std::length_error& e) {
-//		throw std::length_error("Result exceeding max length for a string.");
-//	} catch (std::bad_alloc& e) {
-//		throw std::bad_alloc();
-//	} catch (...) {
-//		throw std::exception();
-//	}
-//}
-//CCString& CCString::insert(size_t pos, char c) {
-//	try {
-//		internalStr.insert(pos, 1, c);
-//		return *this;
-//	} catch (std::out_of_range& e) {
-//		throw std::out_of_range("Position pointing outside of the string.");
-//	} catch (std::length_error& e) {
-//		throw std::length_error("Result exceeding max length for a string.");
-//	} catch (std::bad_alloc& e) {
-//		throw std::bad_alloc();
-//	} catch (...) {
-//		throw std::exception();
-//	}
-//}
+CCString& CCString::insert(size_t pos, const std::string& str) {
+	try {
+		internalStr.insert(pos, str);
+		return *this;
+	} catch (std::out_of_range& e) {
+		throw std::out_of_range("Position pointing outside of the string.");
+	} catch (std::length_error& e) {
+		throw std::length_error("Result exceeding max length for a string.");
+	} catch (std::bad_alloc& e) {
+		throw std::bad_alloc();
+	} catch (...) {
+		throw std::exception();
+	}
+}
+CCString& CCString::insert(size_t pos, const char* cstr) {
+	try {
+		internalStr.insert(pos, cstr);
+		return *this;
+	} catch (std::out_of_range& e) {
+		throw std::out_of_range("Position pointing outside of the string.");
+	} catch (std::length_error& e) {
+		throw std::length_error("Result exceeding max length for a string.");
+	} catch (std::bad_alloc& e) {
+		throw std::bad_alloc();
+	} catch (...) {
+		throw std::exception();
+	}
+}
+CCString& CCString::insert(size_t pos, char c) {
+	try {
+		internalStr.insert(pos, 1, c);
+		return *this;
+	} catch (std::out_of_range& e) {
+		throw std::out_of_range("Position pointing outside of the string.");
+	} catch (std::length_error& e) {
+		throw std::length_error("Result exceeding max length for a string.");
+	} catch (std::bad_alloc& e) {
+		throw std::bad_alloc();
+	} catch (...) {
+		throw std::exception();
+	}
+}
 
 CCString& CCString::erase(size_t pos, size_t length) {
 	try {
@@ -367,25 +512,25 @@ CCString CCString::subString(size_t pos, size_t length) const {
 size_t CCString::find(const CCString& ccstr, size_t pos) const {
 	return internalStr.find(ccstr.internalStr, pos);
 }
-//size_t CCString::find(const std::string& str, size_t pos) const {
-//	return internalStr.find(str, pos);
-//}
-//size_t CCString::find(const char* cstr, size_t pos) const {
-//	return internalStr.find(cstr, pos);
-//}
-//size_t CCString::find(char c, size_t pos) const {
-//	return internalStr.find(c, pos);
-//}
+size_t CCString::find(const std::string& str, size_t pos) const {
+	return internalStr.find(str, pos);
+}
+size_t CCString::find(const char* cstr, size_t pos) const {
+	return internalStr.find(cstr, pos);
+}
+size_t CCString::find(char c, size_t pos) const {
+	return internalStr.find(c, pos);
+}
 
 size_t CCString::findLast(const CCString& ccstr, size_t pos) const {
 	return internalStr.rfind(ccstr.internalStr, pos);
 }
-//size_t CCString::findLast(const std::string& str, size_t pos) const {
-//	return internalStr.rfind(str, pos);
-//}
-//size_t CCString::findLast(const char* cstr, size_t pos) const {
-//	return internalStr.rfind(cstr, pos);
-//}
-//size_t CCString::findLast(char c, size_t pos) const {
-//	return internalStr.rfind(c, pos);
-//}
+size_t CCString::findLast(const std::string& str, size_t pos) const {
+	return internalStr.rfind(str, pos);
+}
+size_t CCString::findLast(const char* cstr, size_t pos) const {
+	return internalStr.rfind(cstr, pos);
+}
+size_t CCString::findLast(char c, size_t pos) const {
+	return internalStr.rfind(c, pos);
+}
