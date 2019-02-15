@@ -54,6 +54,14 @@ void testMult(string s1, string s2, string r) {
 	CCDecimal result = r;
 	isEqual(d1 * d2, result);
 }
+void testDiv(string s1, string s2, string r) {
+	CCDecimal d1 = s1;
+	CCDecimal d2 = s2;
+	CCDecimal result = r;
+	isEqual(d1 / d2, result);
+}
+
+
 void testToStr(const string s1, const string r) {
 	CCDecimal d1 = s1;
 	EXPECT_EQ(d1.toString(), r);
@@ -651,7 +659,7 @@ GROUP_TEST(Conversion, CCDecimalTest, toString_round) {
 	//new################################################################
 	testToStr("99.99999", "100");
 
-	EXPECT_THROW(CCDecimal("555").toString(MAX),std::out_of_range);
+
 }
 
 //Multiplication ##########################################
@@ -753,3 +761,20 @@ GROUP_TEST(Arithmetic, CCDecimalTest, arith_mult){
 
 }
 
+GROUP_TEST(Division, CCDecimalTest, div){
+	testDiv("31.8", "3.2", "9.9375");
+	testDiv("2", "5", "0.4");
+	testDiv("9000", "15", "600");
+	testDiv("26","0.004", "6500");
+	testDiv("0.0009", "24", "0.0000375");
+	testDiv("1", "3", "0.3333333333333333333333333333333");
+	testDiv("5",
+			"523456789012345678901234567891",
+	      "0.000000000000000000000000000009551886812728061632818220006512");
+//	testDiv("4568997890123456789012345678901", //should throw exception ?
+//			 "5234567890123456789012345678901",
+//		  "0.8728510138810516803809035462051");
+
+
+
+}

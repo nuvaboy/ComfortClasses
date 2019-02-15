@@ -39,10 +39,10 @@ private:
 	void add(CCDecimal* result, const CCDecimal& op2) const;
 	void sub(CCDecimal* result, const CCDecimal& opSmall) const;
 	void mult(CCDecimal* result, const CCDecimal& op2) const;
-	void div(CCDecimal* result, CCDecimal op2) const;
+
 
 public:
-
+	void div(CCDecimal* result, const CCDecimal& op2) const;
 
 	void cfs(const string& numberStr);
 	//constructors
@@ -76,7 +76,9 @@ public:
 	CCDecimal& operator -=(const CCDecimal&);
 	CCDecimal operator *(const CCDecimal&) const;
 	CCDecimal& operator *=(const CCDecimal&);
+	CCDecimal operator /(const CCDecimal&) const;
 	bool operator ==(const CCDecimal&) const;
+	bool operator !=(const CCDecimal&) const;
 
 	//testing only
 	void setDigit(unsigned int pos, int8_t value) {
