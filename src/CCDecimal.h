@@ -21,14 +21,14 @@ class CCDecimal {
 
 private:
 	int8_t digit[MAX + 1];
-	unsigned int used = 0;
+	uint32_t used = 0;
 	//int shift = 0;
 	int32_t shift = 0;
 	bool isNegative = false;
 
-	unsigned int precision = 0;
-	unsigned int* pPrecision;
-	static unsigned int defaultPrecision;
+	int32_t precision = 0;
+	int32_t* pPrecision;
+	static int32_t defaultPrecision;
 
 
 	void constructFromString(string numberStr);
@@ -53,14 +53,10 @@ public:
 	virtual ~CCDecimal();
 
 	//getter/setter
-	unsigned int getLocalPrecision();
-	void setLocalPrecision(unsigned int prec);
-	static void setGlobalPrecision(unsigned int);
-	static unsigned int getGlobalPrecision();
-
-	//core functionality
-
-
+	int32_t getLocalPrecision();
+	void setLocalPrecision(int32_t prec);
+	static void setGlobalPrecision(int32_t);
+	static int32_t getGlobalPrecision();
 
 	//utility functionality
 	static void round(CCDecimal* pDec, int32_t precOut);

@@ -14,13 +14,14 @@ TEST(TestBase##_##GroupName, TestName)
 TEST_F(TestBase, TestName)
 #endif
 
-class CCDecimalTest: public ::testing::Test {
+class CCDecimalTest: public  ::testing::Test {
 public:
 
 	CCDecimalTest() {
 	}
 
 };
+
 
 void isEqual(const CCDecimal& value, const CCDecimal& cmp) {
 	bool eq = (value == cmp);
@@ -113,10 +114,10 @@ GROUP_TEST(GetterSetter, CCDecimalTest, defaultPrecision) {
 
 	CCDecimal d1;
 	d1.setLocalPrecision(3);
-	EXPECT_EQ(d1.getLocalPrecision(), (uint32_t)3);
+	EXPECT_EQ(d1.getLocalPrecision(), 3);
 
 	CCDecimal d2 = d1;
-	EXPECT_EQ(d2.getLocalPrecision(), (uint32_t)3);
+	EXPECT_EQ(d2.getLocalPrecision(), 3);
 
 }
 
@@ -933,9 +934,12 @@ GROUP_TEST(Operators, CCDecimalTest, op_consistency) {
 
 }
 GROUP_TEST(Operators, CCDecimalTest, op_incdec) {
+
 	CCDecimal d = "0.026";
 	isEqual(d++, CCDecimal("0.026"));
 	isEqual(++d, CCDecimal("2.026"));
 	isEqual(d--, CCDecimal("2.026"));
 	isEqual(--d, CCDecimal("0.026"));
 }
+
+

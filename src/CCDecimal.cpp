@@ -1,9 +1,13 @@
 /*
  * Decimal.cpp
+
+
  *
  *  Created on: 24.10.2018
  *      Author: marlo
  */
+#include "CCDecimal.h"
+
 #include "gtest/gtest.h"
 #include <string>
 #include <sstream>
@@ -12,14 +16,14 @@
 #include <algorithm>
 #include <exception>
 
-#include "CCDecimal.h"
+
 #include <cctype>
 #include <cstdlib>
 
 using namespace std;
 
 //initialize static properties
-uint32_t CCDecimal::defaultPrecision = 3;
+int32_t CCDecimal::defaultPrecision = 3;
 
 //constructors
 CCDecimal::CCDecimal() { /* construct with default value (0) */
@@ -71,21 +75,23 @@ CCDecimal::~CCDecimal() {
 }
 
 //public setter/getter
-uint32_t CCDecimal::getLocalPrecision() {
+int32_t CCDecimal::getLocalPrecision() {
 	return *pPrecision - 1;
 }
 
-void CCDecimal::setLocalPrecision(uint32_t p) {
-	precision = p + 1;
+void CCDecimal::setLocalPrecision(int32_t prec) {
+	if (prec < 0) throw std::out_of_range("precision has to be positive");
+	precision = prec + 1;
 	pPrecision = &precision;
 }
 
-uint32_t CCDecimal::getGlobalPrecision() {
+int32_t CCDecimal::getGlobalPrecision() {
 	return CCDecimal::defaultPrecision - 1;
 }
 
-void CCDecimal::setGlobalPrecision(uint32_t precision) {
-	CCDecimal::defaultPrecision = precision + 1;
+void CCDecimal::setGlobalPrecision(int32_t prec) {
+	if (prec < 0) throw std::out_of_range("precision has to be positive");
+	CCDecimal::defaultPrecision = prec + 1;
 }
 
 //core functionality
