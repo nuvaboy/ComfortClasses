@@ -32,19 +32,18 @@ private:
 
 
 	void constructFromString(string numberStr);
-
-
-
 	bool magnitudeLessThan(const CCDecimal& op2) const;
 	void add(CCDecimal* result, const CCDecimal& op2) const;
 	void sub(CCDecimal* result, const CCDecimal& opSmall) const;
 	void mult(CCDecimal* result, const CCDecimal& op2) const;
-
+	void div(CCDecimal* result, const CCDecimal& op2) const;
+	void mod(CCDecimal* result, const CCDecimal& op2) const;
 
 public:
-	void div(CCDecimal* result, const CCDecimal& op2) const;
+
 
 	void cfs(const string& numberStr);
+
 	//constructors
 	CCDecimal();
 	CCDecimal(const CCDecimal& d2);
@@ -56,7 +55,6 @@ public:
 	//getter/setter
 	unsigned int getLocalPrecision();
 	void setLocalPrecision(unsigned int prec);
-
 	static void setGlobalPrecision(unsigned int);
 	static unsigned int getGlobalPrecision();
 
@@ -65,9 +63,9 @@ public:
 
 
 	//utility functionality
-	static void round(CCDecimal* pDec, unsigned int precOut);
+	static void round(CCDecimal* pDec, int32_t precOut);
 	string toString() const;
-	string toString(uint32_t precOut) const;
+	string toString(int32_t precOut) const;
 
 	//operators
 	CCDecimal operator +(const CCDecimal&) const;
@@ -77,8 +75,20 @@ public:
 	CCDecimal operator *(const CCDecimal&) const;
 	CCDecimal& operator *=(const CCDecimal&);
 	CCDecimal operator /(const CCDecimal&) const;
+	CCDecimal& operator /=(const CCDecimal&);
+
+	CCDecimal operator %(const CCDecimal&) const;
+
 	bool operator ==(const CCDecimal&) const;
 	bool operator !=(const CCDecimal&) const;
+	bool operator < (const CCDecimal&) const;
+	bool operator > (const CCDecimal&) const;
+
+	CCDecimal& operator++();
+	CCDecimal operator++(int);
+
+	CCDecimal& operator--();
+	CCDecimal operator--(int);
 
 	//testing only
 	void setDigit(unsigned int pos, int8_t value) {
