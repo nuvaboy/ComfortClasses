@@ -9,6 +9,7 @@
 #define CCSTRING_H_
 
 #include <cstddef>
+#include <sstream>
 #include <string>
 
 class CCString {
@@ -21,6 +22,8 @@ public:
 	//constructors for textual types
 	CCString(const std::string& str);
 	CCString(const char* cstr);
+	CCString(char* cstr);
+	CCString(char* cstr, size_t n);
 	CCString(char c);
 	//constructor for boolean type
 	CCString(bool b);
@@ -61,6 +64,7 @@ public:
 	CCString& append(const std::string& str);
 	CCString& append(const char* cstr);
 	CCString& append(char c);
+	CCString& append(bool b);
 	CCString& append(int16_t i);
 	CCString& append(int32_t i);
 	CCString& append(int64_t i);
@@ -74,22 +78,24 @@ public:
 	template<typename type>
 	/* operand type not supported   */CCString& append(const type&) = delete;
 
-	CCString& operator+=(const CCString& ccStr);
-	CCString& operator+=(const std::string& str);
-	CCString& operator+=(const char* cstr);
-	CCString& operator+=(char c);
-	CCString& operator+=(int16_t i);
-	CCString& operator+=(int32_t i);
-	CCString& operator+=(int64_t i);
-	CCString& operator+=(uint16_t i);
-	CCString& operator+=(uint32_t i);
-	CCString& operator+=(uint64_t i);
-	CCString& operator+=(float f);
-	CCString& operator+=(double d);
-	CCString& operator+=(long double d);
+	CCString& operator<<(const CCString& ccStr);
+	CCString& operator<<(const std::string& str);
+	CCString& operator<<(const char* cstr);
+	CCString& operator<<(char c);
+	CCString& operator<<(bool b);
+
+	CCString& operator<<(int16_t i);
+	CCString& operator<<(int32_t i);
+	CCString& operator<<(int64_t i);
+	CCString& operator<<(uint16_t i);
+	CCString& operator<<(uint32_t i);
+	CCString& operator<<(uint64_t i);
+	CCString& operator<<(float f);
+	CCString& operator<<(double d);
+	CCString& operator<<(long double d);
 
 	template<typename type>
-	/* operand type not supported   */CCString& operator+=(const type&) = delete;
+	/* operand type not supported   */CCString& operator<<(const type&) = delete;
 
 	CCString& replace(size_t pos, const CCString& ccStr);
 	CCString& replace(size_t pos, const std::string& str);
@@ -101,56 +107,75 @@ public:
 	CCString& insert(size_t pos, const char* cstr);
 	CCString& insert(size_t pos, char c);
 
+	CCString& insert(size_t pos, bool b);
+
+	CCString& insert(size_t pos, int16_t i);
+	CCString& insert(size_t pos, int32_t i);
+	CCString& insert(size_t pos, int64_t i);
+	CCString& insert(size_t pos, uint16_t i);
+	CCString& insert(size_t pos, uint32_t i);
+	CCString& insert(size_t pos, uint64_t i);
+	CCString& insert(size_t pos, float f);
+	CCString& insert(size_t pos, double d);
+	CCString& insert(size_t pos, long double d);
+
+	template<typename type>
+	/* operand type not supported   */CCString& insert(size_t pos, const type&) = delete;
+
 	CCString& erase(size_t pos, size_t length);
 
 	CCString subString(size_t pos, size_t length) const;
 
 	size_t find(const CCString& ccstr, size_t pos = 0) const;
-	size_t find(const std::string& str, size_t pos) const;
-	size_t find(const char* cstr, size_t pos) const;
-	size_t find(char c, size_t pos) const;
+	size_t find(const std::string& str, size_t pos = 0) const;
+	size_t find(const char* cstr, size_t pos = 0) const;
+	size_t find(char c, size_t pos = 0) const;
 
 	size_t findLast(const CCString& ccstr,
 			size_t pos = std::string::npos) const;
-	size_t findLast(const std::string& str, size_t pos) const;
-	size_t findLast(const char* cstr, size_t pos) const;
-	size_t findLast(char c, size_t pos) const;
+	size_t findLast(const std::string& str,
+			size_t pos = std::string::npos) const;
+	size_t findLast(const char* cstr, size_t pos = std::string::npos) const;
+	size_t findLast(char c, size_t pos = std::string::npos) const;
 
 private:
 	std::string internalStr;
 };
 
-CCString operator+(const CCString& lhs, const CCString& rhs);
-CCString operator+(const CCString& lhs, const char* rhs);
-CCString operator+(const char* lhs, const CCString& rhs);
-CCString operator+(const CCString& lhs, const std::string& rhs);
-CCString operator+(const std::string& lhs, const CCString& rhs);
-CCString operator+(const CCString& lhs, char rhs);
-CCString operator+(char lhs, const CCString& rhs);
-
-CCString operator+(const CCString& lhs, int16_t rhs);
-CCString operator+(int16_t lhs, const CCString& rhs);
-CCString operator+(const CCString& lhs, int32_t rhs);
-CCString operator+(int32_t lhs, const CCString& rhs);
-CCString operator+(const CCString& lhs, int64_t rhs);
-CCString operator+(int64_t lhs, const CCString& rhs);
-
-CCString operator+(const CCString& lhs, uint16_t rhs);
-CCString operator+(uint16_t lhs, const CCString& rhs);
-CCString operator+(const CCString& lhs, uint32_t rhs);
-CCString operator+(uint32_t lhs, const CCString& rhs);
-CCString operator+(const CCString& lhs, uint64_t rhs);
-CCString operator+(uint64_t lhs, const CCString& rhs);
-
-CCString operator+(const CCString& lhs, float rhs);
-CCString operator+(float lhs, const CCString& rhs);
-CCString operator+(const CCString& lhs, double rhs);
-CCString operator+(double lhs, const CCString& rhs);
-CCString operator+(const CCString& lhs, long double rhs);
-CCString operator+(long double lhs, const CCString& rhs);
-
-template<typename type1, typename type2>
-/* operand type not supported   */CCString operator+(const type1&, const type2&) = delete;
+//CCString operator+(const CCString& lhs, const CCString& rhs);
+//CCString operator+(const CCString& lhs, const char* rhs);
+//CCString operator+(const char* lhs, const CCString& rhs);
+//CCString operator+(const CCString& lhs, const std::string& rhs);
+//CCString operator+(const std::string& lhs, const CCString& rhs);
+//CCString operator+(const CCString& lhs, char rhs);
+//CCString operator+(char lhs, const CCString& rhs);
+//
+//CCString operator+(bool lhs, const CCString& rhs);
+//CCString operator+(const CCString& lhs, bool rhs);
+//
+//CCString operator+(const CCString& lhs, int16_t rhs);
+//CCString operator+(int16_t lhs, const CCString& rhs);
+//CCString operator+(const CCString& lhs, int32_t rhs);
+//CCString operator+(int32_t lhs, const CCString& rhs);
+//CCString operator+(const CCString& lhs, int64_t rhs);
+//CCString operator+(int64_t lhs, const CCString& rhs);
+//
+//CCString operator+(const CCString& lhs, uint16_t rhs);
+//CCString operator+(uint16_t lhs, const CCString& rhs);
+//CCString operator+(const CCString& lhs, uint32_t rhs);
+//CCString operator+(uint32_t lhs, const CCString& rhs);
+//CCString operator+(const CCString& lhs, uint64_t rhs);
+//CCString operator+(uint64_t lhs, const CCString& rhs);
+//
+//CCString operator+(const CCString& lhs, float rhs);
+//CCString operator+(float lhs, const CCString& rhs);
+//CCString operator+(const CCString& lhs, double rhs);
+//CCString operator+(double lhs, const CCString& rhs);
+//CCString operator+(const CCString& lhs, long double rhs);
+//CCString operator+(long double lhs, const CCString& rhs);
+//
+//template<typename type1, typename type2>
+///* operand type not supported   */CCString operator+(const type1&, const type2&) = delete;
 
 /* as per https://en.cppreference.com/w/cpp/language/operators */
 inline bool operator!=(const CCString& lhs, const CCString& rhs) {

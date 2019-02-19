@@ -91,19 +91,19 @@ GROUP_TEST(append, CCStringTest, appendMethod) {
 
 GROUP_TEST(append, CCStringTest, appendOperator) {
 	CCString ccstr;
-	ccstr += "abc";
-	ccstr += std::string("def");
-	ccstr += CCString("ghi");
-	ccstr += 'j';
+	ccstr << "abc";
+	ccstr << std::string("def");
+	ccstr << CCString("ghi");
+	ccstr << 'j';
 	EXPECT_EQ(ccstr, CCString("abcdefghij"));
 }
 
 GROUP_TEST(append, CCStringTest, concatenateOperator) {
 	CCString ccstr;
-	ccstr = ccstr + std::string("abc");
-	ccstr = ccstr + "def";
-	ccstr = ccstr + 'g';
-	ccstr = ccstr + CCString("hij");
+	ccstr = ccstr << std::string("abc");
+	ccstr = ccstr << "def";
+	ccstr = ccstr << 'g';
+	ccstr = ccstr << CCString("hij");
 	EXPECT_EQ(ccstr, CCString("abcdefghij"));
 }
 

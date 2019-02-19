@@ -20,6 +20,17 @@ CCString::CCString(const std::string& str) :
 CCString::CCString(const char* cstr) :
 		CCString(std::string(cstr)) {
 }
+CCString::CCString(char* cstr) :
+		CCString() {
+	for (int i = 0; cstr[i] != '\0'; i++) {
+		append(cstr[i]);
+	}
+}
+CCString::CCString(char* cstr, size_t n) {
+	for (unsigned int i = 0; i < n; i++) {
+		append(cstr[i]);
+	}
+}
 CCString::CCString(char c) :
 		CCString(std::string() += c) {
 }
@@ -193,6 +204,9 @@ CCString& CCString::append(char c) {
 		throw std::exception();
 	}
 }
+CCString& CCString::append(bool b) {
+	return append(CCString(b));
+}
 CCString& CCString::append(int16_t i) {
 	return append(CCString(i));
 }
@@ -221,172 +235,151 @@ CCString& CCString::append(long double d) {
 	return append(CCString(d));
 }
 
-CCString& CCString::operator+=(const CCString& ccStr) {
+CCString& CCString::operator<<(const CCString& ccStr) {
 	return append(ccStr);
 }
-CCString& CCString::operator+=(const std::string& str) {
+CCString& CCString::operator<<(const std::string& str) {
 	return append(str);
 }
-CCString& CCString::operator+=(const char* cstr) {
+CCString& CCString::operator<<(const char* cstr) {
 	return append(cstr);
 }
-CCString& CCString::operator+=(char c) {
+CCString& CCString::operator<<(char c) {
 	return append(c);
 }
-CCString& CCString::operator+=(int16_t i) {
+CCString& CCString::operator<<(bool b) {
+	return append(CCString(b));
+}
+CCString& CCString::operator<<(int16_t i) {
 	return append(CCString(i));
 }
-CCString& CCString::operator+=(int32_t i) {
+CCString& CCString::operator<<(int32_t i) {
 	return append(CCString(i));
 }
-CCString& CCString::operator+=(int64_t i) {
+CCString& CCString::operator<<(int64_t i) {
 	return append(CCString(i));
 }
-CCString& CCString::operator+=(uint16_t i) {
+CCString& CCString::operator<<(uint16_t i) {
 	return append(CCString(i));
 }
-CCString& CCString::operator+=(uint32_t i) {
+CCString& CCString::operator<<(uint32_t i) {
 	return append(CCString(i));
 }
-CCString& CCString::operator+=(uint64_t i) {
+CCString& CCString::operator<<(uint64_t i) {
 	return append(CCString(i));
 }
-CCString& CCString::operator+=(float f) {
+CCString& CCString::operator<<(float f) {
 	return append(CCString(f));
 }
-CCString& CCString::operator+=(double d) {
+CCString& CCString::operator<<(double d) {
 	return append(CCString(d));
 }
-CCString& CCString::operator+=(long double d) {
+CCString& CCString::operator<<(long double d) {
 	return append(CCString(d));
 }
 
-CCString operator+(const CCString& lhs, const CCString& rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
-}
-CCString operator+(const CCString& lhs, const char* rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
-}
-CCString operator+(const char* lhs, const CCString& rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
-}
-CCString operator+(const CCString& lhs, const std::string& rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
-}
-CCString operator+(const std::string& lhs, const CCString& rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
-}
-CCString operator+(const CCString& lhs, char rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
-}
-CCString operator+(char lhs, const CCString& rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
-}
-
-CCString operator+(int16_t lhs, const CCString& rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
-}
-CCString operator+(const CCString& lhs, int32_t rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
-}
-CCString operator+(int32_t lhs, const CCString& rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
-}
-CCString operator+(const CCString& lhs, int64_t rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
-}
-CCString operator+(int64_t lhs, const CCString& rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
-}
-CCString operator+(const CCString& lhs, uint16_t rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
-}
-CCString operator+(uint16_t lhs, const CCString& rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
-}
-CCString operator+(const CCString& lhs, uint32_t rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
-}
-CCString operator+(uint32_t lhs, const CCString& rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
-}
-CCString operator+(const CCString& lhs, uint64_t rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
-}
-CCString operator+(uint64_t lhs, const CCString& rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
-}
-CCString operator+(const CCString& lhs, float rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
-}
-
-CCString operator+(float lhs, const CCString& rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
-}
-
-CCString operator+(const CCString& lhs, double rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
-}
-
-CCString operator+(double lhs, const CCString& rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
-}
-
-CCString operator+(const CCString& lhs, long double rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
-}
-
-CCString operator+(long double lhs, const CCString& rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
-}
+//CCString operator+(const CCString& lhs, const CCString& rhs) {
+//	CCString copy(lhs);
+//	copy += rhs;
+//	return copy;
+//}
+//CCString operator+(const CCString& lhs, const char* rhs) {
+//	CCString copy(lhs);
+//	copy += rhs;
+//	return copy;
+//}
+//CCString operator+(const char* lhs, const CCString& rhs) {
+//	CCString copy(lhs);
+//	copy += rhs;
+//	return copy;
+//}
+//CCString operator+(const CCString& lhs, const std::string& rhs) {
+//	CCString copy(lhs);
+//	copy += rhs;
+//	return copy;
+//}
+//CCString operator+(const std::string& lhs, const CCString& rhs) {
+//	CCString copy(lhs);
+//	copy += rhs;
+//	return copy;
+//}
+//CCString operator+(const CCString& lhs, char rhs) {
+//	CCString copy(lhs);
+//	copy += rhs;
+//	return copy;
+//}
+//CCString operator+(char lhs, const CCString& rhs) {
+//	CCString copy(lhs);
+//	copy += rhs;
+//	return copy;
+//}
+//
+//CCString operator+(const CCString& lhs, bool rhs) {
+//	CCString copy(lhs);
+//	copy += rhs;
+//	return copy;
+//}
+//CCString operator+(bool lhs, const CCString& rhs) {
+//	CCString copy(lhs);
+//	copy += rhs;
+//	return copy;
+//}
+//CCString operator+(const CCString& lhs, int16_t rhs) {
+//	CCString copy(lhs);
+//	copy += rhs;
+//	return copy;
+//}
+//CCString operator+(int16_t lhs, const CCString& rhs) {
+//	CCString copy(lhs);
+//	copy += rhs;
+//	return copy;
+//}
+//CCString operator+(const CCString& lhs, int32_t rhs) {
+//	CCString copy(lhs);
+//	copy += rhs;
+//	return copy;
+//}
+//CCString operator+(int32_t lhs, const CCString& rhs) {
+//	CCString copy(lhs);
+//	copy += rhs;
+//	return copy;
+//}
+//CCString operator+(const CCString& lhs, int64_t rhs) {
+//	CCString copy(lhs);
+//	copy += rhs;
+//	return copy;
+//}
+//CCString operator+(int64_t lhs, const CCString& rhs) {
+//	CCString copy(lhs);
+//	copy += rhs;
+//	return copy;
+//}
+//CCString operator+(float lhs, const CCString& rhs) {
+//	CCString copy(lhs);
+//	copy += rhs;
+//	return copy;
+//}
+//
+//CCString operator+(const CCString& lhs, double rhs) {
+//	CCString copy(lhs);
+//	copy += rhs;
+//	return copy;
+//}
+//CCString operator+(double lhs, const CCString& rhs) {
+//	CCString copy(lhs);
+//	copy += rhs;
+//	return copy;
+//}
+//CCString operator+(const CCString& lhs, long double rhs) {
+//	CCString copy(lhs);
+//	copy += rhs;
+//	return copy;
+//}
+//CCString operator+(long double lhs, const CCString& rhs) {
+//	CCString copy(lhs);
+//	copy += rhs;
+//	return copy;
+//}
 
 CCString& CCString::replace(size_t pos, const CCString& ccStr) {
 	try {
@@ -519,6 +512,38 @@ CCString& CCString::insert(size_t pos, char c) {
 	} catch (...) {
 		throw std::exception();
 	}
+}
+
+CCString& CCString::insert(size_t pos, bool b) {
+	return insert(pos, CCString(b));
+}
+
+CCString& CCString::insert(size_t pos, int16_t i) {
+	return insert(pos, CCString(i));
+}
+CCString& CCString::insert(size_t pos, int32_t i) {
+	return insert(pos, CCString(i));
+}
+CCString& CCString::insert(size_t pos, int64_t i) {
+	return insert(pos, CCString(i));
+}
+CCString& CCString::insert(size_t pos, uint16_t i) {
+	return insert(pos, CCString(i));
+}
+CCString& CCString::insert(size_t pos, uint32_t i) {
+	return insert(pos, CCString(i));
+}
+CCString& CCString::insert(size_t pos, uint64_t i) {
+	return insert(pos, CCString(i));
+}
+CCString& CCString::insert(size_t pos, float f) {
+	return insert(pos, CCString(f));
+}
+CCString& CCString::insert(size_t pos, double d) {
+	return insert(pos, CCString(d));
+}
+CCString& CCString::insert(size_t pos, long double d) {
+	return insert(pos, CCString(d));
 }
 
 CCString& CCString::erase(size_t pos, size_t length) {
