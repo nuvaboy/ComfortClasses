@@ -1007,6 +1007,35 @@ string CCDecimal::toString() const {
 	return toString(*pPrecision - 1);
 }
 
+double CCDecimal::toDouble() const {
+
+	double result = 0;
+	//mantissa
+	for (int64_t i = static_cast<int64_t>(used) - 1; i > 0; i--) {
+		result += digit[i];
+		result *= 10;
+	}
+	if (used > 0) {
+		result += digit[0];
+	}
+	//exponent
+	for (int i = shift; i < 0; i++) {
+		result /= 10;
+	}
+	for (int i = 0; i < shift; i++) {
+		result *= 10;
+	}
+	//sign
+	if (isNegative) {
+		result *= -1;
+	}
+	return result;
+}
+
+CCDecimal::operator double(){
+	return toDouble();
+}
+
 bool CCDecimal::magnitudeLessThan(const CCDecimal& op2) const {
 
 	if ((int32_t) used + shift > (int32_t) op2.used + op2.shift) return false;
