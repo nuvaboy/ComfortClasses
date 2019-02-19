@@ -63,6 +63,9 @@ public:
 	string toString() const;
 	string toString(int32_t precOut) const;
 
+	double toDouble() const;
+	explicit operator double();
+
 	//operators
 	CCDecimal operator +(const CCDecimal&) const;
 	CCDecimal& operator +=(const CCDecimal&);
