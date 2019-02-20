@@ -21,7 +21,7 @@ CCString::CCString(const char* cstr) :
 		CCString(std::string(cstr)) {
 }
 CCString::CCString(char c) :
-		CCString(std::string() += c) {
+		CCString(std::string() = c) {
 }
 
 //constructor for boolean type
