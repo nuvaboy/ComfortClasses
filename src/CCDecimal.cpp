@@ -953,54 +953,78 @@ void CCDecimal::round(CCDecimal* pDec, int32_t precOut) {
 
 }
 
-string CCDecimal::toString(int32_t precOut) const {
+string CCDecimal::toString(int32_t precOut, bool scientific) const {
 
-//zero case
-	if (used == 0) return "0";
+	//zero case
 
-//create a copy to round without changing the original
+	//create a copy to round without changing the original
 	CCDecimal copy(*this);
-	CCDecimal::round(&copy, precOut);
 
+	int32_t exp_sci = 0;
 	string result = "";
 
-//sign
-	if (isNegative) result = "-";
+	if (used == 0) {
+		result = "0";
+	}
+	else{
+		if (scientific) {
+			exp_sci = copy.shift + (int32_t) copy.used - 1;
+			copy.shift -= exp_sci;
+		}
 
-//at least one zero before dp
-	if ((int32_t) copy.used <= -copy.shift) {
-		result += "0";
+		CCDecimal::round(&copy, precOut);
+
+		//sign
+		if (isNegative) result = "-";
+
+		//at least one zero before dp
+		if ((int32_t) copy.used <= -copy.shift) {
+			result += "0";
+		}
+
+		//digits before dp
+		for (int32_t i = copy.used - 1; i >= max<int32_t>(-copy.shift, 0); i--) {
+			result += (char) (copy.digit[i] + 48);
+		}
+
+		//dp
+		if (copy.shift < 0) result += ".";
+
+		//trailing zeroes
+		for (int32_t i = copy.used; i < -copy.shift; i++) {
+			result += "0";
+		}
+
+		//digits after dp
+		for (int32_t i = min<int32_t>(-copy.shift, copy.used) - 1; i >= 0; i--) {
+			result += (char) (copy.digit[i] + 48);
+		}
+
+		//trailing zeroes
+		for (int32_t i = copy.shift; i > 0; i--) {
+			result += "0";
+		}
 	}
 
-//digits before dp
-	for (int32_t i = copy.used - 1; i >= max<int32_t>(-copy.shift, 0); i--) {
-		result += (char) (copy.digit[i] + 48);
-	}
+	//scientific exponent
+	if (scientific) {
+		if (copy.shift == 0 && precOut > 0) result += ".";
+		for (int32_t i = -copy.shift; i < precOut; i++) {
+			result += "0";
+		}
 
-//dp
-	if (copy.shift < 0) result += ".";
-
-//trailing zeroes
-	for (int32_t i = copy.used; i < -copy.shift; i++) {
-		result += "0";
-	}
-
-//digits after dp
-	for (int32_t i = min<int32_t>(-copy.shift, copy.used) - 1; i >= 0; i--) {
-		result += (char) (copy.digit[i] + 48);
-	}
-
-//trailing zeroes
-	for (int32_t i = copy.shift; i > 0; i--) {
-		result += "0";
+		result += "e";
+		result += exp_sci < 0 ? "-" : "+";
+		if (abs(exp_sci) < 100) result += "0";
+		if (abs(exp_sci) < 10) result += "0";
+		result += std::to_string(abs(exp_sci));
 	}
 
 	return result;
 
 }
-string CCDecimal::toString() const {
-
-	return toString(*pPrecision - 1);
+string CCDecimal::toString(bool scientific) const {
+	return toString(*pPrecision - 1, scientific);
 }
 
 double CCDecimal::toDouble() const {
@@ -1247,4 +1271,13 @@ CCDecimal CCDecimal::operator--(int) {
 	CCDecimal copy(*this);
 	*this -= CCDecimal(1);
 	return copy;
+}
+
+ostream& operator <<(ostream& os, const CCDecimal& dec) {
+
+	std::ios_base::fmtflags f = os.flags();
+	if ((f & os.scientific) == os.scientific) {
+		return os << dec.toString(os.precision(), true);
+	}
+	return os << dec.toString(os.precision());
 }

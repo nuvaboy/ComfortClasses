@@ -58,8 +58,10 @@ public:
 
 	//utility functionality
 	static void round(CCDecimal* pDec, int32_t precOut);
-	string toString() const;
-	string toString(int32_t precOut) const;
+
+
+	string toString(int32_t precOut, bool scientific = false) const;
+	string toString(bool scientific = false ) const;
 
 	double toDouble() const;
 	explicit operator double();
@@ -86,6 +88,8 @@ public:
 
 	CCDecimal& operator--();
 	CCDecimal operator--(int);
+
+
 
 	//testing only
 	void setDigit(unsigned int pos, int8_t value) {
@@ -119,5 +123,7 @@ public:
 	}
 
 };
+
+std::ostream& operator<< (std::ostream &os, const CCDecimal& dec);
 
 #endif /* CCDECIMAL_H_ */
