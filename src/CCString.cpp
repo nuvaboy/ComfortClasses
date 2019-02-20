@@ -7,6 +7,8 @@
 
 #include "CCString.h"
 
+#include "tinyutf8.h"
+
 #include <iomanip>
 #include <limits>
 #include <locale>
@@ -39,11 +41,10 @@ CCString::CCString(char c) :
 CCString::CCString(bool b) :
 		CCString() {
 	if (b) {
-		internalStr =
-				std::use_facet<std::numpunct<char>>(std::locale()).truename();
-	} else {
-		internalStr =
-				std::use_facet<std::numpunct<char>>(std::locale()).falsename();
+		internalStr = std::use_facet<std::numpunct<char>>(std::locale()).truename();
+	}
+	else {
+		internalStr = std::use_facet<std::numpunct<char>>(std::locale()).falsename();
 	}
 }
 
@@ -74,11 +75,10 @@ CCString::CCString(long double number, bool hiPrec) :
 		CCString() {
 	if (hiPrec) {
 		std::stringstream stringStream;
-		stringStream
-				<< std::setprecision(std::numeric_limits<long double>::digits10)
-				<< number;
+		stringStream << std::setprecision(std::numeric_limits<long double>::digits10) << number;
 		internalStr = stringStream.str();
-	} else {
+	}
+	else {
 		internalStr = std::to_string(number);
 	}
 }
@@ -116,20 +116,24 @@ size_t CCString::length() const {
 char& CCString::at(size_t index) {
 	try {
 		return internalStr.at(index);
-	} catch (std::out_of_range& e) {
+	}
+	catch (std::out_of_range& e) {
 		e.what();
 		throw std::out_of_range("Index pointing outside of the string.");
-	} catch (...) {
+	}
+	catch (...) {
 		throw std::exception();
 	}
 }
 const char& CCString::at(size_t index) const {
 	try {
 		return internalStr.at(index);
-	} catch (std::out_of_range& e) {
+	}
+	catch (std::out_of_range& e) {
 		e.what();
 		throw std::out_of_range("Index pointing outside of the string.");
-	} catch (...) {
+	}
+	catch (...) {
 		throw std::exception();
 	}
 }
@@ -152,13 +156,16 @@ CCString& CCString::append(const CCString& ccStr) {
 	try {
 		internalStr.append(ccStr.internalStr);
 		return *this;
-	} catch (std::length_error& e) {
+	}
+	catch (std::length_error& e) {
 		e.what();
 		throw std::length_error("Result exceeding max length for a string.");
-	} catch (std::bad_alloc& e) {
+	}
+	catch (std::bad_alloc& e) {
 		e.what();
 		throw std::bad_alloc();
-	} catch (...) {
+	}
+	catch (...) {
 		throw std::exception();
 	}
 }
@@ -166,13 +173,16 @@ CCString& CCString::append(const std::string& str) {
 	try {
 		internalStr.append(str);
 		return *this;
-	} catch (std::length_error& e) {
+	}
+	catch (std::length_error& e) {
 		e.what();
 		throw std::length_error("Result exceeding max length for a string.");
-	} catch (std::bad_alloc& e) {
+	}
+	catch (std::bad_alloc& e) {
 		e.what();
 		throw std::bad_alloc();
-	} catch (...) {
+	}
+	catch (...) {
 		throw std::exception();
 	}
 }
@@ -180,13 +190,16 @@ CCString& CCString::append(const char* cstr) {
 	try {
 		internalStr.append(cstr);
 		return *this;
-	} catch (std::length_error& e) {
+	}
+	catch (std::length_error& e) {
 		e.what();
 		throw std::length_error("Result exceeding max length for a string.");
-	} catch (std::bad_alloc& e) {
+	}
+	catch (std::bad_alloc& e) {
 		e.what();
 		throw std::bad_alloc();
-	} catch (...) {
+	}
+	catch (...) {
 		throw std::exception();
 	}
 }
@@ -194,13 +207,16 @@ CCString& CCString::append(char c) {
 	try {
 		internalStr.push_back(c);
 		return *this;
-	} catch (std::length_error& e) {
+	}
+	catch (std::length_error& e) {
 		e.what();
 		throw std::length_error("Result exceeding max length for a string.");
-	} catch (std::bad_alloc& e) {
+	}
+	catch (std::bad_alloc& e) {
 		e.what();
 		throw std::bad_alloc();
-	} catch (...) {
+	}
+	catch (...) {
 		throw std::exception();
 	}
 }
@@ -428,16 +444,20 @@ CCString& CCString::replace(size_t pos, const CCString& ccStr) {
 	try {
 		internalStr.replace(pos, ccStr.length(), ccStr.internalStr);
 		return *this;
-	} catch (std::out_of_range& e) {
+	}
+	catch (std::out_of_range& e) {
 		e.what();
 		throw std::out_of_range("Position pointing outside of the string.");
-	} catch (std::length_error& e) {
+	}
+	catch (std::length_error& e) {
 		e.what();
 		throw std::length_error("Result exceeding max length for a string.");
-	} catch (std::bad_alloc& e) {
+	}
+	catch (std::bad_alloc& e) {
 		e.what();
 		throw std::bad_alloc();
-	} catch (...) {
+	}
+	catch (...) {
 		throw std::exception();
 	}
 
@@ -446,16 +466,20 @@ CCString& CCString::replace(size_t pos, const std::string& str) {
 	try {
 		internalStr.replace(pos, str.length(), str);
 		return *this;
-	} catch (std::out_of_range& e) {
+	}
+	catch (std::out_of_range& e) {
 		e.what();
 		throw std::out_of_range("Position pointing outside of the string.");
-	} catch (std::length_error& e) {
+	}
+	catch (std::length_error& e) {
 		e.what();
 		throw std::length_error("Result exceeding max length for a string.");
-	} catch (std::bad_alloc& e) {
+	}
+	catch (std::bad_alloc& e) {
 		e.what();
 		throw std::bad_alloc();
-	} catch (...) {
+	}
+	catch (...) {
 		throw std::exception();
 	}
 }
@@ -463,16 +487,20 @@ CCString& CCString::replace(size_t pos, const char* cstr) {
 	try {
 		internalStr.replace(pos, std::char_traits<char>::length(cstr), cstr);
 		return *this;
-	} catch (std::out_of_range& e) {
+	}
+	catch (std::out_of_range& e) {
 		e.what();
 		throw std::out_of_range("Position pointing outside of the string.");
-	} catch (std::length_error& e) {
+	}
+	catch (std::length_error& e) {
 		e.what();
 		throw std::length_error("Result exceeding max length for a string.");
-	} catch (std::bad_alloc& e) {
+	}
+	catch (std::bad_alloc& e) {
 		e.what();
 		throw std::bad_alloc();
-	} catch (...) {
+	}
+	catch (...) {
 		throw std::exception();
 	}
 }
@@ -480,10 +508,12 @@ CCString& CCString::replace(size_t pos, char c) {
 	try {
 		internalStr.at(pos) = c;
 		return *this;
-	} catch (std::out_of_range& e) {
+	}
+	catch (std::out_of_range& e) {
 		e.what();
 		throw std::out_of_range("Position pointing outside of the string.");
-	} catch (...) {
+	}
+	catch (...) {
 		throw std::exception();
 	}
 }
@@ -492,16 +522,20 @@ CCString& CCString::insert(size_t pos, const CCString& ccStr) {
 	try {
 		internalStr.insert(pos, ccStr.internalStr);
 		return *this;
-	} catch (std::out_of_range& e) {
+	}
+	catch (std::out_of_range& e) {
 		e.what();
 		throw std::out_of_range("Position pointing outside of the string.");
-	} catch (std::length_error& e) {
+	}
+	catch (std::length_error& e) {
 		e.what();
 		throw std::length_error("Result exceeding max length for a string.");
-	} catch (std::bad_alloc& e) {
+	}
+	catch (std::bad_alloc& e) {
 		e.what();
 		throw std::bad_alloc();
-	} catch (...) {
+	}
+	catch (...) {
 		throw std::exception();
 	}
 }
@@ -509,16 +543,20 @@ CCString& CCString::insert(size_t pos, const std::string& str) {
 	try {
 		internalStr.insert(pos, str);
 		return *this;
-	} catch (std::out_of_range& e) {
+	}
+	catch (std::out_of_range& e) {
 		e.what();
 		throw std::out_of_range("Position pointing outside of the string.");
-	} catch (std::length_error& e) {
+	}
+	catch (std::length_error& e) {
 		e.what();
 		throw std::length_error("Result exceeding max length for a string.");
-	} catch (std::bad_alloc& e) {
+	}
+	catch (std::bad_alloc& e) {
 		e.what();
 		throw std::bad_alloc();
-	} catch (...) {
+	}
+	catch (...) {
 		throw std::exception();
 	}
 }
@@ -526,16 +564,20 @@ CCString& CCString::insert(size_t pos, const char* cstr) {
 	try {
 		internalStr.insert(pos, cstr);
 		return *this;
-	} catch (std::out_of_range& e) {
+	}
+	catch (std::out_of_range& e) {
 		e.what();
 		throw std::out_of_range("Position pointing outside of the string.");
-	} catch (std::length_error& e) {
+	}
+	catch (std::length_error& e) {
 		e.what();
 		throw std::length_error("Result exceeding max length for a string.");
-	} catch (std::bad_alloc& e) {
+	}
+	catch (std::bad_alloc& e) {
 		e.what();
 		throw std::bad_alloc();
-	} catch (...) {
+	}
+	catch (...) {
 		throw std::exception();
 	}
 }
@@ -543,16 +585,20 @@ CCString& CCString::insert(size_t pos, char c) {
 	try {
 		internalStr.insert(pos, 1, c);
 		return *this;
-	} catch (std::out_of_range& e) {
+	}
+	catch (std::out_of_range& e) {
 		e.what();
 		throw std::out_of_range("Position pointing outside of the string.");
-	} catch (std::length_error& e) {
+	}
+	catch (std::length_error& e) {
 		e.what();
 		throw std::length_error("Result exceeding max length for a string.");
-	} catch (std::bad_alloc& e) {
+	}
+	catch (std::bad_alloc& e) {
 		e.what();
 		throw std::bad_alloc();
-	} catch (...) {
+	}
+	catch (...) {
 		throw std::exception();
 	}
 }
@@ -593,24 +639,54 @@ CCString& CCString::erase(size_t pos, size_t length) {
 	try {
 		internalStr.erase(pos, length);
 		return *this;
-	} catch (std::out_of_range& e) {
+	}
+	catch (std::out_of_range& e) {
 		e.what();
 		throw std::out_of_range("Position pointing outside of the string.");
-	} catch (...) {
+	}
+	catch (...) {
 		throw std::exception();
 	}
 }
 
+CCString& CCString::trim() {
+	for (auto it = internalStr.begin();
+			it != internalStr.end() && !std::isgraph(*it, std::locale()); internalStr.erase(it)) {
+	}
+	for (auto rit = internalStr.rbegin();
+			rit != internalStr.rend() && !std::isgraph(*rit, std::locale()); rit++) {
+		internalStr.erase(rit.base());
+	}
+	return *this;
+}
+//CCString& CCString::toUpper() {
+//	for (char& c : internalStr) {
+//		c = std::use_facet<std::ctype<char>>(std::locale()).toupper(
+//				static_cast<int>(c));
+//	}
+//	return *this;
+//}
+//CCString& CCString::toLower() {
+//	for (char& c : internalStr) {
+//		c = std::use_facet<std::ctype<char>>(std::locale()).tolower(
+//				static_cast<int>(c));
+//	}
+//	return *this;
+//}
+
 CCString CCString::subString(size_t pos, size_t length) const {
 	try {
 		return CCString(internalStr.substr(pos, length));
-	} catch (std::out_of_range& e) {
+	}
+	catch (std::out_of_range& e) {
 		e.what();
 		throw std::out_of_range("Position pointing outside of the string.");
-	} catch (std::bad_alloc& e) {
+	}
+	catch (std::bad_alloc& e) {
 		e.what();
 		throw std::bad_alloc();
-	} catch (...) {
+	}
+	catch (...) {
 		throw std::exception();
 	}
 }

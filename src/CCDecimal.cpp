@@ -16,7 +16,6 @@
 #include <algorithm>
 #include <exception>
 
-
 #include <cctype>
 #include <cstdlib>
 
@@ -38,8 +37,6 @@ CCDecimal::CCDecimal() { /* construct with default value (0) */
 	used = 0;
 	shift = 0;
 }
-
-
 
 CCDecimal::CCDecimal(const CCDecimal& d2) : /* construct as a copy */
 		CCDecimal() {
@@ -152,7 +149,7 @@ void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 			result->digit[i + 1]++;
 		}
 	}
-	if (result->digit[used_result] > 0)	used_result++;
+	if (result->digit[used_result] > 0) used_result++;
 
 	//remove trailing zeros
 	if (used_result > 0 && result->digit[0] == 0) {
@@ -205,7 +202,7 @@ void CCDecimal::sub(CCDecimal* result, const CCDecimal& opSmall) const {
 		toSpend = max<int32_t>(-min<int32_t>(shift, opSmall.shift) - *pPrecision, 0);
 
 		if (toCut > toSpend + 1) //overflows by more than one digit
-			throw std::overflow_error("Can not cut result to minimal precision!");
+		throw std::overflow_error("Can not cut result to minimal precision!");
 
 		// bet that one will be reduced
 		toCut--; //change: cut one less, if you can spend one
@@ -215,9 +212,9 @@ void CCDecimal::sub(CCDecimal* result, const CCDecimal& opSmall) const {
 	bool msdIsZero = false;
 
 	//can I spend digits?
-	if (toSpend >= toCut +1) { //&& tz_body == 0 && tz_head == 0
+	if (toSpend >= toCut + 1) { //&& tz_body == 0 && tz_head == 0
 
-		//Compute in advance if the MSD will become zero.
+	//Compute in advance if the MSD will become zero.
 		if (digit[used - 1] == 1) { //HINT: Where has to be a head, if cutting is necessary.
 			bool carryFromBody = false;
 
@@ -246,7 +243,6 @@ void CCDecimal::sub(CCDecimal* result, const CCDecimal& opSmall) const {
 			}
 		}
 		if (msdIsZero == false) toCut++;
-
 
 	}
 
@@ -1032,7 +1028,7 @@ double CCDecimal::toDouble() const {
 	return result;
 }
 
-CCDecimal::operator double(){
+CCDecimal::operator double() {
 	return toDouble();
 }
 
@@ -1112,9 +1108,6 @@ CCDecimal& CCDecimal::operator -=(const CCDecimal& op2) {
 	return *this;
 }
 
-
-
-
 CCDecimal CCDecimal::operator *(const CCDecimal& op2) const {
 	CCDecimal result;
 	result.isNegative = isNegative != op2.isNegative;
@@ -1170,7 +1163,6 @@ bool CCDecimal::operator !=(const CCDecimal& op2) const {
 }
 bool CCDecimal::operator <(const CCDecimal& op2) const {
 
-
 	//if both false => equal
 	//else < == >
 
@@ -1193,25 +1185,13 @@ bool CCDecimal::operator <(const CCDecimal& op2) const {
 	//pos, pos, > 	=> TRUE
 	//pos, neg, =   => TRUE
 
-
-
-
-
-
-
-
-
-
 	//neg pos > TRUE
 	//pos neg < FALSE
 
 	//neg pos < TRUE
 	//pos neg > FALSE
 
-
 	//neg pos = TRUE
-
-
 
 	//pos neg = FALSE
 

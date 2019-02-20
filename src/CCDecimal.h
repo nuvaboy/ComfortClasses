@@ -30,7 +30,6 @@ private:
 	int32_t* pPrecision;
 	static int32_t defaultPrecision;
 
-
 	void constructFromString(string numberStr);
 	bool magnitudeLessThan(const CCDecimal& op2) const;
 	void add(CCDecimal* result, const CCDecimal& op2) const;
@@ -40,7 +39,6 @@ private:
 	void mod(CCDecimal* result, const CCDecimal& op2) const;
 
 public:
-
 
 	void cfs(const string& numberStr);
 
@@ -80,8 +78,8 @@ public:
 
 	bool operator ==(const CCDecimal&) const;
 	bool operator !=(const CCDecimal&) const;
-	bool operator < (const CCDecimal&) const;
-	bool operator > (const CCDecimal&) const;
+	bool operator <(const CCDecimal&) const;
+	bool operator >(const CCDecimal&) const;
 
 	CCDecimal& operator++();
 	CCDecimal operator++(int);
@@ -119,8 +117,6 @@ public:
 	void setShift(int shift) {
 		this->shift = shift;
 	}
-
-
 
 };
 

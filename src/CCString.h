@@ -8,6 +8,8 @@
 #ifndef CCSTRING_H_
 #define CCSTRING_H_
 
+#include "tinyutf8.h"
+
 #include <cstddef>
 #include <sstream>
 #include <string>
@@ -143,6 +145,10 @@ public:
 
 	CCString& erase(size_t pos, size_t length);
 
+	CCString& trim();
+//	CCString& toUpper();
+//	CCString& toLower();
+
 	CCString subString(size_t pos, size_t length) const;
 
 	size_t find(const CCString& ccstr, size_t pos = 0) const;
@@ -150,10 +156,8 @@ public:
 	size_t find(const char* cstr, size_t pos = 0) const;
 	size_t find(char c, size_t pos = 0) const;
 
-	size_t findLast(const CCString& ccstr,
-			size_t pos = std::string::npos) const;
-	size_t findLast(const std::string& str,
-			size_t pos = std::string::npos) const;
+	size_t findLast(const CCString& ccstr, size_t pos = std::string::npos) const;
+	size_t findLast(const std::string& str, size_t pos = std::string::npos) const;
 	size_t findLast(const char* cstr, size_t pos = std::string::npos) const;
 	size_t findLast(char c, size_t pos = std::string::npos) const;
 
