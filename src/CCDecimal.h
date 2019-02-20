@@ -86,6 +86,8 @@ public:
 	CCDecimal& operator--();
 	CCDecimal operator--(int);
 
+
+
 	//testing only
 	void setDigit(unsigned int pos, int8_t value) {
 		digit[pos] = value;
@@ -117,8 +119,9 @@ public:
 		this->shift = shift;
 	}
 
-
-
 };
+
+std::ostream& operator<< (std::ostream &os, const CCDecimal& dec);
+
 
 #endif /* CCDECIMAL_H_ */
