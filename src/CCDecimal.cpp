@@ -25,7 +25,12 @@ using namespace std;
 int32_t CCDecimal::defaultPrecision = 3;
 
 //constructors
-CCDecimal::CCDecimal() { /* construct with default value (0) */
+
+/** \brief Konstruktor (default)
+ *
+ *  Erstellt ein CCDecimal mit dem Wert 0.
+ **/
+CCDecimal::CCDecimal() {
 
 	//precision should be the default precision, unless explicitly changed for an instance
 	pPrecision = &CCDecimal::defaultPrecision;
@@ -38,13 +43,43 @@ CCDecimal::CCDecimal() { /* construct with default value (0) */
 	shift = 0;
 }
 
-CCDecimal::CCDecimal(const CCDecimal& d2) : /* construct as a copy */
+/** \brief Konstruktor (copy)
+ *
+ *  Erstellt eine Kopie eines anderen CCDecimals.
+ *  Der Zeiger pPrecision verweist entweder auf die lokal oder global definierte Präzision.
+ *  Wurde die lokale Präzision 'precision' explizit für das Original gesetzt,
+ *  muss der Zeiger 'pPrecision' auf die lokale Präzision der Kopie gesetzt werden.
+ *  Andernfalls wird die globale Präzision als "shallow copy" übernommen.
+ *
+ *
+ * @param original Referenz des CCDecimals, welcher kopiert wird
+ */
+CCDecimal::CCDecimal(const CCDecimal& original) :
 		CCDecimal() {
-	*this = d2;
-	if (pPrecision == &d2.precision) { //local precision of d2 was set
-		pPrecision = &precision; //correct pointer due to shallow copy
+
+	*this = original;
+
+	//ensures that pPrecision points to the local precision if the original's was explicitly changed.
+	if (pPrecision == &original.precision) {
+		pPrecision = &precision;
 	}
 }
+
+/** \brief Konstruktor (double)
+ * */
+CCDecimal::CCDecimal(double number) /* construct from double */:
+		CCDecimal() {
+	std::stringstream stringStream;
+	std::string numberStr;
+
+
+	stringStream << std::setprecision(std::numeric_limits<double>::digits10) << number;
+	numberStr = stringStream.str();
+
+	constructFromString(numberStr);
+}
+
+
 
 CCDecimal::CCDecimal(const char* str) /* construct from C-string */{
 	string s(str);
@@ -54,19 +89,11 @@ CCDecimal::CCDecimal(const char* str) /* construct from C-string */{
 CCDecimal::CCDecimal(const string& numberStr) /* construct from string */:
 		CCDecimal() {
 	constructFromString(numberStr);
-	//cfs(numberStr);
 }
 
-CCDecimal::CCDecimal(double number) /* construct from double */:
-		CCDecimal() {
-	std::stringstream stringStream;
-	std::string numberStr;
 
-	stringStream << std::setprecision(std::numeric_limits<double>::digits10) << number;
-	numberStr = stringStream.str();
 
-	constructFromString(numberStr);
-}
+
 
 CCDecimal::~CCDecimal() {
 }
@@ -136,6 +163,12 @@ void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 	for (uint32_t i = digToCut; i < pMostPrec->used; i++) {
 		result->digit[i - digToCut] = pMostPrec->digit[i];
 	}
+
+	//round fix
+	if (digToCut > 0 && pMostPrec->digit[digToCut-1] >= 5){
+		result->digit[0]++;
+	}
+	//fix round
 
 	//add least precise operand to the result
 	for (uint32_t i = 0; i < pLeastPrec->used; i++) {
@@ -869,7 +902,7 @@ void CCDecimal::constructFromString(std::string numberStr) {
 		used -= cutOffset;
 		shift += cutOffset;
 		revChar += cutOffset;
-
+		//TODO(jan) runden nach dem cut
 		//check for new traling zeroes
 		while (revChar != numberStr.rend() && *revChar == '0') {
 			shift++;
@@ -966,7 +999,7 @@ string CCDecimal::toString(int32_t precOut, bool scientific) const {
 	if (used == 0) {
 		result = "0";
 	}
-	else{
+	else {
 		if (scientific) {
 			exp_sci = copy.shift + (int32_t) copy.used - 1;
 			copy.shift -= exp_sci;
@@ -1050,10 +1083,6 @@ double CCDecimal::toDouble() const {
 		result *= -1;
 	}
 	return result;
-}
-
-CCDecimal::operator double() {
-	return toDouble();
 }
 
 bool CCDecimal::magnitudeLessThan(const CCDecimal& op2) const {

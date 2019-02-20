@@ -19,6 +19,10 @@ using namespace std;
 
 class CCDecimal {
 
+
+
+
+
 private:
 	int8_t digit[MAX + 1];
 	uint32_t used = 0;
@@ -41,19 +45,42 @@ private:
 
 public:
 
+	/**
+	 * @defgroup dGroup Standard
+	 * @defgroup cGroup Konstruktoren und Destruktoren
+	 */
 
-	void cfs(const string& numberStr);
+
 
 	//constructors
+	/**
+	 * @ingroup cGroup
+	 * @name Konstruktoren und Destruktoren
+	 * @{ */
 	CCDecimal();
 	CCDecimal(const CCDecimal& d2);
 	CCDecimal(const char* str);
 	CCDecimal(const string& numberStr);
 	CCDecimal(double number);
 	virtual ~CCDecimal();
+	/** @} */
 
+	/**
+	* @ingroup dGroup
+	* @name Funktionen
+	* @{ */
+	void cfs(const string& numberStr);
 	//getter/setter
 	int32_t getLocalPrecision();
+
+
+
+	string toString(int32_t precOut, bool scientific = false) const;
+	string toString(bool scientific = false ) const;
+
+	double toDouble() const;
+	/** @} */
+
 	void setLocalPrecision(int32_t prec);
 	static void setGlobalPrecision(int32_t);
 	static int32_t getGlobalPrecision();
@@ -62,11 +89,7 @@ public:
 	static void round(CCDecimal* pDec, int32_t precOut);
 
 
-	string toString(int32_t precOut, bool scientific = false) const;
-	string toString(bool scientific = false ) const;
-
-	double toDouble() const;
-	explicit operator double();
+	//explicit operator double();
 
 	//operators
 	CCDecimal operator +(const CCDecimal&) const;
@@ -127,6 +150,7 @@ public:
 };
 
 std::ostream& operator<< (std::ostream &os, const CCDecimal& dec);
+
 
 
 #endif /* CCDECIMAL_H_ */

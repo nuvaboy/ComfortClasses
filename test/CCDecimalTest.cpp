@@ -96,14 +96,21 @@ void testEqual(string s1, string s2, bool r) {
 void testFromStr(string input, const CCDecimal& ref) {
 	isEqual(CCDecimal(input), ref);
 }
-void testToStr(const string s1, const string r) {
+void testToStr(const string s1, const string r, bool scientific = false) {
 	CCDecimal d1 = s1;
-	EXPECT_EQ(d1.toString(), r);
+	EXPECT_EQ(d1.toString(scientific), r);
 }
 void testToStr(const string r) {
 	CCDecimal d1 = r;
 	EXPECT_EQ(d1.toString(), r);
 }
+//void testToStrSci(const string s1, const string r){
+//	CCDecimal d1 = s1;
+//	EXPECT_EQ(d1.toString(true), r);
+//}
+
+
+
 
 
 // Getter / Setter ########################################
@@ -181,8 +188,11 @@ GROUP_TEST(Addition, CCDecimalTest, add_cut) {
 	//Id. 1: cut 1 digit, result now fits into max capacity (MAX)
 	testAdd("2345678901234567890123456789.01", "5.6482", "2345678901234567890123456794.658");
 
-	//Id. 2: cut 4 digits, further reduced by trailing zeroes
-	testAdd("3456789012345678901234567898.123", "1.8776785", "3456789012345678901234567900");
+	//Id. 2: cut 4 digits, further reduced by trailing zeroes (changed!!!!!!!!!!!!!!!!!)
+	testAdd("3456789012345678901234567898.123",
+			                           "1.8776785",
+		    "3456789012345678901234567900.001");
+			//"3456789012345678901234567900");
 }
 
 GROUP_TEST(Addition, CCDecimalTest, add_special) {
@@ -213,7 +223,9 @@ GROUP_TEST(Addition, CCDecimalTest, add_whiteBox) {
 	testAdd("9.1234567890123456789012345678908", "0.077", "9.20045678901234567890123456789");
 
 	//cutting
-	testAdd("1.012345678901234567890123456789", "345.23", "346.2423456789012345678901234567");
+	testAdd("1.012345678901234567890123456789",
+		  "345.23",
+		  "346.2423456789012345678901234568");
 
 	//cutting=>overflow (precision constraint)
 	CCDecimal a("10123456789012345678901234567.89");
@@ -676,6 +688,18 @@ GROUP_TEST(Conversion, CCDecimalTest, toString_normal) {
 
 }
 
+GROUP_TEST(Conversion, CCDecimalTest, toString_sci) {
+
+	CCDecimal::setGlobalPrecision(2);
+
+	testToStr("0","0.00e+000",true);
+	testToStr("8","8.00e+000",true);
+	testToStr("0.00012","1.20e-004",true);
+	testToStr("2500","2.50e+003",true);
+	testToStr("1239","1.24e+003",true);
+
+}
+
 GROUP_TEST(Conversion, CCDecimalTest, toString_round) {
 	CCDecimal::setGlobalPrecision(2);
 
@@ -707,6 +731,9 @@ GROUP_TEST(Conversion, CCDecimalTest, toString_round) {
 	//CCDecimal("555").toString(std::numeric_limits<int32_t>::max());
 
 }
+
+
+
 
 //Multiplication ##########################################
 GROUP_TEST(Multiplication, CCDecimalTest, mult_special) {
