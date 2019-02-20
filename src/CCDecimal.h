@@ -34,7 +34,6 @@ private:
 	int32_t* pPrecision;
 	static int32_t defaultPrecision;
 
-
 	void constructFromString(string numberStr);
 	bool magnitudeLessThan(const CCDecimal& op2) const;
 	void add(CCDecimal* result, const CCDecimal& op2) const;
@@ -49,8 +48,6 @@ public:
 	 * @defgroup dGroup Standard
 	 * @defgroup cGroup Konstruktoren und Destruktoren
 	 */
-
-
 
 	//constructors
 	/**
@@ -105,8 +102,8 @@ public:
 
 	bool operator ==(const CCDecimal&) const;
 	bool operator !=(const CCDecimal&) const;
-	bool operator < (const CCDecimal&) const;
-	bool operator > (const CCDecimal&) const;
+	bool operator <(const CCDecimal&) const;
+	bool operator >(const CCDecimal&) const;
 
 	CCDecimal& operator++();
 	CCDecimal operator++(int);
@@ -150,7 +147,5 @@ public:
 };
 
 std::ostream& operator<< (std::ostream &os, const CCDecimal& dec);
-
-
 
 #endif /* CCDECIMAL_H_ */
