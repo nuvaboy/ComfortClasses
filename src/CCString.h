@@ -169,10 +169,8 @@ public:
 	bool matches(const CCString& regex) const;
 	bool contains(const CCString& regex) const;
 	CCString getMatch(const CCString& regex);
-	CCString replaceAll(const CCString& regex);
-	CCString replaceFirst(const CCString& regex);
-
-
+	CCString replaceAll(const CCString& regex, const CCString& replacement);
+	CCString replaceFirst(const CCString& regex, const CCString& replacement);
 
 private:
 	std::string internalStr;

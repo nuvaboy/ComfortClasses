@@ -711,12 +711,10 @@ bool CCString::matches(const CCString& regex) const {
 	std::regex re(regex.internalStr);
 	return std::regex_match(internalStr, re);
 }
-
 bool CCString::contains(const CCString& regex) const {
 	std::regex re(regex.internalStr);
 	return std::regex_search(internalStr, re);
 }
-
 CCString CCString::getMatch(const CCString& regex) {
 	std::regex re(regex.internalStr);
 	std::smatch matches;
@@ -731,15 +729,22 @@ CCString CCString::getMatch(const CCString& regex) {
 	}
 	return CCString(std::string(matches[0]));
 }
-
-CCString CCString::replaceAll(const CCString& regex) {
-//	std::regex re(regex.internalStr);
-//	std::smatch matches;
-	return regex;
+CCString CCString::replaceAll(const CCString& regex, const CCString& replacement) {
+	std::regex re(regex.internalStr);
+	return std::regex_replace(internalStr, re, replacement.internalStr);
 }
+CCString CCString::replaceFirst(const CCString& regex, const CCString& replacement) {
+	std::regex re(regex.internalStr);
+	std::smatch matches;
+	std::regex_search(internalStr, re);
 
-CCString CCString::replaceFirst(const CCString& regex) {
-//	std::regex re(regex.internalStr);
-//	std::smatch matches;
+	auto startOfString = matches.prefix().first;
+	auto endOfFirstMatch = matches[0].second;
+	auto endOfAll = matches.suffix().second;
+
+	std::string resultFirstHalf;
+	std::regex_replace(std::back_inserter(resultFirstHalf), startOfString, endOfFirstMatch, re,
+			replacement.internalStr);
+	resultFirstHalf += std::string(endOfFirstMatch, endOfAll);
 	return regex;
 }
