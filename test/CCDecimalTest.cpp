@@ -121,10 +121,10 @@ GROUP_TEST(GetterSetter, CCDecimalTest, defaultPrecision) {
 
 	CCDecimal d1;
 	d1.setLocalPrecision(3);
-	EXPECT_EQ(d1.getLocalPrecision(), 3);
+	EXPECT_EQ(d1.getPrecision(), 3);
 
 	CCDecimal d2 = d1;
-	EXPECT_EQ(d2.getLocalPrecision(), 3);
+	EXPECT_EQ(d2.getPrecision(), 3);
 
 }
 
@@ -220,7 +220,9 @@ GROUP_TEST(Addition, CCDecimalTest, add_whiteBox) {
 	CCDecimal::setGlobalPrecision(2);
 
 	//removal of trailing zeroes after cutting, due to capacity constraint
-	testAdd("9.1234567890123456789012345678908", "0.077", "9.20045678901234567890123456789");
+	testAdd("9.1234567890123456789012345678908",
+			"0.077",
+			"9.20045678901234567890123456789");
 
 	//cutting
 	testAdd("1.012345678901234567890123456789",

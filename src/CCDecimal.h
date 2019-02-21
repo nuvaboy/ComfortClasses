@@ -19,10 +19,6 @@ using namespace std;
 
 class CCDecimal {
 
-
-
-
-
 private:
 	int8_t digit[MAX + 1];
 	uint32_t used = 0;
@@ -30,9 +26,9 @@ private:
 	int32_t shift = 0;
 	bool isNegative = false;
 
-	int32_t precision = 0;
+	int32_t localPrecision = 0;
 	int32_t* pPrecision;
-	static int32_t defaultPrecision;
+	static int32_t globalPrecision;
 
 	void constructFromString(string numberStr);
 	bool magnitudeLessThan(const CCDecimal& op2) const;
@@ -46,6 +42,8 @@ public:
 
 	/**
 	 * @defgroup dGroup Standard
+	 * @defgroup oGroup Operatoren
+	 * @defgroup mGroup Getter / Setter
 	 * @defgroup cGroup Konstruktoren und Destruktoren
 	 */
 
@@ -54,7 +52,7 @@ public:
 	 * @ingroup cGroup
 	 * @name Konstruktoren und Destruktoren
 	 * @{ */
-	CCDecimal();
+	CCDecimal() noexcept;
 	CCDecimal(const CCDecimal& d2);
 	CCDecimal(const char* str);
 	CCDecimal(const string& numberStr);
@@ -63,42 +61,28 @@ public:
 	/** @} */
 
 	/**
-	* @ingroup dGroup
-	* @name Funktionen
-	* @{ */
-	void cfs(const string& numberStr);
-	//getter/setter
-	int32_t getLocalPrecision();
-
-
-
-	string toString(int32_t precOut, bool scientific = false) const;
-	string toString(bool scientific = false ) const;
-
-	double toDouble() const;
+	 * @ingroup mGroup
+	 * @name Getter / Setter
+	 * @{ */
+	int32_t getPrecision();
+	void setLocalPrecision(int32_t prec);
 	/** @} */
 
-	void setLocalPrecision(int32_t prec);
-	static void setGlobalPrecision(int32_t);
-	static int32_t getGlobalPrecision();
-
-	//utility functionality
-	static void round(CCDecimal* pDec, int32_t precOut);
-
-
-	//explicit operator double();
-
-	//operators
+	/**
+	 * @ingroup oGroup
+	 * @name Operatoren
+	 * @{ */
 	CCDecimal operator +(const CCDecimal&) const;
-	CCDecimal& operator +=(const CCDecimal&);
 	CCDecimal operator -(const CCDecimal&) const;
-	CCDecimal& operator -=(const CCDecimal&);
 	CCDecimal operator *(const CCDecimal&) const;
-	CCDecimal& operator *=(const CCDecimal&);
 	CCDecimal operator /(const CCDecimal&) const;
-	CCDecimal& operator /=(const CCDecimal&);
-
 	CCDecimal operator %(const CCDecimal&) const;
+
+	CCDecimal& operator +=(const CCDecimal&);
+	CCDecimal& operator -=(const CCDecimal&);
+	CCDecimal& operator *=(const CCDecimal&);
+	CCDecimal& operator /=(const CCDecimal&);
+	CCDecimal& operator %=(const CCDecimal&);
 
 	bool operator ==(const CCDecimal&) const;
 	bool operator !=(const CCDecimal&) const;
@@ -106,12 +90,30 @@ public:
 	bool operator >(const CCDecimal&) const;
 
 	CCDecimal& operator++();
-	CCDecimal operator++(int);
-
 	CCDecimal& operator--();
+	CCDecimal operator++(int);
 	CCDecimal operator--(int);
+	/** @} */
 
+	/**
+	 * @ingroup dGroup
+	 * @name Funktionen
+	 * @{ */
+	void cfs(const string& numberStr);
 
+	string toString(int32_t precOut, bool scientific = false) const;
+	string toString(bool scientific = false) const;
+
+	double toDouble() const;
+	/** @} */
+
+	static void setGlobalPrecision(int32_t);
+	static int32_t getGlobalPrecision();
+
+	//utility functionality
+	static void round(CCDecimal* pDec, int32_t precOut);
+
+	//explicit operator double();
 
 	//testing only
 	void setDigit(unsigned int pos, int8_t value) {
@@ -146,6 +148,6 @@ public:
 
 };
 
-std::ostream& operator<< (std::ostream &os, const CCDecimal& dec);
+std::ostream& operator<<(std::ostream &os, const CCDecimal& dec);
 
 #endif /* CCDECIMAL_H_ */

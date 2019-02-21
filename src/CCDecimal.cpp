@@ -21,19 +21,92 @@
 
 using namespace std;
 
-//initialize static properties
-int32_t CCDecimal::defaultPrecision = 3;
+//### static attributes
+int32_t CCDecimal::globalPrecision = 3;
 
-//constructors
+//### getter / setter
+int32_t CCDecimal::getGlobalPrecision() {
+	return CCDecimal::globalPrecision - 1;
+}
 
+void CCDecimal::setGlobalPrecision(int32_t prec) {
+	if (prec < 0) throw std::out_of_range("precision has to be positive");
+	CCDecimal::globalPrecision = prec + 1;
+}
+
+void CCDecimal::round(CCDecimal* pDec, int32_t precOut) {
+
+	if (precOut < 0) {
+		throw std::out_of_range("The output precision has to be positive");
+	}
+
+//skip rounding, if precision less than precOut (implicit check: shift < 0)
+	if (precOut >= -pDec->shift) return;
+
+//calculate index that indicates rounding up or down
+	int32_t roundIndex = -pDec->shift - precOut - 1;
+	int32_t validIndex = roundIndex + 1;
+
+//fix
+
+	if (validIndex >= (int32_t) pDec->used) {
+		if (roundIndex >= (int32_t) pDec->used || pDec->digit[roundIndex] < 5) {
+			pDec->used = 0;
+			pDec->shift = 0;
+			return;
+		}
+
+		pDec->digit[0] = 1;
+		pDec->used = 1;
+		pDec->shift = -precOut;
+		return;
+	}
+//fix end
+
+	if (pDec->digit[roundIndex] >= 5) { //round up
+
+		pDec->digit[MAX] = 0;
+		while (pDec->digit[validIndex] == 9) { //propagate carry
+			validIndex++;
+		}
+
+		//apply carry
+		pDec->digit[validIndex]++;
+
+		if (pDec->digit[pDec->used] > 0) { //carry into unoccupied space
+			pDec->used++;
+		}
+	}
+
+//remove trailing zeroes
+	while (pDec->digit[validIndex] == 0) {
+		validIndex++;
+	}
+
+//shift digits [used-1 : validIndex] to the right
+	for (int32_t i = validIndex; i < (int32_t) pDec->used; i++) {
+		pDec->digit[i - validIndex] = pDec->digit[i];
+		pDec->digit[i] = 0;
+	}
+	for (int32_t i = validIndex - 1; i >= (int32_t) pDec->used - validIndex; i--) {
+		pDec->digit[i] = 0;
+	}
+
+//adjust used and shift
+	pDec->used -= validIndex;
+	pDec->shift += validIndex;
+
+}
+
+//### constructors #################################
 /** \brief Konstruktor (default)
  *
  *  Erstellt ein CCDecimal mit dem Wert 0.
  **/
-CCDecimal::CCDecimal() {
+CCDecimal::CCDecimal() noexcept {
 
-	//precision should be the default precision, unless explicitly changed for an instance
-	pPrecision = &CCDecimal::defaultPrecision;
+	//precision should be the global precision, unless explicitly changed for an instance
+	pPrecision = &CCDecimal::globalPrecision;
 
 	//initialize all digits to zero
 	for (int32_t i = 0; i <= MAX; i++) {
@@ -52,7 +125,7 @@ CCDecimal::CCDecimal() {
  *  Andernfalls wird die globale Präzision als "shallow copy" übernommen.
  *
  *
- * @param original Referenz des CCDecimals, welcher kopiert wird
+ *  @param original Referenz des CCDecimals, welcher kopiert wird
  */
 CCDecimal::CCDecimal(const CCDecimal& original) :
 		CCDecimal() {
@@ -60,63 +133,81 @@ CCDecimal::CCDecimal(const CCDecimal& original) :
 	*this = original;
 
 	//ensures that pPrecision points to the local precision if the original's was explicitly changed.
-	if (pPrecision == &original.precision) {
-		pPrecision = &precision;
+	if (pPrecision == &original.localPrecision) {
+		pPrecision = &localPrecision;
 	}
 }
 
 /** \brief Konstruktor (double)
+ *
+ *  Erstellt einen CCDecimal auf Basis des übergebenen doubles.
+ *  Durch Einlesen in einen 'stringstream' wird eine String-Repräsentation erzeugt.
+ *  Die Verwendung von 'setPrecision' stellt sicher, dass alle vorhandenen Nachkommastellen übernommen werden.
+ *  Abschließend konstruiert #constructFromString den CCDecimal.
+ *
+ *  @param number double, uas dem ein CCDecimal erzeugt wird
  * */
-CCDecimal::CCDecimal(double number) /* construct from double */:
+CCDecimal::CCDecimal(double number) :
 		CCDecimal() {
+
 	std::stringstream stringStream;
-	std::string numberStr;
 
-
+	//convert double to string using 'stringstream' and 'setprecision' to get the highest precision available
 	stringStream << std::setprecision(std::numeric_limits<double>::digits10) << number;
-	numberStr = stringStream.str();
 
-	constructFromString(numberStr);
+	//construct CCDecimal from the double's string representation
+	constructFromString(stringStream.str());
 }
 
-
-
-CCDecimal::CCDecimal(const char* str) /* construct from C-string */{
-	string s(str);
-	*this = s;
-}
-
-CCDecimal::CCDecimal(const string& numberStr) /* construct from string */:
+/** \brief Konstruktor (std::string)
+ *
+ *  Erstellt mithilfe von #constructFromString einen CCDecimal auf Basis des übergebenen std::string.
+ *
+ *  @param numberStr std::string, aus dem ein CCDecimal erzeugt wird
+ */
+CCDecimal::CCDecimal(const string& numberStr) :
 		CCDecimal() {
+
+	//construct CCDecimal from the given string representation
 	constructFromString(numberStr);
 }
 
+/** \brief Konstruktor (C-String)
+ *
+ *	Konstruiert  einen CCDecimal von einem C-String.
+ *
+ * @param numberCStr C-String aus dem ein CCDecimal erzeugt wird
+ */
+CCDecimal::CCDecimal(const char* numberCStr) : CCDecimal(string(numberCStr)){
+}
 
-
-
-
+/** \brief Destruktor
+ *
+ *  Existiert um gegebenenfalls Vererbung zu ermöglichen.
+ */
 CCDecimal::~CCDecimal() {
 }
 
-//public setter/getter
-int32_t CCDecimal::getLocalPrecision() {
+//### public setter/getter #########################
+/** \brief Liefert die aktuelle Präzision.
+ *
+ *  Liefert die lokale Präzision 'localPrecision' oder
+ *  die globale Präzision 'globalPrecision', solange die lokale nicht gesetzt wurde.
+ *  Der Zeiger 'pPrecison' verweist entsprechend auf die lokale/globale Präzision.
+ *
+ * @return Präzision des CCDecimal's
+ */
+int32_t CCDecimal::getPrecision() {
 	return *pPrecision - 1;
 }
 
-void CCDecimal::setLocalPrecision(int32_t prec) {
-	if (prec < 0) throw std::out_of_range("precision has to be positive");
-	precision = prec + 1;
-	pPrecision = &precision;
+void CCDecimal::setLocalPrecision(int32_t precision) {
+	if (precision < 0) throw std::out_of_range("precision has to be positive");
+	localPrecision = precision + 1;
+	pPrecision = &localPrecision;
 }
 
-int32_t CCDecimal::getGlobalPrecision() {
-	return CCDecimal::defaultPrecision - 1;
-}
 
-void CCDecimal::setGlobalPrecision(int32_t prec) {
-	if (prec < 0) throw std::out_of_range("precision has to be positive");
-	CCDecimal::defaultPrecision = prec + 1;
-}
 
 //core functionality
 void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
@@ -165,7 +256,7 @@ void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 	}
 
 	//round fix
-	if (digToCut > 0 && pMostPrec->digit[digToCut-1] >= 5){
+	if (digToCut > 0 && pMostPrec->digit[digToCut - 1] >= 5) {
 		result->digit[0]++;
 	}
 	//fix round
@@ -922,69 +1013,7 @@ void CCDecimal::constructFromString(std::string numberStr) {
 	}
 }
 
-void CCDecimal::round(CCDecimal* pDec, int32_t precOut) {
 
-	if (precOut < 0) {
-		throw std::out_of_range("The output precision has to be positive");
-	}
-
-//skip rounding, if precision less than precOut (implicit check: shift < 0)
-	if (precOut >= -pDec->shift) return;
-
-//calculate index that indicates rounding up or down
-	int32_t roundIndex = -pDec->shift - precOut - 1;
-	int32_t validIndex = roundIndex + 1;
-
-//fix
-
-	if (validIndex >= (int32_t) pDec->used) {
-		if (roundIndex >= (int32_t) pDec->used || pDec->digit[roundIndex] < 5) {
-			pDec->used = 0;
-			pDec->shift = 0;
-			return;
-		}
-
-		pDec->digit[0] = 1;
-		pDec->used = 1;
-		pDec->shift = -precOut;
-		return;
-	}
-//fix end
-
-	if (pDec->digit[roundIndex] >= 5) { //round up
-
-		pDec->digit[MAX] = 0;
-		while (pDec->digit[validIndex] == 9) { //propagate carry
-			validIndex++;
-		}
-
-		//apply carry
-		pDec->digit[validIndex]++;
-
-		if (pDec->digit[pDec->used] > 0) { //carry into unoccupied space
-			pDec->used++;
-		}
-	}
-
-//remove trailing zeroes
-	while (pDec->digit[validIndex] == 0) {
-		validIndex++;
-	}
-
-//shift digits [used-1 : validIndex] to the right
-	for (int32_t i = validIndex; i < (int32_t) pDec->used; i++) {
-		pDec->digit[i - validIndex] = pDec->digit[i];
-		pDec->digit[i] = 0;
-	}
-	for (int32_t i = validIndex - 1; i >= (int32_t) pDec->used - validIndex; i--) {
-		pDec->digit[i] = 0;
-	}
-
-//adjust used and shift
-	pDec->used -= validIndex;
-	pDec->shift += validIndex;
-
-}
 
 string CCDecimal::toString(int32_t precOut, bool scientific) const {
 
@@ -1193,6 +1222,11 @@ CCDecimal CCDecimal::operator %(const CCDecimal& op2) const {
 
 	return result;
 }
+CCDecimal& CCDecimal::operator %=(const CCDecimal& op2) {
+	*this = *this % op2;
+	return *this;
+}
+
 
 bool CCDecimal::operator ==(const CCDecimal& op2) const {
 

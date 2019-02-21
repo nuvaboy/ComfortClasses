@@ -8,7 +8,7 @@
 #ifndef CCSTRING_H_
 #define CCSTRING_H_
 
-#include "tinyutf8.h"
+//#include "tinyutf8.h"
 
 #include <cstddef>
 #include <sstream>
