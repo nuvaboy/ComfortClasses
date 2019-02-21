@@ -152,7 +152,7 @@ CCDecimal::CCDecimal(double number) :
 	std::stringstream stringStream;
 
 	//convert double to string using 'stringstream' and 'setprecision' to get the highest precision available
-	stringStream << std::setprecision(std::numeric_limits<double>::digits10) << number;
+	stringStream << std::setprecision(std::numeric_limits<double>::max_digits10) << number;
 
 	//construct CCDecimal from the double's string representation
 	constructFromString(stringStream.str());
@@ -1110,25 +1110,17 @@ string CCDecimal::toString(bool scientific) const {
 
 double CCDecimal::toDouble() const {
 
-	double result = 0;
-	//mantissa
-	for (int64_t i = static_cast<int64_t>(used) - 1; i > 0; i--) {
-		result += digit[i];
-		result *= 10;
+	double result;
+	try {
+		//construct double from CCDecimals string representation
+		result = std::stod(toString(used - 1, true));
 	}
-	if (used > 0) {
-		result += digit[0];
+	catch (std::out_of_range& e) {
+		e.what();
+		throw std::out_of_range("CCDecimal value exceeding range of type double.");
 	}
-	//exponent
-	for (int i = shift; i < 0; i++) {
-		result /= 10;
-	}
-	for (int i = 0; i < shift; i++) {
-		result *= 10;
-	}
-	//sign
-	if (isNegative) {
-		result *= -1;
+	catch (std::invalid_argument& e) {
+		throw;
 	}
 	return result;
 }
