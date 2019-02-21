@@ -173,6 +173,71 @@ void CCDecimal::setGlobalPrecision(int32_t precision) {
 }
 
 //### conversion functions ##########################
+
+void CCDecimal::round(CCDecimal* pDec, int32_t precOut) {
+
+	if (precOut < 0) {
+		throw std::out_of_range("The output precision has to be positive");
+	}
+
+//skip rounding, if precision less than precOut (implicit check: shift < 0)
+	if (precOut >= -pDec->shift) return;
+
+//calculate index that indicates rounding up or down
+	int32_t roundIndex = -pDec->shift - precOut - 1;
+	int32_t validIndex = roundIndex + 1;
+
+//fix
+
+	if (validIndex >= (int32_t) pDec->used) {
+		if (roundIndex >= (int32_t) pDec->used || pDec->digit[roundIndex] < 5) {
+			pDec->used = 0;
+			pDec->shift = 0;
+			return;
+		}
+
+		pDec->digit[0] = 1;
+		pDec->used = 1;
+		pDec->shift = -precOut;
+		return;
+	}
+//fix end
+
+	if (pDec->digit[roundIndex] >= 5) { //round up
+
+		pDec->digit[MAX] = 0;
+		while (pDec->digit[validIndex] == 9) { //propagate carry
+			validIndex++;
+		}
+
+		//apply carry
+		pDec->digit[validIndex]++;
+
+		if (pDec->digit[pDec->used] > 0) { //carry into unoccupied space
+			pDec->used++;
+		}
+	}
+
+//remove trailing zeroes
+	while (pDec->digit[validIndex] == 0) {
+		validIndex++;
+	}
+
+//shift digits [used-1 : validIndex] to the right
+	for (int32_t i = validIndex; i < (int32_t) pDec->used; i++) {
+		pDec->digit[i - validIndex] = pDec->digit[i];
+		pDec->digit[i] = 0;
+	}
+	for (int32_t i = validIndex - 1; i >= (int32_t) pDec->used - validIndex; i--) {
+		pDec->digit[i] = 0;
+	}
+
+//adjust used and shift
+	pDec->used -= validIndex;
+	pDec->shift += validIndex;
+
+}
+
 string CCDecimal::toString(int32_t precOut, bool scientific) const {
 
 	//zero case
@@ -243,98 +308,25 @@ string CCDecimal::toString(int32_t precOut, bool scientific) const {
 	return result;
 
 }
-
 string CCDecimal::toString(bool scientific) const {
 	return toString(*pPrecision - 1, scientific);
 }
 
 double CCDecimal::toDouble() const {
 
-	double result = 0;
-	//mantissa
-	for (int64_t i = static_cast<int64_t>(used) - 1; i > 0; i--) {
-		result += digit[i];
-		result *= 10;
+	double result;
+	try {
+		//construct double from CCDecimals string representation
+		result = std::stod(toString(used - 1, true));
 	}
-	if (used > 0) {
-		result += digit[0];
+	catch (std::out_of_range& e) {
+		e.what();
+		throw std::out_of_range("CCDecimal value exceeding range of type double.");
 	}
-	//exponent
-	for (int i = shift; i < 0; i++) {
-		result /= 10;
-	}
-	for (int i = 0; i < shift; i++) {
-		result *= 10;
-	}
-	//sign
-	if (isNegative) {
-		result *= -1;
+	catch (std::invalid_argument& e) {
+		throw;
 	}
 	return result;
-}
-
-void CCDecimal::round(CCDecimal* pDec, int32_t precOut) {
-
-	if (precOut < 0) {
-		throw std::out_of_range("The output precision has to be positive");
-	}
-
-//skip rounding, if precision less than precOut (implicit check: shift < 0)
-	if (precOut >= -pDec->shift) return;
-
-//calculate index that indicates rounding up or down
-	int32_t roundIndex = -pDec->shift - precOut - 1;
-	int32_t validIndex = roundIndex + 1;
-
-//fix
-
-	if (validIndex >= (int32_t) pDec->used) {
-		if (roundIndex >= (int32_t) pDec->used || pDec->digit[roundIndex] < 5) {
-			pDec->used = 0;
-			pDec->shift = 0;
-			return;
-		}
-
-		pDec->digit[0] = 1;
-		pDec->used = 1;
-		pDec->shift = -precOut;
-		return;
-	}
-//fix end
-
-	if (pDec->digit[roundIndex] >= 5) { //round up
-
-		pDec->digit[MAX] = 0;
-		while (pDec->digit[validIndex] == 9) { //propagate carry
-			validIndex++;
-		}
-
-		//apply carry
-		pDec->digit[validIndex]++;
-
-		if (pDec->digit[pDec->used] > 0) { //carry into unoccupied space
-			pDec->used++;
-		}
-	}
-
-//remove trailing zeroes
-	while (pDec->digit[validIndex] == 0) {
-		validIndex++;
-	}
-
-//shift digits [used-1 : validIndex] to the right
-	for (int32_t i = validIndex; i < (int32_t) pDec->used; i++) {
-		pDec->digit[i - validIndex] = pDec->digit[i];
-		pDec->digit[i] = 0;
-	}
-	for (int32_t i = validIndex - 1; i >= (int32_t) pDec->used - validIndex; i--) {
-		pDec->digit[i] = 0;
-	}
-
-//adjust used and shift
-	pDec->used -= validIndex;
-	pDec->shift += validIndex;
-
 }
 
 //### utility functions ############################
@@ -1163,96 +1155,7 @@ void CCDecimal::constructFromString(std::string numberStr) {
 	}
 }
 
-string CCDecimal::toString(int32_t precOut, bool scientific) const {
 
-	//zero case
-
-	//create a copy to round without changing the original
-	CCDecimal copy(*this);
-
-	int32_t exp_sci = 0;
-	string result = "";
-
-	if (used == 0) {
-		result = "0";
-	}
-	else {
-		if (scientific) {
-			exp_sci = copy.shift + (int32_t) copy.used - 1;
-			copy.shift -= exp_sci;
-		}
-
-		CCDecimal::round(&copy, precOut);
-
-		//sign
-		if (isNegative) result = "-";
-
-		//at least one zero before dp
-		if ((int32_t) copy.used <= -copy.shift) {
-			result += "0";
-		}
-
-		//digits before dp
-		for (int32_t i = copy.used - 1; i >= max<int32_t>(-copy.shift, 0); i--) {
-			result += (char) (copy.digit[i] + 48);
-		}
-
-		//dp
-		if (copy.shift < 0) result += ".";
-
-		//trailing zeroes
-		for (int32_t i = copy.used; i < -copy.shift; i++) {
-			result += "0";
-		}
-
-		//digits after dp
-		for (int32_t i = min<int32_t>(-copy.shift, copy.used) - 1; i >= 0; i--) {
-			result += (char) (copy.digit[i] + 48);
-		}
-
-		//trailing zeroes
-		for (int32_t i = copy.shift; i > 0; i--) {
-			result += "0";
-		}
-	}
-
-	//scientific exponent
-	if (scientific) {
-		if (copy.shift == 0 && precOut > 0) result += ".";
-		for (int32_t i = -copy.shift; i < precOut; i++) {
-			result += "0";
-		}
-
-		result += "e";
-		result += exp_sci < 0 ? "-" : "+";
-		if (abs(exp_sci) < 100) result += "0";
-		if (abs(exp_sci) < 10) result += "0";
-		result += std::to_string(abs(exp_sci));
-	}
-
-	return result;
-
-}
-string CCDecimal::toString(bool scientific) const {
-	return toString(*pPrecision - 1, scientific);
-}
-
-double CCDecimal::toDouble() const {
-
-	double result;
-	try {
-		//construct double from CCDecimals string representation
-		result = std::stod(toString(used - 1, true));
-	}
-	catch (std::out_of_range& e) {
-		e.what();
-		throw std::out_of_range("CCDecimal value exceeding range of type double.");
-	}
-	catch (std::invalid_argument& e) {
-		throw;
-	}
-	return result;
-}
 
 bool CCDecimal::magnitudeLessThan(const CCDecimal& op2) const {
 
