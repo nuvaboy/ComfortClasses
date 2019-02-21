@@ -5,6 +5,7 @@
  *      Author: marlo
  */
 
+
 #ifndef CCDECIMAL_H_
 #define CCDECIMAL_H_
 
@@ -20,14 +21,59 @@ using namespace std;
 class CCDecimal {
 
 private:
+
+	/**
+	 * \brief Array von Koeffizienten der Dezimalzahl
+	 *
+	 * Digit ist ein Array, welches die Koeffizienten der Dezimalzahl verwaltet.
+	 * Die maximale Kapazität ist durch das Define #MAX vorgegeben.
+	 * Es wird jedocch eine weitere Stelle für den Fall eines Overflows reserviert.
+	 */
 	int8_t digit[MAX + 1];
+
+	/**
+	 * \brief Anzahl belegter Dezimalstellen
+	 *
+	 * Used ist die Anzahl belegter Dezimalstellen, welche höstens den Wert (#MAX+1) erreichen kann.
+	 * Werden jedoch (#MAX+1) Ziffern belegt, ist ein Overflow aufgetreten.
+	 */
 	uint32_t used = 0;
-	//int shift = 0;
+
+	/**
+	 * \brief Wertigkeit des LSDs
+	 *
+	 * Shift beschreibt die Wertigkeit des LSDs (Least Significant Digit).
+	 * Entsprechend besitzt eine Dezimalzahl mit einem shift von -2 zwei Nachkommastellen
+	 * und aus einem shift von +5 folgen 5 nachfolgende Nullen.
+	 */
 	int32_t shift = 0;
+
+	/**
+	 * \brief Vorzeichen der Dezimalzahl
+	 *
+	 * Dieses Flag zeigt an, ob die Dezimalzahl negativ ist.
+	 */
 	bool isNegative = false;
 
+	/**
+	 * \brief lokale Präzision
+	 *
+	 * Ist die lokale Präzision eines CCDecimal's gesetzt wird sichergestellt,
+	 * dass diese für die entsprechende (Anzahl-1) an Nachkommastellen erhalten bleibt.
+	 * Andernfalls wird die globale Präzision #globalPrecision garantiert.
+	 * Es wird eine Stelle weniger garantiert, da diese intern für ein korrektes Runden benötigt wird.
+	 */
 	int32_t localPrecision = 0;
+
+	/**
+	 * \brief Zeiger auf aktuelle Präzision
+	 *
+	 * Der Zeiger pPrecison verweist auf die lokale Präzision #localPrecision
+	 * oder die globale Präzision #globalPrecision, wenn erstere nicht explizit gesetzt wurde.
+	 */
 	int32_t* pPrecision;
+
+
 	static int32_t globalPrecision;
 
 	void constructFromString(string numberStr);
@@ -38,40 +84,22 @@ private:
 	void div(CCDecimal* result, const CCDecimal& op2) const;
 	void mod(CCDecimal* result, const CCDecimal& op2) const;
 
+
 public:
 
-	/**
-	 * @defgroup dGroup Standard
-	 * @defgroup oGroup Operatoren
-	 * @defgroup mGroup Getter / Setter
-	 * @defgroup cGroup Konstruktoren und Destruktoren
-	 */
-
 	//constructors
-	/**
-	 * @ingroup cGroup
-	 * @name Konstruktoren und Destruktoren
-	 * @{ */
 	CCDecimal() noexcept;
 	CCDecimal(const CCDecimal& d2);
 	CCDecimal(const char* str);
 	CCDecimal(const string& numberStr);
 	CCDecimal(double number);
 	virtual ~CCDecimal();
-	/** @} */
 
-	/**
-	 * @ingroup mGroup
-	 * @name Getter / Setter
-	 * @{ */
 	int32_t getPrecision();
 	void setLocalPrecision(int32_t prec);
-	/** @} */
+	static void setGlobalPrecision(int32_t);
+	static int32_t getGlobalPrecision();
 
-	/**
-	 * @ingroup oGroup
-	 * @name Operatoren
-	 * @{ */
 	CCDecimal operator +(const CCDecimal&) const;
 	CCDecimal operator -(const CCDecimal&) const;
 	CCDecimal operator *(const CCDecimal&) const;
@@ -84,36 +112,22 @@ public:
 	CCDecimal& operator /=(const CCDecimal&);
 	CCDecimal& operator %=(const CCDecimal&);
 
+	CCDecimal& operator++();
+	CCDecimal& operator--();
+	CCDecimal operator++(int);
+	CCDecimal operator--(int);
+
 	bool operator ==(const CCDecimal&) const;
 	bool operator !=(const CCDecimal&) const;
 	bool operator <(const CCDecimal&) const;
 	bool operator >(const CCDecimal&) const;
 
-	CCDecimal& operator++();
-	CCDecimal& operator--();
-	CCDecimal operator++(int);
-	CCDecimal operator--(int);
-	/** @} */
-
-	/**
-	 * @ingroup dGroup
-	 * @name Funktionen
-	 * @{ */
-	void cfs(const string& numberStr);
-
 	string toString(int32_t precOut, bool scientific = false) const;
 	string toString(bool scientific = false) const;
-
 	double toDouble() const;
-	/** @} */
-
-	static void setGlobalPrecision(int32_t);
-	static int32_t getGlobalPrecision();
-
-	//utility functionality
 	static void round(CCDecimal* pDec, int32_t precOut);
 
-	//explicit operator double();
+
 
 	//testing only
 	void setDigit(unsigned int pos, int8_t value) {
@@ -145,9 +159,11 @@ public:
 	void setShift(int shift) {
 		this->shift = shift;
 	}
+//	/** @} */
 
 };
 
 std::ostream& operator<<(std::ostream &os, const CCDecimal& dec);
+
 
 #endif /* CCDECIMAL_H_ */

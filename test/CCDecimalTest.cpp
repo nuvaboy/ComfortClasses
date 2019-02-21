@@ -220,7 +220,7 @@ GROUP_TEST(Addition, CCDecimalTest, add_whiteBox) {
 	CCDecimal::setGlobalPrecision(2);
 
 	//removal of trailing zeroes after cutting, due to capacity constraint
-	testAdd("9.1234567890123456789012345678908",
+	testAdd("9.1234567890123456789012345678904",
 			"0.077",
 			"9.20045678901234567890123456789");
 
