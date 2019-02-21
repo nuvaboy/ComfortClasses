@@ -144,7 +144,7 @@ int32_t CCDecimal::getPrecision() {
  *  Aktualisiert den Zeiger #pPrecision, damit dieser auf die lokale Präzision #localPrecision verweist.
  *
  * @param precision Präzision, die lokal für diesen CCDecimal festgelegt wird ( >= 0 )
- * @throws out_of_range Präzision muss positiv sein.
+ * @throws out_of_range 'precision' muss positiv sein.
  */
 void CCDecimal::setLocalPrecision(int32_t precision) {
 	if (precision < 0) throw std::out_of_range("precision has to be positive");
@@ -166,6 +166,7 @@ int32_t CCDecimal::getGlobalPrecision() {
  *
  * @see localPrecision
  * @param precision globale Präzision
+ * @throws out_of_range 'precision' muss positiv sein.
  */
 void CCDecimal::setGlobalPrecision(int32_t precision) {
 	if (precision < 0) throw std::out_of_range("precision has to be positive");
@@ -173,7 +174,17 @@ void CCDecimal::setGlobalPrecision(int32_t precision) {
 }
 
 //### conversion functions ##########################
-
+/** \brief Rundet eine CCDecimal
+ *
+ * Rundet auf 'precOut' Nachkommastellen genau.
+ * Sind mehr Nachkommastellen vorhanden wird aufgerundet,
+ * wenn die erste abgeschnittene Ziffer >= 5 ist. Andernfalls wird abgerundet.
+ *
+ * @param pDec Zeiger auf die zu rundende CCDecimal
+ * @param precOut Genauigkeit (in Nachkommastellen, >= 0)
+ * @throws out_of_range 'precision' muss positiv sein.
+ *
+ */
 void CCDecimal::round(CCDecimal* pDec, int32_t precOut) {
 
 	if (precOut < 0) {

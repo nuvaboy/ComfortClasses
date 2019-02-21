@@ -20,6 +20,9 @@ using namespace std;
 
 class CCDecimal {
 
+	friend class CCDecimalTest;
+
+
 private:
 
 	/**
@@ -129,37 +132,36 @@ public:
 
 
 
-	//testing only
-	void setDigit(unsigned int pos, int8_t value) {
-		digit[pos] = value;
-		if (pos >= used && value != 0) {
-			used = pos + 1;
-		}
-	}
-
-	void setNegative(bool isNegative) {
-		this->isNegative = isNegative;
-	}
-
-	void setDigits(int count, ...) {
-		//cout << count << endl;
-
-		va_list arguments;             // A place to store the list of arguments
-		va_start(arguments, count); // Initializing arguments to store all values after count
-		for (int i = count - 1; i >= 0; i--) {
-			int val = (int) (va_arg(arguments, int));
-			setDigit(i, val);
-			//cout << va_arg(arguments, int) << endl;
-		}
-		// Adds the next value in argument list to sum.
-		va_end(arguments);
-
-	}
-
-	void setShift(int shift) {
-		this->shift = shift;
-	}
-//	/** @} */
+//	//testing only
+//	void setDigit(unsigned int pos, int8_t value) {
+//		digit[pos] = value;
+//		if (pos >= used && value != 0) {
+//			used = pos + 1;
+//		}
+//	}
+//
+//	void setNegative(bool isNegative) {
+//		this->isNegative = isNegative;
+//	}
+//
+//	void setDigits(int count, ...) {
+//		//cout << count << endl;
+//
+//		va_list arguments;             // A place to store the list of arguments
+//		va_start(arguments, count); // Initializing arguments to store all values after count
+//		for (int i = count - 1; i >= 0; i--) {
+//			int val = (int) (va_arg(arguments, int));
+//			setDigit(i, val);
+//			//cout << va_arg(arguments, int) << endl;
+//		}
+//		// Adds the next value in argument list to sum.
+//		va_end(arguments);
+//
+//	}
+//
+//	void setShift(int shift) {
+//		this->shift = shift;
+//	}
 
 };
 
