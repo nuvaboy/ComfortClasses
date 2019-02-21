@@ -149,7 +149,6 @@ CCDecimal::CCDecimal(const CCDecimal& original) :
  * */
 CCDecimal::CCDecimal(double number) :
 		CCDecimal() {
-
 	std::stringstream stringStream;
 
 	//convert double to string using 'stringstream' and 'setprecision' to get the highest precision available
@@ -178,7 +177,8 @@ CCDecimal::CCDecimal(const string& numberStr) :
  *
  * @param numberCStr C-String aus dem ein CCDecimal erzeugt wird
  */
-CCDecimal::CCDecimal(const char* numberCStr) : CCDecimal(string(numberCStr)){
+CCDecimal::CCDecimal(const char* numberCStr) :
+		CCDecimal(string(numberCStr)) {
 }
 
 /** \brief Destruktor
@@ -206,8 +206,6 @@ void CCDecimal::setLocalPrecision(int32_t precision) {
 	localPrecision = precision + 1;
 	pPrecision = &localPrecision;
 }
-
-
 
 //core functionality
 void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
@@ -714,9 +712,11 @@ void CCDecimal::constructFromString(std::string numberStr) {
 
 	/*
 	 * validate: max one sign; max one point; sign at the beginning,
-	 * then digits, then point, if point, then more digits
-	 * optionally, an exponent
+	 * then digits, then point (if point), then more digits
+	 * optionally, an exponent (sign, if any, followed by digits)
 	 * uses state-machine-ish behaviour, result valid if in valid_end.
+	 * Removes signs, leading zeroes (hence the separate *zero*-states),
+	 * decimal points and exponents in-place, leaving only digits behind.
 	 */
 	enum ValidatorStates {
 		error = -1,
@@ -933,11 +933,11 @@ void CCDecimal::constructFromString(std::string numberStr) {
 		throw std::invalid_argument("Invalid number.");
 	}
 
+	auto revChar = numberStr.rbegin();
 	/*
 	 * trim number
 	 */
-//remove trailing zeroes before cut
-	auto revChar = numberStr.rbegin();
+	//remove trailing zeroes before cut
 	while (revChar != numberStr.rend() && *revChar == '0') {
 		shift++;
 		used--;
@@ -947,10 +947,10 @@ void CCDecimal::constructFromString(std::string numberStr) {
 	/*
 	 * add present exponent in (if not applicable, is zero)
 	 */
-//add sign to exponent
+	//add sign to exponent
 	exponent *= exponentSign;
 
-//check for overflows
+	//check for overflows
 	int64_t int32max = std::numeric_limits<int32_t>::max();
 	if (shift <= 0) {
 		if (exponent < 0 && exponent < -int32max - static_cast<int64_t>(shift)) {
@@ -968,7 +968,7 @@ void CCDecimal::constructFromString(std::string numberStr) {
 			throw std::overflow_error("Exponent out of range.");
 		}
 	}
-//add exponent in
+	//add exponent in
 	shift += static_cast<int32_t>(exponent);
 
 	if (numberStr.empty()) {
@@ -993,7 +993,28 @@ void CCDecimal::constructFromString(std::string numberStr) {
 		used -= cutOffset;
 		shift += cutOffset;
 		revChar += cutOffset;
-		//TODO(jan) runden nach dem cut
+
+		//round after cut
+		if ('5' <= revChar[-1] && revChar[-1] <= '9') {
+			//would carry?
+			if (*revChar < '9') {
+				++(*revChar);
+			}
+			else {
+				*revChar = '0';
+				bool carry = true;
+				for (int i = 1; carry; i++) {
+					if (revChar[i] < '9') {
+						++(revChar[i]);
+						carry = false;
+					}
+					else {
+						revChar[i] = '0';
+					}
+				}
+			}
+
+		}
 		//check for new traling zeroes
 		while (revChar != numberStr.rend() && *revChar == '0') {
 			shift++;
@@ -1012,8 +1033,6 @@ void CCDecimal::constructFromString(std::string numberStr) {
 		revChar++;
 	}
 }
-
-
 
 string CCDecimal::toString(int32_t precOut, bool scientific) const {
 
@@ -1227,7 +1246,6 @@ CCDecimal& CCDecimal::operator %=(const CCDecimal& op2) {
 	return *this;
 }
 
-
 bool CCDecimal::operator ==(const CCDecimal& op2) const {
 
 	if (used == 0 && op2.used == 0) return true;
@@ -1342,5 +1360,5 @@ ostream& operator <<(ostream& os, const CCDecimal& dec) {
 	if ((f & os.scientific) == os.scientific) {
 		return os << dec.toString(os.precision(), true);
 	}
-	return os << dec.toString(os.precision());
+	return os << dec.toString(os.precision(), false);
 }
