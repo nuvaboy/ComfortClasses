@@ -12,6 +12,7 @@
 #include <iomanip>
 #include <limits>
 #include <locale>
+#include <regex>
 #include <sstream>
 #include <stdexcept>
 
@@ -21,17 +22,6 @@ CCString::CCString(const std::string& str) :
 }
 CCString::CCString(const char* cstr) :
 		CCString(std::string(cstr)) {
-}
-CCString::CCString(char* cstr) :
-		CCString() {
-	for (int i = 0; cstr[i] != '\0'; i++) {
-		append(cstr[i]);
-	}
-}
-CCString::CCString(char* cstr, size_t n) {
-	for (unsigned int i = 0; i < n; i++) {
-		append(cstr[i]);
-	}
 }
 CCString::CCString(char c) :
 		CCString(std::string() = c) {
@@ -715,4 +705,41 @@ size_t CCString::findLast(const char* cstr, size_t pos) const {
 }
 size_t CCString::findLast(char c, size_t pos) const {
 	return internalStr.rfind(c, pos);
+}
+
+bool CCString::matches(const CCString& regex) const {
+	std::regex re(regex.internalStr);
+	return std::regex_match(internalStr, re);
+}
+
+bool CCString::contains(const CCString& regex) const {
+	std::regex re(regex.internalStr);
+	return std::regex_search(internalStr, re);
+}
+
+CCString CCString::getMatch(const CCString& regex) {
+	std::regex re(regex.internalStr);
+	std::smatch matches;
+	std::regex_search(internalStr, matches, re);
+	while (!matches.ready())
+		;
+	if (matches.empty()) {
+		return CCString();
+	}
+	if (!matches[0].matched) {
+		return CCString();
+	}
+	return CCString(std::string(matches[0]));
+}
+
+CCString CCString::replaceAll(const CCString& regex) {
+//	std::regex re(regex.internalStr);
+//	std::smatch matches;
+	return regex;
+}
+
+CCString CCString::replaceFirst(const CCString& regex) {
+//	std::regex re(regex.internalStr);
+//	std::smatch matches;
+	return regex;
 }

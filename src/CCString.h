@@ -11,6 +11,7 @@
 //#include "tinyutf8.h"
 
 #include <cstddef>
+#include <iterator>
 #include <sstream>
 #include <string>
 
@@ -24,8 +25,6 @@ public:
 	//constructors for textual types
 	CCString(const std::string& str);
 	CCString(const char* cstr);
-	CCString(char* cstr);
-	CCString(char* cstr, size_t n);
 	CCString(char c);
 	//constructor for boolean type
 	CCString(bool b);
@@ -160,6 +159,20 @@ public:
 	size_t findLast(const std::string& str, size_t pos = std::string::npos) const;
 	size_t findLast(const char* cstr, size_t pos = std::string::npos) const;
 	size_t findLast(char c, size_t pos = std::string::npos) const;
+
+//	class splitIterator : public std::iterator<std::input_iterator_tag, CCString> {
+//		splitIterator() = delete;
+//		explicit splitIterator(CCString regex);
+//		???????????????????????????????????????????????????????????????
+//
+//	};
+	bool matches(const CCString& regex) const;
+	bool contains(const CCString& regex) const;
+	CCString getMatch(const CCString& regex);
+	CCString replaceAll(const CCString& regex);
+	CCString replaceFirst(const CCString& regex);
+
+
 
 private:
 	std::string internalStr;
