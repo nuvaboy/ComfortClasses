@@ -412,8 +412,6 @@ GROUP_TEST(Subtraction, CCDecimalTest, sub_normal) {
 GROUP_TEST(Conversion, CCDecimalTest, onConstruction) {
 
 	CCDecimal t0;
-//	t0.setDigits(3, 1, 0, 5);
-//	t0.setShift(-1);
 	CCDecimalTest::setDigits(t0, 3, 1, 0, 5);
 	CCDecimalTest::setShift(t0, -1);
 
@@ -435,24 +433,18 @@ GROUP_TEST(Conversion, CCDecimalTest, strToDec_normal) {
 
 	cout << "cnv n 1" << endl;
 	CCDecimal case0;
-	//case0.setDigits(3, 9, 8, 7);
 	CCDecimalTest::setDigits(case0, 3, 9, 8, 7);
 	testFromStr("000987", case0);
 
 	cout << "cnv n 2" << endl;
 	CCDecimal case1;
-	//case1.setDigits(31, 1, 0, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 9, 8, 7,
-	//		6, 5, 4, 3, 2, 1);
-	CCDecimalTest::setDigits(case1, 31, 1, 0, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 9, 8, 7,
-				6, 5, 4, 3, 2, 1);
-	//case1.setShift(3);
+	CCDecimalTest::setDigits(case1, 31, 1, 0, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 9, 8, 7, 6, 5, 4, 3, 2,
+			1, 0, 9, 8, 7, 6, 5, 4, 3, 2, 1);
 	CCDecimalTest::setShift(case1, 3);
 	testFromStr("1098765432109876543210987654321000", case1);
 
 	cout << "cnv n 3" << endl;
 	CCDecimal case2;
-//	case2.setDigits(1, 7);
-//	case2.setShift(-1);
 	CCDecimalTest::setDigits(case2, 1, 7);
 	CCDecimalTest::setShift(case2, -1);
 
@@ -460,9 +452,6 @@ GROUP_TEST(Conversion, CCDecimalTest, strToDec_normal) {
 
 	cout << "cnv n 4" << endl;
 	CCDecimal case3;
-//	case3.setDigits(2, 3, 6);
-//	case3.setShift(-5);
-//	case3.setNegative(true);
 	CCDecimalTest::setDigits(case3, 2, 3, 6);
 	CCDecimalTest::setShift(case3, -5);
 	CCDecimalTest::setNegative(case3, true);
@@ -470,20 +459,14 @@ GROUP_TEST(Conversion, CCDecimalTest, strToDec_normal) {
 	testFromStr("-0.00036", case3);
 
 	CCDecimal case4;
-//	case4.setDigits(1, 4);
-//	case4.setShift(1);
 	CCDecimalTest::setDigits(case4, 1, 4);
 	CCDecimalTest::setShift(case4, 1);
 
 	testFromStr("40", case4);
 
 	CCDecimal case5;
-//	case5.setDigits(31, 5, 2, 7, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 9, 8,
-//			7, 6, 5, 4, 3, 2);
-//	case5.setNegative(true);
-//	case5.setShift(-29);
-	CCDecimalTest::setDigits(case5,31, 5, 2, 7, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 9, 8,
-				7, 6, 5, 4, 3, 2);
+	CCDecimalTest::setDigits(case5, 31, 5, 2, 7, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 9, 8, 7, 6, 5, 4, 3,
+			2, 1, 0, 9, 8, 7, 6, 5, 4, 3, 2);
 	CCDecimalTest::setNegative(case5, true);
 	CCDecimalTest::setShift(case5, -29);
 	testFromStr("-52.79876543210987654321098765432", case5);
@@ -614,7 +597,6 @@ GROUP_TEST(constructFromString, CCDecimal, fromStr_value_sign) {
 	CCDecimal ccd1("0"), ccd3("+0"), ccd5("-0");
 
 	CCDecimal ccd2, ccd4, ccd6;
-//	ccd6.setNegative(true);
 	CCDecimalTest::setNegative(ccd6, true);
 
 	//Id. 0: no sign
@@ -629,18 +611,12 @@ GROUP_TEST(constructFromString, CCDecimal, fromStr_value_leading_zeroes) {
 	CCDecimal ccd1("0012"), ccd3("00.34"), ccd5("0.056");
 
 	CCDecimal ccd2, ccd4, ccd6;
-//	ccd2.setDigits(2, 1, 2);
-//	ccd2.setShift(0);
-//	ccd4.setDigits(2, 3, 4);
-//	ccd4.setShift(-2);
-//	ccd6.setDigits(2, 5, 6);
-//	ccd6.setShift(-3);
 	CCDecimalTest::setDigits(ccd2, 2, 1, 2);
-		CCDecimalTest::setShift(ccd2, 0);
-		CCDecimalTest::setDigits(ccd4, 2, 3, 4);
-		CCDecimalTest::setShift(ccd4, -2);
-		CCDecimalTest::setDigits(ccd6, 2, 5, 6);
-		CCDecimalTest::setShift(ccd6, -3);
+	CCDecimalTest::setShift(ccd2, 0);
+	CCDecimalTest::setDigits(ccd4, 2, 3, 4);
+	CCDecimalTest::setShift(ccd4, -2);
+	CCDecimalTest::setDigits(ccd6, 2, 5, 6);
+	CCDecimalTest::setShift(ccd6, -3);
 
 	//Id. 0: before point
 	EXPECT_EQ(ccd1, ccd2);
@@ -654,12 +630,6 @@ GROUP_TEST(constructFromString, CCDecimal, fromStr_value_trailing_zeroes) {
 	CCDecimal ccd1("120.00"), ccd3("123.00"), ccd5("123.40");
 
 	CCDecimal ccd2, ccd4, ccd6;
-//	ccd2.setDigits(2, 1, 2);
-//	ccd2.setShift(1);
-//	ccd4.setDigits(3, 1, 2, 3);
-//	ccd4.setShift(0);
-//	ccd6.setDigits(4, 1, 2, 3, 4);
-//	ccd6.setShift(-1);
 	CCDecimalTest::setDigits(ccd2, 2, 1, 2);
 	CCDecimalTest::setShift(ccd2, 1);
 	CCDecimalTest::setDigits(ccd4, 3, 1, 2, 3);
@@ -679,9 +649,7 @@ GROUP_TEST(constructFromString, CCDecimal, fromStr_value_lead_and_trail_0s) {
 	CCDecimal ccd1("00123.4500"), ccd3("000.00");
 
 	CCDecimal ccd2, ccd4;
-//	ccd2.setDigits(5, 1, 2, 3, 4, 5);
-//	ccd2.setShift(-2);
-	CCDecimalTest::setDigits(ccd2,5, 1, 2, 3, 4, 5);
+	CCDecimalTest::setDigits(ccd2, 5, 1, 2, 3, 4, 5);
 	CCDecimalTest::setShift(ccd2, -2);
 
 	//Id. 0: with other digits
@@ -695,9 +663,6 @@ GROUP_TEST(constructFromString, CCDecimal, fromStr_value_exponent_equivalence) {
 			ccd4("12345678987654321E-16");
 
 	CCDecimal ccd5, ccd6;
-//	ccd5.setDigits(17, 9, 8, 7, 6, 5, 4, 3, 2, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-//	ccd6.setDigits(17, 1, 2, 3, 4, 5, 6, 7, 8, 9, 8, 7, 6, 5, 4, 3, 2, 1);
-//	ccd6.setShift(-16);
 	CCDecimalTest::setDigits(ccd5, 17, 9, 8, 7, 6, 5, 4, 3, 2, 1, 2, 3, 4, 5, 6, 7, 8, 9);
 	CCDecimalTest::setDigits(ccd6, 17, 1, 2, 3, 4, 5, 6, 7, 8, 9, 8, 7, 6, 5, 4, 3, 2, 1);
 	CCDecimalTest::setShift(ccd6, -16);

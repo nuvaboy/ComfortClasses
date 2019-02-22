@@ -20,11 +20,13 @@ using namespace std;
 
 class CCDecimal {
 
+	//TODO: Remove this in release version (for testing purposes only)
 	friend class CCDecimalTest;
 
 
 private:
 
+	//### attributes ##################################
 	/**
 	 * \brief Array von Koeffizienten der Dezimalzahl
 	 *
@@ -76,9 +78,17 @@ private:
 	 */
 	int32_t* pPrecision;
 
-
+	/**
+	 * \brief globale Präzision
+	 *
+	 * Die globale Präzision wirkt sich auf alle Instanzen von CCDecimal aus,
+	 * deren lokale Präzision #localPrecision nicht explizit gesetzt wurde.
+	 * Die Präzision wird für die entsprechende (Anzahl-1) an Nachkommastellen garantiert.
+	 * Es wird eine Stelle weniger garantiert, da diese intern für ein korrektes Runden benötigt wird.
+	 */
 	static int32_t globalPrecision;
 
+	//### utility funcions ############################
 	void constructFromString(string numberStr);
 	bool magnitudeLessThan(const CCDecimal& op2) const;
 	void add(CCDecimal* result, const CCDecimal& op2) const;
@@ -90,19 +100,95 @@ private:
 
 public:
 
-	//constructors
+	//### constructors/destructors #####################
+	/** \brief Konstruktor (default)
+	 *
+	 *  Erstellt ein CCDecimal mit dem Wert 0.
+	 **/
 	CCDecimal() noexcept;
-	CCDecimal(const CCDecimal& d2);
-	CCDecimal(const char* str);
-	CCDecimal(const string& numberStr);
+
+	/** \brief Konstruktor (copy)
+	 *
+	 *  Erstellt eine Kopie eines anderen CCDecimals.
+	 *  Der Zeiger pPrecision verweist entweder auf die lokal oder global definierte Präzision.
+	 *  Wurde die lokale Präzision 'precision' explizit für das Original gesetzt,
+	 *  muss der Zeiger 'pPrecision' auf die lokale Präzision der Kopie gesetzt werden.
+	 *  Andernfalls wird die globale Präzision als "shallow copy" übernommen.
+	 *
+	 *
+	 *  @param original Referenz des CCDecimals, welcher kopiert wird
+	 */
+	CCDecimal(const CCDecimal& original);
+
+	/** \brief Konstruktor (double)
+	 *
+	 *  Erstellt einen CCDecimal auf Basis des übergebenen doubles.
+	 *  Durch Einlesen in einen 'stringstream' wird eine String-Repräsentation erzeugt.
+	 *  Die Verwendung von 'setPrecision' stellt sicher, dass alle vorhandenen Nachkommastellen übernommen werden.
+	 *  Abschließend konstruiert #constructFromString den CCDecimal.
+	 *
+	 *  @param number double, uas dem ein CCDecimal erzeugt wird
+	 * */
 	CCDecimal(double number);
+
+	/** \brief Konstruktor (std::string)
+	 *
+	 *  Erstellt mithilfe von #constructFromString einen CCDecimal auf Basis des übergebenen std::string.
+	 *
+	 *  @param numberStr std::string, aus dem ein CCDecimal erzeugt wird
+	 */
+	CCDecimal(const string& numberStr);
+
+	/** \brief Konstruktor (C-String)
+	 *
+	 *	Konstruiert  einen CCDecimal von einem C-String.
+	 *
+	 * @param numberCStr C-String aus dem ein CCDecimal erzeugt wird
+	 */
+	CCDecimal(const char* numberCStr);
+
+	/** \brief Destruktor
+	 *
+	 *  Existiert um gegebenenfalls Vererbung zu ermöglichen.
+	 */
 	virtual ~CCDecimal();
 
+	//### public setter/getter #########################
+	/** \brief Liefert die aktuelle Präzision zurück.
+	 *
+	 *  Liefert die lokale Präzision #localPrecision oder
+	 *  die globale Präzision #globalPrecision, solange die lokale nicht gesetzt wurde.
+	 *  Der Zeiger #pPrecision verweist entsprechend auf die lokale/globale Präzision.
+	 *
+	 * @return Präzision des CCDecimal's
+	 */
 	int32_t getPrecision();
+
+	/** \brief Setzt die lokale Präzision.
+	 *  Aktualisiert den Zeiger #pPrecision, damit dieser auf die lokale Präzision #localPrecision verweist.
+	 *
+	 * @param precision Präzision, die lokal für diesen CCDecimal festgelegt wird ( >= 0 )
+	 * @throws out_of_range 'precision' muss positiv sein.
+	 */
 	void setLocalPrecision(int32_t prec);
-	static void setGlobalPrecision(int32_t);
+
+	/** \brief Liefert die globale Präzision zurück.
+	 *
+	 *  Liefert die globale Präzision #globalPrecision zurück.
+	 *   *
+	 * @return die globale Präzision
+	 */
 	static int32_t getGlobalPrecision();
 
+	/** \brief Setzt die globale Präzision.
+	 *
+	 * @see localPrecision
+	 * @param precision globale Präzision
+	 * @throws out_of_range 'precision' muss positiv sein.
+	 */
+	static void setGlobalPrecision(int32_t);
+
+	//### arithmetic operators #########################
 	CCDecimal operator +(const CCDecimal&) const;
 	CCDecimal operator -(const CCDecimal&) const;
 	CCDecimal operator *(const CCDecimal&) const;
@@ -120,50 +206,33 @@ public:
 	CCDecimal operator++(int);
 	CCDecimal operator--(int);
 
+	//### comparison operators #########################
 	bool operator ==(const CCDecimal&) const;
 	bool operator !=(const CCDecimal&) const;
 	bool operator <(const CCDecimal&) const;
 	bool operator >(const CCDecimal&) const;
 
+	//### conversion functions #########################
+		/** \brief Rundet eine CCDecimal
+	 *
+	 * Rundet auf 'precOut' Nachkommastellen genau.
+	 * Sind mehr Nachkommastellen vorhanden wird aufgerundet,
+	 * wenn die erste abgeschnittene Ziffer >= 5 ist. Andernfalls wird abgerundet.
+	 *
+	 * @param pDec Zeiger auf die zu rundende CCDecimal
+	 * @param precOut Genauigkeit (in Nachkommastellen, >= 0)
+	 * @throws out_of_range 'precision' muss positiv sein.
+	 *
+	 */
+	static void round(CCDecimal* pDec, int32_t precOut);
+
 	string toString(int32_t precOut, bool scientific = false) const;
 	string toString(bool scientific = false) const;
 	double toDouble() const;
-	static void round(CCDecimal* pDec, int32_t precOut);
-
-
-
-//	//testing only
-//	void setDigit(unsigned int pos, int8_t value) {
-//		digit[pos] = value;
-//		if (pos >= used && value != 0) {
-//			used = pos + 1;
-//		}
-//	}
-//
-//	void setNegative(bool isNegative) {
-//		this->isNegative = isNegative;
-//	}
-//
-//	void setDigits(int count, ...) {
-//		//cout << count << endl;
-//
-//		va_list arguments;             // A place to store the list of arguments
-//		va_start(arguments, count); // Initializing arguments to store all values after count
-//		for (int i = count - 1; i >= 0; i--) {
-//			int val = (int) (va_arg(arguments, int));
-//			setDigit(i, val);
-//			//cout << va_arg(arguments, int) << endl;
-//		}
-//		// Adds the next value in argument list to sum.
-//		va_end(arguments);
-//
-//	}
-//
-//	void setShift(int shift) {
-//		this->shift = shift;
-//	}
 
 };
+
+//### stream operator ##############################
 
 std::ostream& operator<<(std::ostream &os, const CCDecimal& dec);
 
