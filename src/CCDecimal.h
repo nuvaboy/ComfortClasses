@@ -5,7 +5,6 @@
  *      Author: marlo
  */
 
-
 #ifndef CCDECIMAL_H_
 #define CCDECIMAL_H_
 
@@ -22,7 +21,6 @@ class CCDecimal {
 
 	//TODO: Remove this in release version (for testing purposes only)
 	friend class CCDecimalTest;
-
 
 private:
 
@@ -89,6 +87,16 @@ private:
 	static int32_t globalPrecision;
 
 	//### utility funcions ############################
+	/** \brief Erzeugt einen CCDecimal aus einer String-Darstellung.
+	 *
+	 * Hilfsfunktion, welche den CCDecimal entsprechend einer gegebenen String-Darstellung anlegt.
+	 * Es wird davon ausgegangen, dass dieser zuvor mit 0 initialisiert ist.
+	 *
+	 * @param numberStr string, welcher in den CCDecimal umgewandelt wird.
+	 * @throws overflow_error Der Wertebereich wurde überschritten. (Mantisse kann maximal #MAX Ziffern halten)
+	 * @throws invalid_argument Die Dezimalzahl hat ein ungültiges Format.
+	 *
+	 */
 	void constructFromString(string numberStr);
 	bool magnitudeLessThan(const CCDecimal& op2) const;
 	void add(CCDecimal* result, const CCDecimal& op2) const;
@@ -96,7 +104,6 @@ private:
 	void mult(CCDecimal* result, const CCDecimal& op2) const;
 	void div(CCDecimal* result, const CCDecimal& op2) const;
 	void mod(CCDecimal* result, const CCDecimal& op2) const;
-
 
 public:
 
@@ -127,7 +134,7 @@ public:
 	 *  Die Verwendung von 'setPrecision' stellt sicher, dass alle vorhandenen Nachkommastellen übernommen werden.
 	 *  Abschließend konstruiert #constructFromString den CCDecimal.
 	 *
-	 *  @param number double, uas dem ein CCDecimal erzeugt wird
+	 *  @param number double, aus dem ein CCDecimal erzeugt wird
 	 * */
 	CCDecimal(double number);
 
@@ -170,7 +177,7 @@ public:
 	 * @param precision Präzision, die lokal für diesen CCDecimal festgelegt wird ( >= 0 )
 	 * @throws out_of_range 'precision' muss positiv sein.
 	 */
-	void setLocalPrecision(int32_t prec);
+	void setLocalPrecision(int32_t precision);
 
 	/** \brief Liefert die globale Präzision zurück.
 	 *
@@ -213,7 +220,7 @@ public:
 	bool operator >(const CCDecimal&) const;
 
 	//### conversion functions #########################
-		/** \brief Rundet eine CCDecimal
+	/** \brief Rundet eine CCDecimal
 	 *
 	 * Rundet auf 'precOut' Nachkommastellen genau.
 	 * Sind mehr Nachkommastellen vorhanden wird aufgerundet,
@@ -226,8 +233,35 @@ public:
 	 */
 	static void round(CCDecimal* pDec, int32_t precOut);
 
+	/** \brief Liefert String-Darstellung mit Präzision und optional wissenschaftlicher Notation.
+	 *
+	 * Konvertiert eine CCDecimal in einen String und
+	 * rundet entsprechend der angegebenen Anzahl an Nachkommastellen 'precOut'. (#round)
+	 * Optional kann die wissenschaftliche Notation gewählt werden.
+	 *
+	 * @param precOut Anzahl an Nachkommastellen, nach denen gerundet wird.
+	 * @param scientific Flag, welches die wissenschaftliche Notation aktiviert.
+	 * @return string, der die Dezimalzahl repräsentiert
+	 */
 	string toString(int32_t precOut, bool scientific = false) const;
+
+	/** \brief Liefert String-Darstellung mit optional wissenschaftlicher Notation.
+	 *
+	 * Komfortfunktion, welche toString ohne Angabe der Präzision aufruft.
+	 * @see int32_t toString(precOut, bool scientific = false)
+	 *
+	 * @param scientific Flag, welches die wissenschaftliche Notation aktiviert.
+	 * @return string, der die Dezimalzahl repräsentiert
+	 */
 	string toString(bool scientific = false) const;
+
+	/** \brief Liefert einen double zurück.
+	 *
+	 * Bei der Konvertierung von CCDecimal zu double kann Präzision verloren gehen.
+	 * Unabhängig von der grantierten Präzision #pPrecision wird die beste Annährung angestrebt.
+	 *
+	 * @return double (beste Annährung an den CCDecimal)
+	 */
 	double toDouble() const;
 
 };
@@ -235,6 +269,5 @@ public:
 //### stream operator ##############################
 
 std::ostream& operator<<(std::ostream &os, const CCDecimal& dec);
-
 
 #endif /* CCDECIMAL_H_ */
