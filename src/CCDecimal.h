@@ -90,7 +90,7 @@ private:
 	/** \brief Erzeugt einen CCDecimal aus einer String-Darstellung.
 	 *
 	 * Hilfsfunktion, welche den CCDecimal entsprechend einer gegebenen String-Darstellung anlegt.
-	 * Es wird davon ausgegangen, dass dieser zuvor mit 0 initialisiert ist.
+	 * Es wird davon ausgegangen, dass dieser zuvor mit 0 initialisiert wurde.
 	 *
 	 * @param numberStr string, welcher in den CCDecimal umgewandelt wird.
 	 * @throws overflow_error Der Wertebereich wurde überschritten. (Mantisse kann maximal #MAX Ziffern halten)
@@ -263,6 +263,42 @@ public:
 	 * @return double (beste Annährung an den CCDecimal)
 	 */
 	double toDouble() const;
+
+//	CCDecimal pow(int32_t exp){
+//
+//		if (exp < 0) exp = -exp;
+//		int arr_size = 0;
+//		while (exp > 0){
+//			exp >>= 1;
+//			arr_size++;
+//		}
+//
+//		//2048
+//		CCDecimal* arr = new CCDecimal[arr_size];
+//		delete[] arr;
+//
+//		return CCDecimal();
+//
+//		//^10
+//		//*=2
+//		//*=2
+//		//*=2
+//		//5*5*5*5*5*5*5*5*5*5*5
+//		//2
+//		//4
+//		//8
+//		//16
+//		//32
+//		//64
+//		//128
+//		//256
+//		//512
+//		//1024
+//		//2048
+//		//4092
+//		//10 x 8  = 80 Byte
+//
+//	}
 
 };
 
