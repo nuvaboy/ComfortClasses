@@ -64,6 +64,7 @@ void isEqual(const CCDecimal& value, const CCDecimal& cmp) {
 	}
 }
 
+
 void testAdd(string s1, string s2, string r) {
 	CCDecimal d1 = s1;
 	CCDecimal d2 = s2;
