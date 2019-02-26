@@ -975,7 +975,7 @@ void CCDecimal::constructFromString(std::string numberStr) {
 			numberStr.erase(fwdChar);
 			validator =
 					(fwdChar == numberStr.end()) ?
-							(valid_end) :
+							(error) :
 							((*fwdChar == '0') ?
 									(validator) :
 									(('1' <= *fwdChar && *fwdChar <= '9') ?
@@ -1051,7 +1051,7 @@ void CCDecimal::constructFromString(std::string numberStr) {
 	}
 
 	if (validator != valid_end) {
-		throw std::invalid_argument("Invalid number.");
+		throw std::invalid_argument("Invalid floating point literal.");
 	}
 
 	auto revChar = numberStr.rbegin();
