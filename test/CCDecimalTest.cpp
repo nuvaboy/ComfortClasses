@@ -14,14 +14,46 @@ TEST(TestBase##_##GroupName, TestName)
 TEST_F(TestBase, TestName)
 #endif
 
-class CCDecimalTest: public  ::testing::Test {
+class CCDecimalTest: public ::testing::Test {
 public:
 
 	CCDecimalTest() {
 	}
+	//testing only
+	static void setDigit(CCDecimal& dec, unsigned int pos, int8_t value) {
 
+		dec.digit[pos] = value;
+		if (pos >= dec.used && value != 0) {
+			dec.used = pos + 1;
+		}
+	}
+
+	static void setNegative(CCDecimal& dec, bool isNegative) {
+
+		dec.isNegative = isNegative;
+	}
+
+	static void setDigits(CCDecimal& dec, int count, ...) {
+
+		//cout << count << endl;
+
+		va_list arguments;             // A place to store the list of arguments
+		va_start(arguments, count); // Initializing arguments to store all values after count
+		for (int i = count - 1; i >= 0; i--) {
+			int val = (int) (va_arg(arguments, int));
+			setDigit(dec, i, val);
+			//cout << va_arg(arguments, int) << endl;
+		}
+		// Adds the next value in argument list to sum.
+		va_end(arguments);
+
+	}
+
+	static void setShift(CCDecimal& dec, int shift) {
+
+		dec.shift = shift;
+	}
 };
-
 
 void isEqual(const CCDecimal& value, const CCDecimal& cmp) {
 	bool eq = (value == cmp);
@@ -31,6 +63,7 @@ void isEqual(const CCDecimal& value, const CCDecimal& cmp) {
 				<< cmp.toString(MAX - 1) << endl;
 	}
 }
+
 
 void testAdd(string s1, string s2, string r) {
 	CCDecimal d1 = s1;
@@ -109,10 +142,6 @@ void testToStr(const string r) {
 //	EXPECT_EQ(d1.toString(true), r);
 //}
 
-
-
-
-
 // Getter / Setter ########################################
 GROUP_TEST(GetterSetter, CCDecimalTest, defaultPrecision) {
 	CCDecimal::setGlobalPrecision(6);
@@ -189,10 +218,8 @@ GROUP_TEST(Addition, CCDecimalTest, add_cut) {
 	testAdd("2345678901234567890123456789.01", "5.6482", "2345678901234567890123456794.658");
 
 	//Id. 2: cut 4 digits, further reduced by trailing zeroes (changed!!!!!!!!!!!!!!!!!)
-	testAdd("3456789012345678901234567898.123",
-			                           "1.8776785",
-		    "3456789012345678901234567900.001");
-			//"3456789012345678901234567900");
+	testAdd("3456789012345678901234567898.123", "1.8776785", "3456789012345678901234567900.001");
+	//"3456789012345678901234567900");
 }
 
 GROUP_TEST(Addition, CCDecimalTest, add_special) {
@@ -220,14 +247,10 @@ GROUP_TEST(Addition, CCDecimalTest, add_whiteBox) {
 	CCDecimal::setGlobalPrecision(2);
 
 	//removal of trailing zeroes after cutting, due to capacity constraint
-	testAdd("9.1234567890123456789012345678904",
-			"0.077",
-			"9.20045678901234567890123456789");
+	testAdd("9.1234567890123456789012345678904", "0.077", "9.20045678901234567890123456789");
 
 	//cutting
-	testAdd("1.012345678901234567890123456789",
-		  "345.23",
-		  "346.2423456789012345678901234568");
+	testAdd("1.012345678901234567890123456789", "345.23", "346.2423456789012345678901234568");
 
 	//cutting=>overflow (precision constraint)
 	CCDecimal a("10123456789012345678901234567.89");
@@ -390,8 +413,8 @@ GROUP_TEST(Subtraction, CCDecimalTest, sub_normal) {
 GROUP_TEST(Conversion, CCDecimalTest, onConstruction) {
 
 	CCDecimal t0;
-	t0.setDigits(3, 1, 0, 5);
-	t0.setShift(-1);
+	CCDecimalTest::setDigits(t0, 3, 1, 0, 5);
+	CCDecimalTest::setShift(t0, -1);
 
 	CCDecimal t1;
 	t1 = "10.5";
@@ -411,39 +434,42 @@ GROUP_TEST(Conversion, CCDecimalTest, strToDec_normal) {
 
 	cout << "cnv n 1" << endl;
 	CCDecimal case0;
-	case0.setDigits(3, 9, 8, 7);
+	CCDecimalTest::setDigits(case0, 3, 9, 8, 7);
 	testFromStr("000987", case0);
 
 	cout << "cnv n 2" << endl;
 	CCDecimal case1;
-	case1.setDigits(31, 1, 0, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 9, 8, 7,
-			6, 5, 4, 3, 2, 1);
-	case1.setShift(3);
+	CCDecimalTest::setDigits(case1, 31, 1, 0, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 9, 8, 7, 6, 5, 4, 3, 2,
+			1, 0, 9, 8, 7, 6, 5, 4, 3, 2, 1);
+	CCDecimalTest::setShift(case1, 3);
 	testFromStr("1098765432109876543210987654321000", case1);
 
 	cout << "cnv n 3" << endl;
 	CCDecimal case2;
-	case2.setDigits(1, 7);
-	case2.setShift(-1);
+	CCDecimalTest::setDigits(case2, 1, 7);
+	CCDecimalTest::setShift(case2, -1);
+
 	testFromStr("0.7", case2);
 
 	cout << "cnv n 4" << endl;
 	CCDecimal case3;
-	case3.setDigits(2, 3, 6);
-	case3.setShift(-5);
-	case3.setNegative(true);
+	CCDecimalTest::setDigits(case3, 2, 3, 6);
+	CCDecimalTest::setShift(case3, -5);
+	CCDecimalTest::setNegative(case3, true);
+
 	testFromStr("-0.00036", case3);
 
 	CCDecimal case4;
-	case4.setDigits(1, 4);
-	case4.setShift(1);
+	CCDecimalTest::setDigits(case4, 1, 4);
+	CCDecimalTest::setShift(case4, 1);
+
 	testFromStr("40", case4);
 
 	CCDecimal case5;
-	case5.setDigits(31, 5, 2, 7, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 9, 8,
-			7, 6, 5, 4, 3, 2);
-	case5.setNegative(true);
-	case5.setShift(-29);
+	CCDecimalTest::setDigits(case5, 31, 5, 2, 7, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 9, 8, 7, 6, 5, 4, 3,
+			2, 1, 0, 9, 8, 7, 6, 5, 4, 3, 2);
+	CCDecimalTest::setNegative(case5, true);
+	CCDecimalTest::setShift(case5, -29);
 	testFromStr("-52.79876543210987654321098765432", case5);
 
 }
@@ -572,7 +598,7 @@ GROUP_TEST(constructFromString, CCDecimal, fromStr_value_sign) {
 	CCDecimal ccd1("0"), ccd3("+0"), ccd5("-0");
 
 	CCDecimal ccd2, ccd4, ccd6;
-	ccd6.setNegative(true);
+	CCDecimalTest::setNegative(ccd6, true);
 
 	//Id. 0: no sign
 	EXPECT_EQ(ccd1, ccd2);
@@ -586,12 +612,12 @@ GROUP_TEST(constructFromString, CCDecimal, fromStr_value_leading_zeroes) {
 	CCDecimal ccd1("0012"), ccd3("00.34"), ccd5("0.056");
 
 	CCDecimal ccd2, ccd4, ccd6;
-	ccd2.setDigits(2, 1, 2);
-	ccd2.setShift(0);
-	ccd4.setDigits(2, 3, 4);
-	ccd4.setShift(-2);
-	ccd6.setDigits(2, 5, 6);
-	ccd6.setShift(-3);
+	CCDecimalTest::setDigits(ccd2, 2, 1, 2);
+	CCDecimalTest::setShift(ccd2, 0);
+	CCDecimalTest::setDigits(ccd4, 2, 3, 4);
+	CCDecimalTest::setShift(ccd4, -2);
+	CCDecimalTest::setDigits(ccd6, 2, 5, 6);
+	CCDecimalTest::setShift(ccd6, -3);
 
 	//Id. 0: before point
 	EXPECT_EQ(ccd1, ccd2);
@@ -605,12 +631,12 @@ GROUP_TEST(constructFromString, CCDecimal, fromStr_value_trailing_zeroes) {
 	CCDecimal ccd1("120.00"), ccd3("123.00"), ccd5("123.40");
 
 	CCDecimal ccd2, ccd4, ccd6;
-	ccd2.setDigits(2, 1, 2);
-	ccd2.setShift(1);
-	ccd4.setDigits(3, 1, 2, 3);
-	ccd4.setShift(0);
-	ccd6.setDigits(4, 1, 2, 3, 4);
-	ccd6.setShift(-1);
+	CCDecimalTest::setDigits(ccd2, 2, 1, 2);
+	CCDecimalTest::setShift(ccd2, 1);
+	CCDecimalTest::setDigits(ccd4, 3, 1, 2, 3);
+	CCDecimalTest::setShift(ccd4, 0);
+	CCDecimalTest::setDigits(ccd6, 4, 1, 2, 3, 4);
+	CCDecimalTest::setShift(ccd6, -1);
 
 	//Id. 0: over point
 	EXPECT_EQ(ccd1, ccd2);
@@ -624,8 +650,8 @@ GROUP_TEST(constructFromString, CCDecimal, fromStr_value_lead_and_trail_0s) {
 	CCDecimal ccd1("00123.4500"), ccd3("000.00");
 
 	CCDecimal ccd2, ccd4;
-	ccd2.setDigits(5, 1, 2, 3, 4, 5);
-	ccd2.setShift(-2);
+	CCDecimalTest::setDigits(ccd2, 5, 1, 2, 3, 4, 5);
+	CCDecimalTest::setShift(ccd2, -2);
 
 	//Id. 0: with other digits
 	EXPECT_EQ(ccd1, ccd2);
@@ -638,9 +664,9 @@ GROUP_TEST(constructFromString, CCDecimal, fromStr_value_exponent_equivalence) {
 			ccd4("12345678987654321E-16");
 
 	CCDecimal ccd5, ccd6;
-	ccd5.setDigits(17, 9, 8, 7, 6, 5, 4, 3, 2, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-	ccd6.setDigits(17, 1, 2, 3, 4, 5, 6, 7, 8, 9, 8, 7, 6, 5, 4, 3, 2, 1);
-	ccd6.setShift(-16);
+	CCDecimalTest::setDigits(ccd5, 17, 9, 8, 7, 6, 5, 4, 3, 2, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+	CCDecimalTest::setDigits(ccd6, 17, 1, 2, 3, 4, 5, 6, 7, 8, 9, 8, 7, 6, 5, 4, 3, 2, 1);
+	CCDecimalTest::setShift(ccd6, -16);
 
 	//Id. 0: over point
 	EXPECT_EQ(ccd1, ccd2);
@@ -694,11 +720,11 @@ GROUP_TEST(Conversion, CCDecimalTest, toString_sci) {
 
 	CCDecimal::setGlobalPrecision(2);
 
-	testToStr("0","0.00e+000",true);
-	testToStr("8","8.00e+000",true);
-	testToStr("0.00012","1.20e-004",true);
-	testToStr("2500","2.50e+003",true);
-	testToStr("1239","1.24e+003",true);
+	testToStr("0", "0.00e+000", true);
+	testToStr("8", "8.00e+000", true);
+	testToStr("0.00012", "1.20e-004", true);
+	testToStr("2500", "2.50e+003", true);
+	testToStr("1239", "1.24e+003", true);
 
 }
 
@@ -733,9 +759,6 @@ GROUP_TEST(Conversion, CCDecimalTest, toString_round) {
 	//CCDecimal("555").toString(std::numeric_limits<int32_t>::max());
 
 }
-
-
-
 
 //Multiplication ##########################################
 GROUP_TEST(Multiplication, CCDecimalTest, mult_special) {
@@ -970,5 +993,4 @@ GROUP_TEST(Operators, CCDecimalTest, op_incdec) {
 	isEqual(d--, CCDecimal("2.026"));
 	isEqual(--d, CCDecimal("0.026"));
 }
-
 

@@ -27,21 +27,9 @@
 using namespace std;
 
 //### static attribute initialization
-/**
- * \brief globale Präzision
- *
- * Die globale Präzision wirkt sich auf alle Instanzen von CCDecimal aus,
- * deren lokale Präzision #localPrecision nicht explizit gesetzt wurde.
- * Die Präzision wird für die entsprechende (Anzahl-1) an Nachkommastellen garantiert.
- * Es wird eine Stelle weniger garantiert, da diese intern für ein korrektes Runden benötigt wird.
- */
 int32_t CCDecimal::globalPrecision = 11;
 
-//### constructors #################################
-/** \brief Konstruktor (default)
- *
- *  Erstellt ein CCDecimal mit dem Wert 0.
- **/
+//### constructors/destructors #####################
 CCDecimal::CCDecimal() noexcept {
 
 	//precision should be the global precision, unless explicitly changed for an instance
@@ -54,18 +42,6 @@ CCDecimal::CCDecimal() noexcept {
 	used = 0;
 	shift = 0;
 }
-
-/** \brief Konstruktor (copy)
- *
- *  Erstellt eine Kopie eines anderen CCDecimals.
- *  Der Zeiger pPrecision verweist entweder auf die lokal oder global definierte Präzision.
- *  Wurde die lokale Präzision 'precision' explizit für das Original gesetzt,
- *  muss der Zeiger 'pPrecision' auf die lokale Präzision der Kopie gesetzt werden.
- *  Andernfalls wird die globale Präzision als "shallow copy" übernommen.
- *
- *
- *  @param original Referenz des CCDecimals, welcher kopiert wird
- */
 CCDecimal::CCDecimal(const CCDecimal& original) :
 		CCDecimal() {
 
@@ -76,16 +52,6 @@ CCDecimal::CCDecimal(const CCDecimal& original) :
 		pPrecision = &localPrecision;
 	}
 }
-
-/** \brief Konstruktor (double)
- *
- *  Erstellt einen CCDecimal auf Basis des übergebenen doubles.
- *  Durch Einlesen in einen 'stringstream' wird eine String-Repräsentation erzeugt.
- *  Die Verwendung von 'setPrecision' stellt sicher, dass alle vorhandenen Nachkommastellen übernommen werden.
- *  Abschließend konstruiert #constructFromString den CCDecimal.
- *
- *  @param number double, uas dem ein CCDecimal erzeugt wird
- * */
 CCDecimal::CCDecimal(double number) :
 		CCDecimal() {
 	std::stringstream stringStream;
@@ -96,84 +62,216 @@ CCDecimal::CCDecimal(double number) :
 	//construct CCDecimal from the double's string representation
 	constructFromString(stringStream.str());
 }
-
-/** \brief Konstruktor (std::string)
- *
- *  Erstellt mithilfe von #constructFromString einen CCDecimal auf Basis des übergebenen std::string.
- *
- *  @param numberStr std::string, aus dem ein CCDecimal erzeugt wird
- */
 CCDecimal::CCDecimal(const string& numberStr) :
 		CCDecimal() {
 
 	//construct CCDecimal from the given string representation
 	constructFromString(numberStr);
 }
-
-/** \brief Konstruktor (C-String)
- *
- *	Konstruiert  einen CCDecimal von einem C-String.
- *
- * @param numberCStr C-String aus dem ein CCDecimal erzeugt wird
- */
 CCDecimal::CCDecimal(const char* numberCStr) :
 		CCDecimal(string(numberCStr)) {
 }
-
-/** \brief Destruktor
- *
- *  Existiert um gegebenenfalls Vererbung zu ermöglichen.
- */
 CCDecimal::~CCDecimal() {
 }
 
 //### public setter/getter #########################
-/** \brief Liefert die aktuelle Präzision zurück.
- *
- *  Liefert die lokale Präzision #localPrecision oder
- *  die globale Präzision #globalPrecision, solange die lokale nicht gesetzt wurde.
- *  Der Zeiger #pPrecision verweist entsprechend auf die lokale/globale Präzision.
- *
- * @return Präzision des CCDecimal's
- */
 int32_t CCDecimal::getPrecision() {
 	return *pPrecision - 1;
 }
-
-/** \brief Setzt die lokale Präzision.
- *  Aktualisiert den Zeiger #pPrecision, damit dieser auf die lokale Präzision #localPrecision verweist.
- *
- * @param precision Präzision, die lokal für diesen CCDecimal festgelegt wird ( >= 0 )
- * @throws out_of_range Präzision muss positiv sein.
- */
 void CCDecimal::setLocalPrecision(int32_t precision) {
 	if (precision < 0) throw std::out_of_range("precision has to be positive");
 	localPrecision = precision + 1;
 	pPrecision = &localPrecision;
 }
-
-/** \brief Liefert die globale Präzision zurück.
- *
- *  Liefert die globale Präzision #globalPrecision zurück.
- *   *
- * @return die globale Präzision
- */
 int32_t CCDecimal::getGlobalPrecision() {
 	return CCDecimal::globalPrecision - 1;
 }
-
-/** \brief Setzt die globale Präzision.
- *
- * @see localPrecision
- * @param precision globale Präzision
- */
 void CCDecimal::setGlobalPrecision(int32_t precision) {
 	if (precision < 0) throw std::out_of_range("precision has to be positive");
 	CCDecimal::globalPrecision = precision + 1;
 }
 
-//### conversion functions ##########################
+//### arithmetic operators #########################
+CCDecimal CCDecimal::operator +(const CCDecimal& op2) const {
+	CCDecimal result;
 
+	if (isNegative == op2.isNegative) {
+		add(&result, op2);
+		result.isNegative = isNegative;
+	}
+	else {
+		if (magnitudeLessThan(op2)) {
+			op2.sub(&result, *this); //-3 + 10 = 7
+			result.isNegative = op2.isNegative;
+
+			//-5 +  10  = 5
+			// 5 +(-10) = -5
+		}
+		else {
+			sub(&result, op2); //-10 + 3 = -7
+			result.isNegative = isNegative;
+
+			//-10 +   5  = -5
+			// 10 + (-5) =  5
+		}
+	}
+
+	if (result.digit[MAX] > 0) {
+		throw std::overflow_error("overflow_error");
+	}
+
+	return result;
+}
+CCDecimal CCDecimal::operator -(const CCDecimal& op2) const {
+	CCDecimal result;
+
+	if (isNegative != op2.isNegative) {
+		add(&result, op2);
+		result.isNegative = isNegative;
+	}
+	else {
+		if (magnitudeLessThan(op2)) {
+			op2.sub(&result, *this);
+			result.isNegative = !isNegative;
+		}
+		else {
+			sub(&result, op2);
+			result.isNegative = isNegative;
+		}
+	}
+
+	if (result.digit[MAX] > 0) {
+		throw std::overflow_error("overflow_error");
+	}
+
+	return result;
+}
+CCDecimal CCDecimal::operator *(const CCDecimal& op2) const {
+	CCDecimal result;
+	result.isNegative = isNegative != op2.isNegative;
+	mult(&result, op2);
+
+	if (result.digit[MAX] > 0) {
+		throw std::overflow_error("overflow_error");
+	}
+
+	return result;
+}
+CCDecimal CCDecimal::operator /(const CCDecimal& op2) const {
+	CCDecimal result;
+	result.isNegative = isNegative != op2.isNegative;
+	div(&result, op2);
+
+	if (result.digit[MAX] > 0) {
+		throw std::overflow_error("overflow_error");
+	}
+
+	return result;
+}
+CCDecimal CCDecimal::operator %(const CCDecimal& op2) const {
+	CCDecimal result;
+	result.isNegative = isNegative != op2.isNegative;
+	mod(&result, op2);
+
+	return result;
+}
+
+CCDecimal& CCDecimal::operator +=(const CCDecimal& op2) {
+	*this = *this + op2;
+	return *this;
+}
+CCDecimal& CCDecimal::operator -=(const CCDecimal& op2) {
+	*this = *this - op2;
+	return *this;
+}
+CCDecimal& CCDecimal::operator *=(const CCDecimal& op2) {
+
+	*this = *this * op2;
+	return *this;
+}
+CCDecimal& CCDecimal::operator /=(const CCDecimal& op2) {
+	*this = *this / op2;
+	return *this;
+}
+CCDecimal& CCDecimal::operator %=(const CCDecimal& op2) {
+	*this = *this % op2;
+	return *this;
+}
+
+CCDecimal& CCDecimal::operator++() {
+	*this += CCDecimal(1);
+	return *this;
+}
+CCDecimal& CCDecimal::operator--() {
+	*this -= CCDecimal(1);
+	return *this;
+}
+CCDecimal CCDecimal::operator++(int) {
+	CCDecimal copy(*this);
+	*this += CCDecimal(1);
+	return copy;
+}
+CCDecimal CCDecimal::operator--(int) {
+	CCDecimal copy(*this);
+	*this -= CCDecimal(1);
+	return copy;
+}
+
+//### comparison operators #########################
+bool CCDecimal::operator ==(const CCDecimal& op2) const {
+
+	if (used == 0 && op2.used == 0) return true;
+
+	//return false, if either used, shift or sign is not equal
+	if (used != op2.used || shift != op2.shift || isNegative != op2.isNegative) {
+		return false;
+	}
+
+	//compares each individual digit, return false as soon as a mismatch is found
+	for (uint32_t i = 0; i < used; i++) {
+		if (digit[i] != op2.digit[i]) return false;
+	}
+
+	//return true if neither of the above checks fails
+	return true;
+}
+bool CCDecimal::operator !=(const CCDecimal& op2) const {
+	return !(*this == op2);
+}
+bool CCDecimal::operator <(const CCDecimal& op2) const {
+
+	if (used == 0 && op2.used == 0) return false;
+	if (isNegative) {
+		if (!op2.isNegative || op2.magnitudeLessThan(*this)) return true;
+	}
+	else if (!op2.isNegative && magnitudeLessThan(op2)) {
+		return true;
+	}
+	return false;
+}
+bool CCDecimal::operator >(const CCDecimal& op2) const {
+
+	if (used == 0 && op2.used == 0) return false;
+	if (op2.isNegative) {
+		if (!isNegative || magnitudeLessThan(op2)) return true;
+	}
+	else if (!isNegative && op2.magnitudeLessThan(*this)) {
+		return true;
+	}
+	return false;
+}
+
+//### stream operator ##############################
+ostream& operator <<(ostream& os, const CCDecimal& dec) {
+
+	std::ios_base::fmtflags f = os.flags();
+	if ((f & os.scientific) == os.scientific) {
+		return os << dec.toString(os.precision(), true);
+	}
+	return os << dec.toString(os.precision(), false);
+}
+
+//### conversion functions #########################
 void CCDecimal::round(CCDecimal* pDec, int32_t precOut) {
 
 	if (precOut < 0) {
@@ -237,7 +335,6 @@ void CCDecimal::round(CCDecimal* pDec, int32_t precOut) {
 	pDec->shift += validIndex;
 
 }
-
 string CCDecimal::toString(int32_t precOut, bool scientific) const {
 
 	//zero case
@@ -311,7 +408,6 @@ string CCDecimal::toString(int32_t precOut, bool scientific) const {
 string CCDecimal::toString(bool scientific) const {
 	return toString(*pPrecision - 1, scientific);
 }
-
 double CCDecimal::toDouble() const {
 
 	double result;
@@ -329,10 +425,10 @@ double CCDecimal::toDouble() const {
 	return result;
 }
 
-//### utility functions ############################
+//### utility funcions ############################
 void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 
-	ASSERT_TRUE((*result == CCDecimal()));
+	//ASSERT_TRUE((*result == CCDecimal()));
 
 	//determine the most and the least precise decimal
 	const CCDecimal* pMostPrec = this;
@@ -358,15 +454,16 @@ void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 	if (digToCut > 0) {
 
 		if (digToSpend < digToCut) { //overflow
-			throw std::overflow_error(
-					"Result is too large to store in Decimal. Keep values in range or reduce precision!");
+
+			result->digit[MAX] = 1;
+			return; //throw std::overflow_error("Result is too large to store in Decimal. Keep values in range or reduce precision!");
 		}
 
 		//cut decimal places
 		used_result = MAX;
 		shift_result += digToCut;
 
-		ASSERT_TRUE(digToCut <= shift_delta);
+		//ASSERT_TRUE((digToCut <= shift_delta));
 		shift_delta -= digToCut;
 	}
 
@@ -415,13 +512,11 @@ void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 	}
 	else if (result->digit[MAX] > 0) {
 		//overflow
-		throw std::overflow_error(
-				"Result is too large to store in Decimal. Keep values in range or reduce precision!");
+		return;//throw std::overflow_error("Result is too large to store in Decimal. Keep values in range or reduce precision!");
 	}
 
 	result->used = used_result;
 	result->shift = shift_result;
-
 }
 
 void CCDecimal::sub(CCDecimal* result, const CCDecimal& opSmall) const {
@@ -445,8 +540,10 @@ void CCDecimal::sub(CCDecimal* result, const CCDecimal& opSmall) const {
 		toCut = merged_used - MAX;
 		toSpend = max<int32_t>(-min<int32_t>(shift, opSmall.shift) - *pPrecision, 0);
 
-		if (toCut > toSpend + 1) //overflows by more than one digit
-		throw std::overflow_error("Can not cut result to minimal precision!");
+		if (toCut > toSpend + 1) { //overflows by more than one digit
+			result->digit[MAX] = 1;
+			return; // throw std::overflow_error("Can not cut result to minimal precision!");
+		}
 
 		// bet that one will be reduced
 		toCut--; //change: cut one less, if you can spend one
@@ -625,7 +722,11 @@ void CCDecimal::mult(CCDecimal* result, const CCDecimal& op2) const {
 	if (resultUsedMax > MAX) {
 		toCut = (int32_t) resultUsedMax - MAX;
 
-		if (toSpend < toCut) throw std::overflow_error("can not cut");
+		if (toSpend < toCut) {
+			result->digit[MAX] = 1;
+			return; //throw std::overflow_error("can not cut");
+		}
+
 		toSpend -= toCut; //spend the digits
 
 		//calculate carry from the cut
@@ -695,9 +796,9 @@ void CCDecimal::mult(CCDecimal* result, const CCDecimal& op2) const {
 	}
 
 	//check overflow flag
-	if (result->digit[MAX] > 0)
-		throw std::overflow_error(
-				"Result is too large to store in Decimal. Keep values in range or reduce precision!");
+//	if (result->digit[MAX] > 0)
+//		throw std::overflow_error(
+//				"Result is too large to store in Decimal. Keep values in range or reduce precision!");
 
 }
 
@@ -708,6 +809,7 @@ void CCDecimal::div(CCDecimal* result, const CCDecimal& divisor) const {
 	const CCDecimal VALUE_0;
 
 	if (*this == VALUE_0) return;
+
 	if (divisor == VALUE_0) throw std::domain_error("divide by zero");
 
 	int result_pos = MAX - 1; //position in the result array
@@ -758,6 +860,7 @@ void CCDecimal::div(CCDecimal* result, const CCDecimal& divisor) const {
 
 		//apply temp
 		if (result_pos >= 0) result->digit[result_pos] = temp;
+
 		if (result_pos == -1 && temp >= 5) result->digit[0]++;
 
 		if (runDivision) {
@@ -770,7 +873,13 @@ void CCDecimal::div(CCDecimal* result, const CCDecimal& divisor) const {
 			} while (nominator.magnitudeLessThan(div_arr[0]) && result_pos >= -1);
 
 			if (result_pos <= -2) {
-				if (msd_delta < (int32_t) *pPrecision) throw std::overflow_error("hfdhfdjfh");
+				if (msd_delta < (int32_t) *pPrecision) {
+
+					result->digit[MAX] = 1;
+					return; //throw std::overflow_error("hfdhfdjfh");
+
+				}
+
 				result_pos = 0;
 				runDivision = false;
 			}
@@ -791,7 +900,7 @@ void CCDecimal::mod(CCDecimal* nominator, const CCDecimal& divisor) const {
 	const CCDecimal VALUE_0;
 
 	if (*this == VALUE_0) return;
-	if (divisor == VALUE_0) throw std::logic_error("divide by zero");
+	if (divisor == VALUE_0) throw std::domain_error("divide by zero");
 	if (this->magnitudeLessThan(divisor)) return;
 
 	CCDecimal div_arr[4]; //holds multiples of the divider (* 2^i)
@@ -1155,8 +1264,6 @@ void CCDecimal::constructFromString(std::string numberStr) {
 	}
 }
 
-
-
 bool CCDecimal::magnitudeLessThan(const CCDecimal& op2) const {
 
 	if ((int32_t) used + shift > (int32_t) op2.used + op2.shift) return false;
@@ -1175,227 +1282,3 @@ bool CCDecimal::magnitudeLessThan(const CCDecimal& op2) const {
 	return j >= 0;
 }
 
-//### arithmetic operators #########################
-CCDecimal CCDecimal::operator +(const CCDecimal& op2) const {
-	CCDecimal result;
-
-	if (isNegative == op2.isNegative) {
-		add(&result, op2);
-		result.isNegative = isNegative;
-	}
-	else {
-		if (magnitudeLessThan(op2)) {
-			op2.sub(&result, *this); //-3 + 10 = 7
-			result.isNegative = op2.isNegative;
-		}
-		else {
-			sub(&result, op2); //-10 + 3 = -7
-			result.isNegative = isNegative;
-		}
-	}
-
-	return result;
-}
-
-CCDecimal CCDecimal::operator -(const CCDecimal& op2) const {
-	CCDecimal result;
-
-	if (isNegative != op2.isNegative) {
-		add(&result, op2);
-		result.isNegative = isNegative;
-	}
-	else {
-		//+5 - 10 = -5
-		//-5 - (-10) = 5
-		if (magnitudeLessThan(op2)) {
-			op2.sub(&result, *this);
-			result.isNegative = !isNegative;
-		}
-		//+10 - 5 = 5
-		//-10 - (-5) = -5
-		else {
-			sub(&result, op2);
-			result.isNegative = isNegative;
-		}
-
-		if (result.digit[MAX] > 0) {
-			throw std::overflow_error("overflow - capacity");
-		}
-	}
-
-	return result;
-}
-
-CCDecimal CCDecimal::operator *(const CCDecimal& op2) const {
-	CCDecimal result;
-	result.isNegative = isNegative != op2.isNegative;
-	mult(&result, op2);
-
-	return result;
-}
-
-CCDecimal CCDecimal::operator /(const CCDecimal& op2) const {
-	CCDecimal result;
-	result.isNegative = isNegative != op2.isNegative;
-	div(&result, op2);
-
-	return result;
-}
-
-CCDecimal CCDecimal::operator %(const CCDecimal& op2) const {
-	CCDecimal result;
-	result.isNegative = isNegative != op2.isNegative;
-	mod(&result, op2);
-
-	return result;
-}
-
-CCDecimal& CCDecimal::operator +=(const CCDecimal& op2) {
-	*this = *this + op2;
-	return *this;
-}
-
-CCDecimal& CCDecimal::operator -=(const CCDecimal& op2) {
-	*this = *this - op2;
-	return *this;
-}
-
-CCDecimal& CCDecimal::operator *=(const CCDecimal& op2) {
-
-	*this = *this * op2;
-	return *this;
-}
-
-CCDecimal& CCDecimal::operator /=(const CCDecimal& op2) {
-	*this = *this / op2;
-	return *this;
-}
-
-CCDecimal& CCDecimal::operator %=(const CCDecimal& op2) {
-	*this = *this % op2;
-	return *this;
-}
-
-CCDecimal& CCDecimal::operator++() {
-	*this += CCDecimal(1);
-	return *this;
-}
-
-CCDecimal CCDecimal::operator++(int) {
-	CCDecimal copy(*this);
-	*this += CCDecimal(1);
-	return copy;
-}
-
-CCDecimal& CCDecimal::operator--() {
-	*this -= CCDecimal(1);
-	return *this;
-}
-
-CCDecimal CCDecimal::operator--(int) {
-	CCDecimal copy(*this);
-	*this -= CCDecimal(1);
-	return copy;
-}
-
-//### comparison operators #########################
-bool CCDecimal::operator ==(const CCDecimal& op2) const {
-
-	if (used == 0 && op2.used == 0) return true;
-
-	//return false, if either used, shift or sign is not equal
-	if (used != op2.used || shift != op2.shift || isNegative != op2.isNegative) {
-		return false;
-	}
-
-	//compares each individual digit, return false as soon as a mismatch is found
-	for (uint32_t i = 0; i < used; i++) {
-		if (digit[i] != op2.digit[i]) return false;
-	}
-
-	//return true if neither of the above checks fails
-	return true;
-}
-
-bool CCDecimal::operator !=(const CCDecimal& op2) const {
-	return !(*this == op2);
-}
-
-bool CCDecimal::operator <(const CCDecimal& op2) const {
-
-	//if both false => equal
-	//else < == >
-
-	//neg, pos 	=	=> TRUE
-	//pos, pos, < 	=> TRUE
-	//neg, neg, >	=> TRUE
-
-	//0, 0 			=> FALSE
-	//neg, neg, <	=> FALSE
-	//pos, pos, > 	=> FALSE
-	//pos, neg, =   => FALSE
-
-	//other
-	//neg, pos 	=	=> FALSE
-	//pos, pos, < 	=> FALSE
-	//neg, neg, >	=> FALSE
-	//0, 0 			=> FALSE
-
-	//neg, neg, <	=> TRUE
-	//pos, pos, > 	=> TRUE
-	//pos, neg, =   => TRUE
-
-	//neg pos > TRUE
-	//pos neg < FALSE
-
-	//neg pos < TRUE
-	//pos neg > FALSE
-
-	//neg pos = TRUE
-
-	//pos neg = FALSE
-
-	//0   pos   TRUE
-	//pos 0     FALSE
-	//neg 0     TRUE
-	//0   neg   FALSE
-	//0   0     FALSE
-
-	//neg neg < FALSE
-	//neg neg > TRUE
-	//neg neg = FALSE
-	//pos pos > FALSE
-	//pos pos < TRUE
-	//pos pos = FALSE
-
-	if (used == 0 && op2.used == 0) return false;
-	if (isNegative) {
-		if (!op2.isNegative || op2.magnitudeLessThan(*this)) return true;
-	}
-	else if (!op2.isNegative && magnitudeLessThan(op2)) {
-		return true;
-	}
-	return false;
-}
-
-bool CCDecimal::operator >(const CCDecimal& op2) const {
-
-	if (used == 0 && op2.used == 0) return false;
-	if (op2.isNegative) {
-		if (!isNegative || magnitudeLessThan(op2)) return true;
-	}
-	else if (!isNegative && op2.magnitudeLessThan(*this)) {
-		return true;
-	}
-	return false;
-}
-
-//### stream operator ##############################
-ostream& operator <<(ostream& os, const CCDecimal& dec) {
-
-	std::ios_base::fmtflags f = os.flags();
-	if ((f & os.scientific) == os.scientific) {
-		return os << dec.toString(os.precision(), true);
-	}
-	return os << dec.toString(os.precision(), false);
-}
