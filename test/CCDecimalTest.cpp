@@ -653,7 +653,7 @@ GROUP_TEST(constructFromString, CCDecimal, fromStr_value_trailing_zeroes) {
 
 GROUP_TEST(constructFromString, CCDecimal, fromStr_value_lead_and_trail_0s) {
 	CCDecimal ccd1("00123.4500");
-	CCDecimal ccd3("000.00");
+	CCDecimal ccd3("000.00e123");
 
 	CCDecimal ccd2, ccd4;
 	CCDecimalTest::setDigits(ccd2, 5, 1, 2, 3, 4, 5);
