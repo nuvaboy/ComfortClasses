@@ -14,110 +14,17 @@
 #include <iterator>
 #include <memory>
 #include <regex>
-#include <sstream>
+//#include <sstream>
 #include <string>
 
 /**
  * @brief Vereinfachte String-Klasse.
  */
 class CCString {
-private:
-	/**
-	 * @brief Internes String-Objekt zur Speicherung und Bereitstellung der meisten String-Funktionen
-	 */
-	std::string internalStr;
-
-	/**
-	 * @brief Iterator-Typ zur Implementierung von Spaltungen an Trennzeichen.
-	 *
-	 * Iteriert über alle Teil-Strings zwischen den Trennzeichen, einschließlich leerer Teilstrings,
-	 * falls sich Trennzeichen hintereinander befinden oder sich ein Trennzeichen am Anfang oder Ende befindet.
-	 */
-	class splitIterator: public std::iterator<std::input_iterator_tag, const CCString> {
-	private:
-		/**
-		 * @brief Pointer auf den CCString, über dem getrennt wird.
-		 */
-		const CCString* originString;
-
-		/**
-		 * @brief Der reguläre Ausdruck, der das Trennzeichen darstellt, als C++-String
-		 */
-		std::string originRegex;
-
-		/**
-		 * @brief Zeiger auf den aktuellen Teilstring
-		 */
-		std::unique_ptr<CCString> currentSplit;
-
-		/**
-		 * @brief Der Reststring, der noch aufzutrennen ist.
-		 */
-		std::string currentRemainder;
-
-		/**
-		 * @brief Zeigt an, ob es beim letzten Aufruf von doSplit einen Match gab.
-		 *
-		 * Ist Standardmäßig auf @c true, damit auch Strings ohne Trennzeichen wiedergegeben werden.
-		 */
-		bool hadMatch = true;
-
-		/**
-		 * @brief Zeigt an, ob die String-Verarbeitung abgeschlossen ist.
-		 *
-		 * Abgeschlossen heißt, der Iterator zeigt jetzt hinter den letzten Teilstring und ist somit äquivalent zu splitEnd().
-		 */
-		bool isFinished = false;
-
-		/**
-		 * @brief Führt eine Trennoperation durch.
-		 */
-		void doSplit();
-	public:
-
-		/**
-		 * @brief Kopierkonstruktor
-		 *
-		 * Erzeugt eine vollständige Kopie des Iterators. Alle internen Variablen werden kopiert.
-		 * @param orig Zu kopierender splitIterator
-		 */
-		splitIterator(const splitIterator& orig);
-
-		/**
-		 * @brief Konstruktor für Beginn einer Auftrennung
-		 *
-		 * Erzeugt einen splitIterator, der @c origin anhand des Trennzeichens
-		 * @c regex auftrennt.
-		 * @param origin der CCString, auf dem der Iterator arbeitet
-		 * @param regex  der reguläre Ausdruck (als CCString), der das Trennzeichen angibt
-		 */
-		splitIterator(const CCString& origin, const CCString& regex);
-
-		/**
-		 * @brief Konstruktor für Ende einer Auftrennung
-		 *
-		 * Erzeugt einen splitIterator, der das Ende einer Auftrennung des CCStrings @c origin markiert.
-		 * Er benötigt kein Trennzeichen, da er bereits auf den Teilstring hinter jedem möglichen
-		 * Teilstring zeigt.
-		 * Intern sind alle Strings als leer initialisiert und isFinished ist als @c true gesetzt.
-		 * @param origin der CCString, auf dem der Iterator arbeitet
-		 */
-		splitIterator(const CCString& origin);
-		//moves into the next string section
-		splitIterator& operator++();
-		splitIterator operator++(int);
-		const CCString& operator*();
-		const CCString* operator->();
-
-		bool operator==(const splitIterator& other);
-		bool operator!=(const splitIterator& other) {
-			return !(operator==(other));
-		}
-
-	};
+	class SplitIterator;
 
 public:
-//	static const size_t allOfStringPos = std::string::npos;
+	static constexpr size_t npos = std::string::npos;
 
 //## constructors/destructors #############################
 	/**
@@ -610,25 +517,37 @@ public:
 	size_t findLast(char c, size_t pos = std::string::npos) const;
 
 	/**
-	 * @brief Erzeugt einen splitIterator, der den CCString anhand des gegebenen Trennzeichens auftrennt.
+	 * @brief Erzeugt einen SplitIterator, der den CCString anhand des gegebenen Trennzeichens auftrennt.
 	 *
 	 * Zu Beginn zeigt der Iterator auf den allerersten Teilstring.
+	 *
 	 * Wird dieser Iterator inkrementiert, zeigt der Iterator auf den nächsten Teilstring, bis der Iterator äquivalent zu #splitEnd ist.
 	 * @param regex Das Trennzeichen, spezifiziert als regulärer Ausdruck.
-	 * @return ein splitIterator, der auf den ersten Teilstring zeigt.
+	 * @return ein SplitIterator, der auf den ersten Teilstring zeigt.
+	 * @see    SplitIterator::SplitIterator(const CCString&, const CCString&)
 	 */
-	splitIterator splitBegin(const CCString& regex) const;
+	SplitIterator splitBegin(const CCString& regex) const;
 	/**
-	 * @brief Erzeugt einen splitIterator, der hinter den letzten Teilstring zeigt.
-	 * @return ein splitIterator, der hinter den letzen Teilstring zeigt.
+	 * @brief Erzeugt einen SplitIterator, der das Ende einer Auftrennung markiert.
+	 *
+	 * Dieser Iterator zeigt hinter den letzten aller möglichen Teilstrings,
+	 * unabhängig eines Trennzeichens.
+	 * @return ein SplitIterator, der auf den Teilstring hinter jedem möglichem Teilstring zeigt.
+	 * @see    SplitIterator::SplitIterator(const CCString&)
 	 */
-	splitIterator splitEnd() const;
+	SplitIterator splitEnd() const;
 
 	bool matches(const CCString& regex) const;
 	bool contains(const CCString& regex) const;
 	CCString getMatch(const CCString& regex) const;
 	CCString replaceAll(const CCString& regex, const CCString& replacement) const;
 	CCString replaceFirst(const CCString& regex, const CCString& replacement) const;
+
+private:
+	/**
+	 * @brief Internes String-Objekt zur Speicherung und Bereitstellung der meisten String-Funktionen
+	 */
+	std::string internalStr;
 
 };
 
@@ -680,5 +599,146 @@ inline bool operator<=(const CCString& lhs, const CCString& rhs) {
 inline bool operator>=(const CCString& lhs, const CCString& rhs) {
 	return !(lhs < rhs);
 }
+
+/**
+ * @brief Iterator-Typ zur Implementierung von Spaltungen an Trennzeichen.
+ *
+ * Iteriert über alle Teil-Strings zwischen den Trennzeichen, einschließlich leerer Teilstrings,
+ * falls sich Trennzeichen hintereinander befinden oder sich ein Trennzeichen am Anfang oder Ende befindet.
+ */
+class CCString::SplitIterator: public std::iterator<std::input_iterator_tag, const CCString> {
+private:
+	/**
+	 * @brief Zeiger auf den CCString, der aufgetrennt wird.
+	 */
+	const CCString* originString;
+
+	/**
+	 * @brief Der reguläre Ausdruck, der das Trennzeichen darstellt, als C++-String
+	 */
+	std::string separatorRegex;
+
+	/**
+	 * @brief Zeiger auf den aktuellen Teilstring
+	 */
+	std::unique_ptr<CCString> currentSplit;
+
+	/**
+	 * @brief Der Reststring, der noch aufzutrennen ist.
+	 */
+	std::string currentRemainder;
+
+	/**
+	 * @brief Zeigt an, ob es beim letzten Aufruf von doSplit einen Match gab.
+	 *
+	 * Ist Standardmäßig auf @c true, damit auch Strings ohne Trennzeichen wiedergegeben werden.
+	 */
+	bool hadMatch = true;
+
+	/**
+	 * @brief Zeigt an, ob die String-Verarbeitung abgeschlossen ist.
+	 *
+	 * Abgeschlossen heißt, der Iterator zeigt jetzt hinter den letzten Teilstring und ist somit äquivalent zu splitEnd().
+	 */
+	bool isFinished = false;
+
+	/**
+	 * @brief Trennt den nächsten Teilstring ab.
+	 *
+	 * Sucht das nächste Trennzeichen in #currentRemainder und speichert alle Zeichen
+	 * vor dem Trennzeichen in #currentSplit ab und alle Zeichen danach in #currentRemainder.
+	 * Aktualisiert hadMatch und isFinished entsprechend.
+	 */
+	void doSplit();
+public:
+
+	/**
+	 * @brief Kopierkonstruktor
+	 *
+	 * Erzeugt eine vollständige Kopie des Iterators. Alle internen Variablen werden kopiert.
+	 * @param orig Zu kopierender SplitIterator
+	 */
+	SplitIterator(const SplitIterator& orig);
+
+	/**
+	 * @brief Erzeugt einen SplitIterator, der @c origin anhand des Trennzeichens
+	 * @c regex auftrennt.
+	 *
+	 * Dieser Konstruktor wird ausschließlich von #splitBegin() aufgerufen.
+	 *
+	 * Nach der Member-Initialisierung wird eine Trennung durchgeführt, damit der Iterator auf
+	 * den ersten Teilstring zeigt.
+	 *
+	 * @param origin der CCString, auf dem der Iterator arbeitet
+	 * @param regex  der reguläre Ausdruck (als CCString), der das Trennzeichen angibt
+	 * @see   CCString::splitBegin()
+	 */
+	SplitIterator(const CCString& origin, const CCString& regex);
+
+	/**
+	 * @brief Erzeugt einen SplitIterator, der hinter den letzten Teilstring zeigt.
+	 *
+	 * Dieser Konstruktor wird ausschließlich von #splitEnd() aufgerufen.
+	 *
+	 * Der erzeugte Iterator markiert das Ende einer Auftrennung des CCStrings @c origin.
+	 * Er benötigt kein Trennzeichen, da er bereits auf den Teilstring hinter jedem möglichen
+	 * Teilstring zeigt.
+	 *
+	 * Intern sind alle Strings als leer initialisiert und isFinished ist als @c true gesetzt.
+	 *
+	 * @param origin der CCString, auf dem der Iterator arbeitet
+	 * @see   CCString::splitEnd()
+	 */
+	SplitIterator(const CCString& origin);
+	/**
+	 * @brief  Prefix-Inkrement. Bewegt den Iterator weiter zum nächsten Teilstring.
+	 * @return Referenz auf denselben Iterator
+	 */
+	SplitIterator& operator++();
+	/**
+	 * @brief  Postfix-Inkrement. Bewegt den Iterator weiter zum nächsten Teilstring.
+	 * @return Kopie des Iterators im vorherigen Zustand
+	 */
+	SplitIterator operator++(int);
+	/**
+	 * @brief Ermöglicht Dereferenzierung zu aktuellem Teilstring.
+	 * @return konstante Referenz auf den aktuellen Teilstring
+	 */
+	const CCString& operator*() const;
+	/**
+	 * @brief Ermöglicht Zugriff auf Member des aktuellen Teilstrings.
+	 * @return konstanter Zeiger auf den letzten Teilstring
+	 */
+	const CCString* operator->() const;
+
+	/**
+	 * @brief Prüft zwei Iteratoren auf Gleichheit.
+	 *
+	 * Gleichheit herrscht dann, wenn
+	 * - die Iteratoren auf demselben CCString arbeiten,
+	 * - die Iteratoren das gleiche Trennzeichen aufweisen und
+	 * - die Iteratoren den gleichen Teilstring und Reststring haben.
+	 *
+	 * Iteratoren, die hinter den letzten Teilstring zeigen, werden separat behandelt.
+	 * @param other
+	 * @return @c true, wenn die Iteratoren gleich sind
+	 */
+	bool operator==(const SplitIterator& other) const;
+
+	/**
+	 * @brief Prüft zwei Iteratoren auf Ungleichheit.
+	 *
+	 * Äquivalent zu:
+	 * @code
+	 * !(*this == other)
+	 * @endcode
+	 * @param other
+	 * @return @c true, wenn die Iteratoren ungleich sind
+	 * @see SplitIterator::operator==()
+	 */
+	bool operator!=(const SplitIterator& other) const {
+		return !(operator==(other));
+	}
+};
 
 #endif /* CCSTRING_H_ */
