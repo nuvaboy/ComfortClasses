@@ -749,17 +749,17 @@ CCString CCString::replaceFirst(const CCString& regex, const CCString& replaceme
 	return regex;
 }
 
-CCString::splitIterator CCString::splitBegin(const CCString& regex) const {
-	return splitIterator(*this, regex);
+CCString::SplitIterator CCString::splitBegin(const CCString& regex) const {
+	return SplitIterator(*this, regex);
 }
 
-CCString::splitIterator CCString::splitEnd() const {
-	return splitIterator(*this);
+CCString::SplitIterator CCString::splitEnd() const {
+	return SplitIterator(*this);
 }
 
-CCString::splitIterator::splitIterator(const splitIterator& orig) :
+CCString::SplitIterator::SplitIterator(const SplitIterator& orig) :
 		originString(orig.originString), //
-		originRegex(orig.originRegex), //
+		separatorRegex(orig.separatorRegex), //
 		currentSplit(new CCString(*orig.currentSplit)), //
 		currentRemainder(orig.currentRemainder), //
 		hadMatch(orig.hadMatch), //
@@ -767,30 +767,23 @@ CCString::splitIterator::splitIterator(const splitIterator& orig) :
 {
 }
 
-CCString::splitIterator::splitIterator(const CCString& origin, const CCString& regex) :
+CCString::SplitIterator::SplitIterator(const CCString& origin, const CCString& regex) :
 		originString(&origin), //
-		originRegex(regex.internalStr), //
+		separatorRegex(regex.internalStr), //
 		currentSplit(new CCString()), //
 		currentRemainder(origin.internalStr) //
 {
 	doSplit();
 }
 
-CCString::splitIterator::splitIterator(const CCString& origin) :
+CCString::SplitIterator::SplitIterator(const CCString& origin) :
 		originString(&origin), //
 		currentSplit(new CCString()), //
 		isFinished(true) {
 }
 
-/**
- * @brief Trennt den nächsten Teilstring ab.
- *
- * Sucht das nächste Trennzeichen in #currentRemainder und speichert alle Zeichen
- * vor dem Trennzeichen in #currentSplit ab und alle Zeichen danach in #currentRemainder.
- * Aktualisiert hadMatch und isFinished entsprechend.
- */
-void CCString::splitIterator::doSplit() {
-	std::regex re(originRegex);
+void CCString::SplitIterator::doSplit() {
+	std::regex re(separatorRegex);
 	std::smatch matches;
 	std::regex_search(currentRemainder, matches, re);
 	while (!matches.ready())
@@ -821,38 +814,35 @@ void CCString::splitIterator::doSplit() {
 	}
 }
 
-CCString::splitIterator& CCString::splitIterator::operator++() {
+CCString::SplitIterator& CCString::SplitIterator::operator++() {
 	doSplit();
 	return *this;
 }
 
-CCString::splitIterator CCString::splitIterator::operator++(int) {
-	splitIterator copy(*this);
+CCString::SplitIterator CCString::SplitIterator::operator++(int) {
+	SplitIterator copy(*this);
 	doSplit();
 	return copy;
 }
 
-const CCString& CCString::splitIterator::operator*() {
+const CCString& CCString::SplitIterator::operator*() const {
 	return *currentSplit;
 }
 
-const CCString* CCString::splitIterator::operator->() {
+const CCString* CCString::SplitIterator::operator->() const {
 	return currentSplit.get();
 }
 
-bool CCString::splitIterator::operator==(const splitIterator& other) {
+bool CCString::SplitIterator::operator==(const SplitIterator& other) const {
 
 	//Check for domain (operating on the same CCString?)
 	if (originString != other.originString) return false;
 
-	//Check for end
-	if (currentRemainder.empty() && other.currentRemainder.empty())
-		if (currentSplit->length() == 0 && other.currentSplit->length() == 0)
-		//Check for past-the-end
-			return isFinished && other.isFinished;
+	//Check for past-the-end
+	if (isFinished || other.isFinished) return isFinished && other.isFinished;
 
 	//check for equality on: regex and position
-	if (originRegex == other.originRegex)
+	if (separatorRegex == other.separatorRegex)
 		if (*currentSplit == *other.currentSplit)
 			if (currentRemainder == other.currentRemainder) return true;
 
