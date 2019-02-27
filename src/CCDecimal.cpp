@@ -1005,7 +1005,7 @@ void CCDecimal::constructFromString(std::string numberStr) {
 		case start:
 			validator =
 					(fwdChar == numberStr.end()) ?
-							(valid_end) :
+							(error) :
 							((*fwdChar == '-' || *fwdChar == '+') ?
 									(sign) :
 									((*fwdChar == '.') ?
@@ -1113,7 +1113,7 @@ void CCDecimal::constructFromString(std::string numberStr) {
 			numberStr.erase(fwdChar);
 			validator =
 					(fwdChar == numberStr.end()) ?
-							(error) :
+							(valid_end) :
 							((*fwdChar == '0') ?
 									(validator) :
 									(('1' <= *fwdChar && *fwdChar <= '9') ?
