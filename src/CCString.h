@@ -21,6 +21,12 @@
  * @brief Vereinfachte String-Klasse.
  */
 class CCString {
+private:
+	/**
+	 * @brief Internes String-Objekt zur Speicherung und Bereitstellung der meisten String-Funktionen
+	 */
+	std::string internalStr;
+
 	class SplitIterator;
 
 public:
@@ -57,7 +63,7 @@ public:
 	/**
 	 * @brief Umwandlungskonstruktor
 	 *
-	 * Speichert die Textrepräsentation (typischerweise @c true bzw. @c false) eines Wahrheitswerts ab.
+	 * Speichert die Textrepräsentation (typischerweise @c "true" oder @c "false" bzw. @c false) eines Wahrheitswerts ab.
 	 * @param b der einzuspeichernde Wahrheitswert
 	 */
 	CCString(bool b);
@@ -131,7 +137,7 @@ public:
 	std::string toString() const;
 
 	/**
-	 * @brief Umwandlungsoperator. Wandelt einen CCString implizit in einen nullterminierten C-String um..
+	 * @brief Umwandlungsoperator. Wandelt einen CCString implizit in einen nullterminierten C-String um.
 	 */
 	operator const char*();
 
@@ -186,41 +192,62 @@ public:
 	const char& operator[](size_t index) const;
 
 	/**
-	 * @brief Prüft, ob dieser String und @c other gleich sind.
+	 * @brief Prüft, ob dieser CCString und @c other gleich sind.
 	 * @param other
-	 * @return
+	 * @return @c true, wenn die CCStrings gleich sind, sonst @c false.
 	 */
 	bool operator==(const CCString& other) const;
+	/**
+	 * @brief Prüft, ob dieser String lexikalisch niederwertiger ist als @c other.
+	 *
+	 * "Niederwertiger" bedeutet:
+	 * - Alle Zeichen von String, die verglichen sind, sind gleich, aber dieser String ist kürzer.
+	 * - Das erste Zeichen, das sich unterscheidet, ist in der Wertigkeit geringer
+	 *   (entsprechend des Zahlenwerts des Zeichens).
+	 *
+	 * @param other
+	 * @return @c true, wenn dieser CCString lexikalisch niederwertiger ist als @c other.
+	 */
 	bool operator<(const CCString& other) const;
 
 	/**
 	 * @brief Fügt einen anderem CCString an diesen an.
 	 * @param ccStr die anzufügende Zeichenkette
 	 * @return eine Referenz auf dieses Objekt
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& append(const CCString& ccStr);
 	/**
 	 * @brief Fügt einen C++-String an diesen CCString an.
 	 * @param str die anzufügende C++-String
 	 * @return eine Referenz auf dieses Objekt
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& append(const std::string& str);
 	/**
 	 * @brief Fügt einen C-String an diesen CCString an.
 	 * @param cstr der anzufügende C-String
 	 * @return eine Referenz auf dieses Objekt
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& append(const char* cstr);
 	/**
 	 * @brief Fügt ein Zeichen an diesen CCString an.
 	 * @param c das anzufügende Zeichen
 	 * @return eine Referenz auf dieses Objekt
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& append(char c);
 	/**
-	 * @brief Fügt die Textrepräsentation eines Wahrheitswerts (typischerweise @c true oder @c false) an diesen CCString an.
+	 * @brief Fügt die Textrepräsentation eines Wahrheitswerts (typischerweise @c "true" oder @c "false") an diesen CCString an.
 	 * @param b der anzufügende Wahrheitswert
 	 * @return eine Referenz auf dieses Objekt
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& append(bool b);
 
@@ -228,36 +255,48 @@ public:
 	 * @brief Fügt eine Zahl in Textform an diesen CCString an.
 	 * @param number die anzufügende Zahl
 	 * @return eine Referenz auf dieses Objekt
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& append(int16_t number);
 	/**
 	 * @brief Fügt eine Zahl in Textform an diesen CCString an.
 	 * @param number die anzufügende Zahl
 	 * @return eine Referenz auf dieses Objekt
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& append(int32_t number);
 	/**
 	 * @brief Fügt eine Zahl in Textform an diesen CCString an.
 	 * @param number die anzufügende Zahl
 	 * @return eine Referenz auf dieses Objekt
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& append(int64_t number);
 	/**
 	 * @brief Fügt eine Zahl in Textform an diesen CCString an.
 	 * @param number die anzufügende Zahl
 	 * @return eine Referenz auf dieses Objekt
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& append(uint16_t number);
 	/**
 	 * @brief Fügt eine Zahl in Textform an diesen CCString an.
 	 * @param number die anzufügende Zahl
 	 * @return eine Referenz auf dieses Objekt
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& append(uint32_t number);
 	/**
 	 * @brief Fügt eine Zahl in Textform an diesen CCString an.
 	 * @param number die anzufügende Zahl
 	 * @return eine Referenz auf dieses Objekt
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& append(uint64_t number);
 	/**
@@ -266,6 +305,8 @@ public:
 	 * @param hiPrec  Falls wahr, speichert die Gleitkommazahl mit maximaler Anzahl Dezimalstellen ab,
 	 *        ggf. in wissenschaftlicher Notation, ansonsten mit genau 6 Nachkommastellen.
 	 * @return eine Referenz auf dieses Objekt
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& append(float number, bool hiPrec = false);
 	/**
@@ -274,6 +315,8 @@ public:
 	 * @param hiPrec  Falls wahr, speichert die Gleitkommazahl mit maximaler Anzahl Dezimalstellen ab,
 	 *        ggf. in wissenschaftlicher Notation, ansonsten mit genau 6 Nachkommastellen.
 	 * @return eine Referenz auf dieses Objekt
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& append(double number, bool hiPrec = false);
 	/**
@@ -282,6 +325,8 @@ public:
 	 * @param hiPrec  Falls wahr, speichert die Gleitkommazahl mit maximaler Anzahl Dezimalstellen ab,
 	 *        ggf. in wissenschaftlicher Notation, ansonsten mit genau 6 Nachkommastellen.
 	 * @return eine Referenz auf dieses Objekt
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& append(long double number, bool hiPrec = false);
 
@@ -295,30 +340,40 @@ public:
 	 * @brief Fügt einen anderem CCString an diesen an.
 	 * @param ccStr die anzufügende Zeichenkette
 	 * @return eine Referenz auf dieses Objekt
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& operator+=(const CCString& ccStr);
 	/**
 	 * @brief Fügt einen C++-String an diesen CCString an.
 	 * @param str die anzufügende C++-String
 	 * @return eine Referenz auf dieses Objekt
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& operator+=(const std::string& str);
 	/**
 	 * @brief Fügt einen C-String an diesen CCString an.
 	 * @param cstr der anzufügende C-String
 	 * @return eine Referenz auf dieses Objekt
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& operator+=(const char* cstr);
 	/**
 	 * @brief Fügt ein Zeichen an diesen CCString an.
 	 * @param c das anzufügende Zeichen
 	 * @return eine Referenz auf dieses Objekt
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& operator+=(char c);
 	/**
-	 * @brief Fügt die Textrepräsentation eines Wahrheitswerts (typischerweise @c true oder @c false) an diesen CCString an.
+	 * @brief Fügt die Textrepräsentation eines Wahrheitswerts (typischerweise @c "true" oder @c "false") an diesen CCString an.
 	 * @param b der anzufügende Wahrheitswert
 	 * @return eine Referenz auf dieses Objekt
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& operator+=(bool b);
 
@@ -326,54 +381,72 @@ public:
 	 * @brief Fügt eine Zahl in Textform an diesen CCString an.
 	 * @param number die anzufügende Zahl
 	 * @return eine Referenz auf dieses Objekt
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& operator+=(int16_t number);
 	/**
 	 * @brief Fügt eine Zahl in Textform an diesen CCString an.
 	 * @param number die anzufügende Zahl
 	 * @return eine Referenz auf dieses Objekt
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& operator+=(int32_t number);
 	/**
 	 * @brief Fügt eine Zahl in Textform an diesen CCString an.
 	 * @param number die anzufügende Zahl
 	 * @return eine Referenz auf dieses Objekt
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& operator+=(int64_t number);
 	/**
 	 * @brief Fügt eine Zahl in Textform an diesen CCString an.
 	 * @param number die anzufügende Zahl
 	 * @return eine Referenz auf dieses Objekt
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& operator+=(uint16_t number);
 	/**
 	 * @brief Fügt eine Zahl in Textform an diesen CCString an.
 	 * @param number die anzufügende Zahl
 	 * @return eine Referenz auf dieses Objekt
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& operator+=(uint32_t number);
 	/**
 	 * @brief Fügt eine Zahl in Textform an diesen CCString an.
 	 * @param number die anzufügende Zahl
 	 * @return eine Referenz auf dieses Objekt
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& operator+=(uint64_t number);
 	/**
 	 * @brief Fügt eine Zahl in Textform an diesen CCString an.
 	 * @param number die anzufügende Zahl
 	 * @return eine Referenz auf dieses Objekt
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& operator+=(float number);
 	/**
 	 * @brief Fügt eine Zahl in Textform an diesen CCString an.
 	 * @param number die anzufügende Zahl
 	 * @return eine Referenz auf dieses Objekt
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& operator+=(double number);
 	/**
 	 * @brief Fügt eine Zahl in Textform an diesen CCString an.
 	 * @param number die anzufügende Zahl
 	 * @return eine Referenz auf dieses Objekt
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& operator+=(long double number);
 
@@ -387,18 +460,24 @@ public:
 	 * @brief Fügt einen anderem CCString an diesen an.
 	 * @param ccStr die anzufügende Zeichenkette
 	 * @return eine Referenz auf dieses Objekt
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& operator<<(const CCString& ccStr);
 	/**
 	 * @brief Fügt einen C++-String an diesen CCString an.
 	 * @param str die anzufügende C++-String
 	 * @return eine Referenz auf dieses Objekt
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& operator<<(const std::string& str);
 	/**
 	 * @brief Fügt einen C-String an diesen CCString an.
 	 * @param cstr der anzufügende C-String
 	 * @return eine Referenz auf dieses Objekt
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& operator<<(const char* cstr);
 	/**
@@ -408,9 +487,11 @@ public:
 	 */
 	CCString& operator<<(char c);
 	/**
-	 * @brief Fügt die Textrepräsentation eines Wahrheitswerts (typischerweise @c true oder @c false) an diesen CCString an.
+	 * @brief Fügt die Textrepräsentation eines Wahrheitswerts (typischerweise @c "true" oder @c "false") an diesen CCString an.
 	 * @param b der anzufügende Wahrheitswert
 	 * @return eine Referenz auf dieses Objekt
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& operator<<(bool b);
 
@@ -418,54 +499,72 @@ public:
 	 * @brief Fügt eine Zahl in Textform an diesen CCString an.
 	 * @param number die anzufügende Zahl
 	 * @return eine Referenz auf dieses Objekt
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& operator<<(int16_t number);
 	/**
 	 * @brief Fügt eine Zahl in Textform an diesen CCString an.
 	 * @param number die anzufügende Zahl
 	 * @return eine Referenz auf dieses Objekt
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& operator<<(int32_t number);
 	/**
 	 * @brief Fügt eine Zahl in Textform an diesen CCString an.
 	 * @param number die anzufügende Zahl
 	 * @return eine Referenz auf dieses Objekt
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& operator<<(int64_t number);
 	/**
 	 * @brief Fügt eine Zahl in Textform an diesen CCString an.
 	 * @param number die anzufügende Zahl
 	 * @return eine Referenz auf dieses Objekt
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& operator<<(uint16_t number);
 	/**
 	 * @brief Fügt eine Zahl in Textform an diesen CCString an.
 	 * @param number die anzufügende Zahl
 	 * @return eine Referenz auf dieses Objekt
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& operator<<(uint32_t number);
 	/**
 	 * @brief Fügt eine Zahl in Textform an diesen CCString an.
 	 * @param number die anzufügende Zahl
 	 * @return eine Referenz auf dieses Objekt
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& operator<<(uint64_t number);
 	/**
 	 * @brief Fügt eine Zahl in Textform an diesen CCString an.
 	 * @param number die anzufügende Zahl
 	 * @return eine Referenz auf dieses Objekt
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& operator<<(float number);
 	/**
 	 * @brief Fügt eine Zahl in Textform an diesen CCString an.
 	 * @param number die anzufügende Zahl
 	 * @return eine Referenz auf dieses Objekt
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& operator<<(double number);
 	/**
 	 * @brief Fügt eine Zahl in Textform an diesen CCString an.
 	 * @param number die anzufügende Zahl
 	 * @return eine Referenz auf dieses Objekt
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& operator<<(long double number);
 
@@ -475,6 +574,12 @@ public:
 	template<typename type>
 	/* operand type not supported   */CCString& operator<<(const type&) = delete;
 
+	/**
+	 *
+	 * @param pos
+	 * @param ccStr
+	 * @return
+	 */
 	CCString& replace(size_t pos, const CCString& ccStr);
 	CCString& replace(size_t pos, const std::string& str);
 	CCString& replace(size_t pos, const char* cstr);
@@ -500,6 +605,14 @@ public:
 	template<typename type>
 	/* operand type not supported   */CCString& insert(size_t pos, const type&) = delete;
 
+	/**
+	 * @brief Löscht @c (length) angegebenen Zeichen, beginnend bei @c (pos), aus dem CCString.
+	 *
+	 *
+	 * @param pos
+	 * @param length
+	 * @return
+	 */
 	CCString& erase(size_t pos, size_t length);
 
 	CCString& trim();
@@ -543,14 +656,20 @@ public:
 	CCString replaceAll(const CCString& regex, const CCString& replacement) const;
 	CCString replaceFirst(const CCString& regex, const CCString& replacement) const;
 
-private:
-	/**
-	 * @brief Internes String-Objekt zur Speicherung und Bereitstellung der meisten String-Funktionen
-	 */
-	std::string internalStr;
-
 };
-
+///@{
+/**
+ * @brief Konkatenation zweier CCStrings.
+ *
+ * Äquivalent zu:
+ * @
+ * CCString(lhs)+=rhs;
+ *
+ * @param  lhs
+ * @param  rhs
+ * @return rhs, angefügt an lhs
+ * @see    CCString::operator+=()
+ */
 CCString operator+(const CCString& lhs, const CCString& rhs);
 CCString operator+(const CCString& lhs, const char* rhs);
 CCString operator+(const char* lhs, const CCString& rhs);
@@ -582,20 +701,52 @@ CCString operator+(const CCString& lhs, double rhs);
 CCString operator+(double lhs, const CCString& rhs);
 CCString operator+(const CCString& lhs, long double rhs);
 CCString operator+(long double lhs, const CCString& rhs);
-
+///@}
+/**
+ * @brief Fängt ungültige (nicht unterstützte) Typen für #operator+ ab.
+ */
 template<typename type1, typename type2>
 /* operand type not supported   */CCString operator+(const type1&, const type2&) = delete;
 
+
 /* as per https://en.cppreference.com/w/cpp/language/operators */
+/**
+ * @brief Prüft zwei CCStrings auf Ungleichheit
+ * @param lhs der erste CCString
+ * @param rhs der zweite CCString
+ * @return @c true, falls @code!(lhs == rhs)@endcode @c true ergibt, sonst @c false.
+ * @see   CCString::operator==()
+ */
 inline bool operator!=(const CCString& lhs, const CCString& rhs) {
 	return !(lhs == rhs);
 }
+/**
+ * @brief Prüft, ob der erste CCString lexikalisch höherwertiger ist als der zweite.
+ * @param lhs der erste CCString
+ * @param rhs der zweite CCString
+ * @return @c true, falls @code rhs < lhs@endcode @c true ergibt, sonst @c false.
+ * @see   CCString::operator<()
+ */
 inline bool operator>(const CCString& lhs, const CCString& rhs) {
 	return rhs < lhs;
 }
+/**
+ * @brief Prüft, ob der erste CCString lexikalisch gleich- oder niederwertiger zum zweiten ist.
+ * @param lhs der erste CCString
+ * @param rhs der zweite CCString
+ * @return @c true, falls @code!(lhs > rhs)@endcode @c true ergibt, sonst @c false.
+ * @see   CCString::operator<()
+ */
 inline bool operator<=(const CCString& lhs, const CCString& rhs) {
 	return !(lhs > rhs);
 }
+/**
+ * @brief Prüft, ob der erste CCString lexikalisch gleich- oder höherwertiger zum zweiten ist.
+ * @param lhs der erste CCString
+ * @param rhs der zweite CCString
+ * @return @c true, falls @code!(lhs < rhs)@endcode @c true ergibt, sonst @c false.
+ * @see   CCString::operator<()
+ */
 inline bool operator>=(const CCString& lhs, const CCString& rhs) {
 	return !(lhs < rhs);
 }
@@ -631,7 +782,7 @@ private:
 	/**
 	 * @brief Zeigt an, ob es beim letzten Aufruf von doSplit einen Match gab.
 	 *
-	 * Ist Standardmäßig auf @c true, damit auch Strings ohne Trennzeichen wiedergegeben werden.
+	 * Ist standardmäßig @c true, damit auch Strings ohne Trennzeichen wiedergegeben werden.
 	 */
 	bool hadMatch = true;
 
@@ -661,8 +812,7 @@ public:
 	SplitIterator(const SplitIterator& orig);
 
 	/**
-	 * @brief Erzeugt einen SplitIterator, der @c origin anhand des Trennzeichens
-	 * @c regex auftrennt.
+	 * @brief Erzeugt einen SplitIterator, der @c origin anhand des Trennzeichens @c regex auftrennt.
 	 *
 	 * Dieser Konstruktor wird ausschließlich von #splitBegin() aufgerufen.
 	 *
@@ -690,23 +840,35 @@ public:
 	 * @see   CCString::splitEnd()
 	 */
 	SplitIterator(const CCString& origin);
+
 	/**
 	 * @brief  Prefix-Inkrement. Bewegt den Iterator weiter zum nächsten Teilstring.
 	 * @return Referenz auf denselben Iterator
 	 */
 	SplitIterator& operator++();
+
 	/**
 	 * @brief  Postfix-Inkrement. Bewegt den Iterator weiter zum nächsten Teilstring.
 	 * @return Kopie des Iterators im vorherigen Zustand
 	 */
 	SplitIterator operator++(int);
+
 	/**
 	 * @brief Ermöglicht Dereferenzierung zu aktuellem Teilstring.
 	 * @return konstante Referenz auf den aktuellen Teilstring
 	 */
 	const CCString& operator*() const;
+
 	/**
 	 * @brief Ermöglicht Zugriff auf Member des aktuellen Teilstrings.
+	 * @code
+	 * //SplitIterator splIt
+	 * splIt->length();
+	 * @endcode
+	 * ist äquivalent zu:
+	 * @code
+	 * (*splIt).length();
+	 * @endcode
 	 * @return konstanter Zeiger auf den letzten Teilstring
 	 */
 	const CCString* operator->() const;
@@ -727,14 +889,9 @@ public:
 
 	/**
 	 * @brief Prüft zwei Iteratoren auf Ungleichheit.
-	 *
-	 * Äquivalent zu:
-	 * @code
-	 * !(*this == other)
-	 * @endcode
-	 * @param other
-	 * @return @c true, wenn die Iteratoren ungleich sind
-	 * @see SplitIterator::operator==()
+	 * @param other der andere Iterator
+	 * @return @c true, wenn @code!(*this == other)@endcode @c true ergibt, sonst @c false.
+	 * @see   SplitIterator::operator==
 	 */
 	bool operator!=(const SplitIterator& other) const {
 		return !(operator==(other));
