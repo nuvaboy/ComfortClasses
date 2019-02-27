@@ -1018,6 +1018,7 @@ GROUP_TEST(Comparison, CCDecimalTest, equal) {
 	//Id. 3.2: equal
 	testEqual("-0", "0", true);
 
+
 }
 
 //Operators ##############################################
@@ -1039,6 +1040,16 @@ GROUP_TEST(Operators, CCDecimalTest, op_consistency) {
 
 	c = a;
 	isEqual(c %= b, a % b);
+
+	CCDecimal dec1 = 15.5, dec2 = 15.5;
+	CCDecimal dec3 = 8.2;
+
+	isEqual(dec1 == dec2, dec1 <= dec2);
+	isEqual(dec2 == dec2, dec1 >= dec2);
+	isEqual(dec3 < dec2, dec3 <= dec2);
+	isEqual(dec3 > dec2, dec3 >= dec2);
+
+
 
 }
 GROUP_TEST(Operators, CCDecimalTest, op_incdec) {

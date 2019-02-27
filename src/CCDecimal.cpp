@@ -217,8 +217,8 @@ bool CCDecimal::operator ==(const CCDecimal& op2) const {
 	//round
 	CCDecimal dec1(*this);
 	CCDecimal dec2(op2);
-	if (dec1.used >= MAX) CCDecimal::round(&dec1, max<int>(-shift - 1, *pPrecision - 1));
-	if (dec2.used >= MAX) CCDecimal::round(&dec2, max<int>(-op2.shift - 1, *op2.pPrecision - 1));
+	if (dec1.used >= MAX && -shift > *pPrecision) CCDecimal::round(&dec1, -shift - 1);
+	if (dec2.used >= MAX && -op2.shift > *op2.pPrecision) CCDecimal::round(&dec2, -op2.shift - 1);
 
 	//return false, if either used, shift or sign is not equal
 	if (dec1.used != dec2.used || dec1.shift != dec2.shift || dec1.isNegative != dec2.isNegative) {
@@ -241,8 +241,8 @@ bool CCDecimal::operator <(const CCDecimal& op2) const {
 	//round
 	CCDecimal dec1(*this);
 	CCDecimal dec2(op2);
-	if (dec1.used >= MAX) CCDecimal::round(&dec1, max<int>(-shift - 1, *pPrecision - 1));
-	if (dec2.used >= MAX) CCDecimal::round(&dec2, max<int>(-op2.shift - 1, *op2.pPrecision - 1));
+	if (dec1.used >= MAX && -shift > *pPrecision) CCDecimal::round(&dec1, -shift - 1);
+	if (dec2.used >= MAX && -op2.shift > *op2.pPrecision) CCDecimal::round(&dec2, -op2.shift - 1);
 
 	if (dec1.used == 0 && dec2.used == 0) return false;
 	if (dec1.isNegative) {
@@ -258,8 +258,8 @@ bool CCDecimal::operator >(const CCDecimal& op2) const {
 	//round
 	CCDecimal dec1(*this);
 	CCDecimal dec2(op2);
-	if (dec1.used >= MAX) CCDecimal::round(&dec1, max<int>(-shift - 1, *pPrecision - 1));
-	if (dec2.used >= MAX) CCDecimal::round(&dec2, max<int>(-op2.shift - 1, *op2.pPrecision - 1));
+	if (dec1.used >= MAX && -shift > *pPrecision) CCDecimal::round(&dec1, -shift - 1);
+	if (dec2.used >= MAX && -op2.shift > *op2.pPrecision) CCDecimal::round(&dec2, -op2.shift - 1);
 
 	if (dec1.used == 0 && dec2.used == 0) return false;
 	if (dec2.isNegative) {
@@ -271,6 +271,18 @@ bool CCDecimal::operator >(const CCDecimal& op2) const {
 	return false;
 }
 
+bool CCDecimal::operator <=(const CCDecimal& op2) const {
+	if (*this < op2) return true;
+	if (*this > op2) return false;
+	return true;
+}
+
+bool CCDecimal::operator >=(const CCDecimal& op2) const {
+	if (*this > op2) return true;
+	if (*this < op2) return false;
+	return true;
+}
+
 //### stream operator ##############################
 ostream& operator <<(ostream& os, const CCDecimal& dec) {
 
@@ -280,6 +292,7 @@ ostream& operator <<(ostream& os, const CCDecimal& dec) {
 	}
 	return os << dec.toString(os.precision(), false);
 }
+
 
 //### conversion functions #########################
 void CCDecimal::round(CCDecimal* pDec, int32_t precOut) {
