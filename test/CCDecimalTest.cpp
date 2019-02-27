@@ -481,7 +481,7 @@ GROUP_TEST(Conversion, CCDecimalTest, strToDec_normal) {
 GROUP_TEST(Conversion, CCDecimalTest, strToDec_zero) {
 	//zero
 	CCDecimal zero;
-	testFromStr("", zero);
+//	testFromStr("", zero);
 	testFromStr("0", zero);
 	testFromStr(".0", zero);
 	testFromStr("0.00", zero);
@@ -518,10 +518,11 @@ GROUP_TEST(Conversion, CCDecimalTest, strToDec_illegalArgument) {
 //constrFromStr ###########################################
 GROUP_TEST(constructFromString, CCDecimal, fromStr_string_length_zero) {
 	//Id. 0: string is empty
-	CCDecimal ccd1("");
-	CCDecimal ccd2;
-
-	EXPECT_EQ(ccd1, ccd2);
+//	CCDecimal ccd1("");
+//	CCDecimal ccd2;
+//
+//	EXPECT_EQ(ccd1, ccd2);
+	EXPECT_THROW(CCDecimal ccd1(""), std::invalid_argument);
 }
 
 GROUP_TEST(constructFromString, CCDecimal, fromStr_string_char_set) {
@@ -651,7 +652,8 @@ GROUP_TEST(constructFromString, CCDecimal, fromStr_value_trailing_zeroes) {
 }
 
 GROUP_TEST(constructFromString, CCDecimal, fromStr_value_lead_and_trail_0s) {
-	CCDecimal ccd1("00123.4500"), ccd3("000.00");
+	CCDecimal ccd1("00123.4500");
+	CCDecimal ccd3("000.00");
 
 	CCDecimal ccd2, ccd4;
 	CCDecimalTest::setDigits(ccd2, 5, 1, 2, 3, 4, 5);
