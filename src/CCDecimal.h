@@ -32,7 +32,7 @@ private:
 	 * Die maximale Kapazität ist durch das Define #MAX vorgegeben.
 	 * Es wird jedocch eine weitere Stelle für den Fall eines Overflows reserviert.
 	 */
-	int8_t digit[MAX + 1];
+	int8_t digit[MAX + 1] = { 0 };
 
 	/**
 	 * \brief Anzahl belegter Dezimalstellen
@@ -255,7 +255,7 @@ public:
 	 *
 	 *  Existiert um gegebenenfalls Vererbung zu ermöglichen.
 	 */
-	virtual ~CCDecimal();
+	virtual ~CCDecimal() = default;
 
 	//### public setter/getter #########################
 	/** \brief Liefert die aktuelle Präzision zurück.

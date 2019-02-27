@@ -35,12 +35,6 @@ CCDecimal::CCDecimal() noexcept {
 	//precision should be the global precision, unless explicitly changed for an instance
 	pPrecision = &CCDecimal::globalPrecision;
 
-	//initialize all digits to zero
-	for (int32_t i = 0; i <= MAX; i++) {
-		digit[i] = 0;
-	}
-	used = 0;
-	shift = 0;
 }
 CCDecimal::CCDecimal(const CCDecimal& original) :
 		CCDecimal() {
@@ -70,8 +64,6 @@ CCDecimal::CCDecimal(const string& numberStr) :
 }
 CCDecimal::CCDecimal(const char* numberCStr) :
 		CCDecimal(string(numberCStr)) {
-}
-CCDecimal::~CCDecimal() {
 }
 
 //### public setter/getter #########################
@@ -222,14 +214,20 @@ bool CCDecimal::operator ==(const CCDecimal& op2) const {
 
 	if (used == 0 && op2.used == 0) return true;
 
+	//round
+	CCDecimal dec1(*this);
+	CCDecimal dec2(op2);
+	if (dec1.used >= MAX) CCDecimal::round(&dec1, max<int>(-shift - 1, *pPrecision - 1));
+	if (dec2.used >= MAX) CCDecimal::round(&dec2, max<int>(-op2.shift - 1, *op2.pPrecision - 1));
+
 	//return false, if either used, shift or sign is not equal
-	if (used != op2.used || shift != op2.shift || isNegative != op2.isNegative) {
+	if (dec1.used != dec2.used || dec1.shift != dec2.shift || dec1.isNegative != dec2.isNegative) {
 		return false;
 	}
 
 	//compares each individual digit, return false as soon as a mismatch is found
-	for (uint32_t i = 0; i < used; i++) {
-		if (digit[i] != op2.digit[i]) return false;
+	for (uint32_t i = 0; i < dec1.used; i++) {
+		if (dec1.digit[i] != dec2.digit[i]) return false;
 	}
 
 	//return true if neither of the above checks fails
@@ -240,22 +238,34 @@ bool CCDecimal::operator !=(const CCDecimal& op2) const {
 }
 bool CCDecimal::operator <(const CCDecimal& op2) const {
 
-	if (used == 0 && op2.used == 0) return false;
-	if (isNegative) {
-		if (!op2.isNegative || op2.magnitudeLessThan(*this)) return true;
+	//round
+	CCDecimal dec1(*this);
+	CCDecimal dec2(op2);
+	if (dec1.used >= MAX) CCDecimal::round(&dec1, max<int>(-shift - 1, *pPrecision - 1));
+	if (dec2.used >= MAX) CCDecimal::round(&dec2, max<int>(-op2.shift - 1, *op2.pPrecision - 1));
+
+	if (dec1.used == 0 && dec2.used == 0) return false;
+	if (dec1.isNegative) {
+		if (!dec2.isNegative || dec2.magnitudeLessThan(*this)) return true;
 	}
-	else if (!op2.isNegative && magnitudeLessThan(op2)) {
+	else if (!dec2.isNegative && dec1.magnitudeLessThan(dec2)) {
 		return true;
 	}
 	return false;
 }
 bool CCDecimal::operator >(const CCDecimal& op2) const {
 
-	if (used == 0 && op2.used == 0) return false;
-	if (op2.isNegative) {
-		if (!isNegative || magnitudeLessThan(op2)) return true;
+	//round
+	CCDecimal dec1(*this);
+	CCDecimal dec2(op2);
+	if (dec1.used >= MAX) CCDecimal::round(&dec1, max<int>(-shift - 1, *pPrecision - 1));
+	if (dec2.used >= MAX) CCDecimal::round(&dec2, max<int>(-op2.shift - 1, *op2.pPrecision - 1));
+
+	if (dec1.used == 0 && dec2.used == 0) return false;
+	if (dec2.isNegative) {
+		if (!dec1.isNegative || dec1.magnitudeLessThan(dec2)) return true;
 	}
-	else if (!isNegative && op2.magnitudeLessThan(*this)) {
+	else if (!dec1.isNegative && dec2.magnitudeLessThan(dec1)) {
 		return true;
 	}
 	return false;
@@ -771,10 +781,14 @@ void CCDecimal::mult(CCDecimal* result, const CCDecimal& op2) const {
 
 		if (carry > 0 && resultIndex + 1 == MAX && toSpend > 0) { //prevent carry into MSD if possible
 
-		//Shift all digits one to the right
-			for (int i = 1; i < resultIndex; i++) {
+			bool carryFromCut = result->digit[0] >= 5;
+
+			//Shift all digits one to the right
+			for (int i = 1; i <= resultIndex; i++) {
 				result->digit[i - 1] = result->digit[i];
 			}
+			if (carryFromCut) result->digit[0]++;
+
 			result->digit[resultIndex] = 0;
 		}
 		else {
@@ -808,9 +822,11 @@ void CCDecimal::div(CCDecimal* result, const CCDecimal& divisor) const {
 	const CCDecimal VALUE_2(2);
 	const CCDecimal VALUE_0;
 
-	if (*this == VALUE_0) return;
+	if (divisor.used == 0) {
+		throw std::domain_error("divide by zero");
+	}
 
-	if (divisor == VALUE_0) throw std::domain_error("divide by zero");
+	if (this->used == 0) return;
 
 	int result_pos = MAX - 1; //position in the result array
 
