@@ -143,6 +143,10 @@ bool CCString::operator<(const CCString& other) const {
 }
 
 CCString& CCString::append(const CCString& ccStr) {
+
+
+
+
 	try {
 		internalStr.append(ccStr.internalStr);
 		return *this;

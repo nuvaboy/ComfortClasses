@@ -15,6 +15,9 @@
 #include <cstdarg>
 #include <string>
 
+
+#include "CCString.h"
+
 using namespace std;
 
 class CCDecimal {
@@ -245,11 +248,19 @@ public:
 
 	/** \brief Konstruktor (C-String)
 	 *
-	 *	Konstruiert  einen CCDecimal von einem C-String.
+	 *	Konstruiert  einen CCDecimal aus einem C-String.
 	 *
-	 * @param numberCStr C-String aus dem ein CCDecimal erzeugt wird
+	 * @param numberCStr C-String aus dem ein CCDecimal erzeugt werden soll.
 	 */
 	CCDecimal(const char* numberCStr);
+
+	/** \brief Konstruktor (CCString)
+	 *
+	 *  Konstruiert einen CCDecimal aus einem CCString.
+	 *
+	 *  @param ccStr CCString aus dem ein CCDecimal erzeugt werden soll.
+	 */
+	CCDecimal(const CCString& ccstr);
 
 	/** \brief Destruktor
 	 *

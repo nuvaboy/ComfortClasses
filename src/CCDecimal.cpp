@@ -65,7 +65,9 @@ CCDecimal::CCDecimal(const string& numberStr) :
 CCDecimal::CCDecimal(const char* numberCStr) :
 		CCDecimal(string(numberCStr)) {
 }
-
+CCDecimal::CCDecimal(const CCString& ccStr) : CCDecimal(){
+	constructFromString(ccStr.toString());
+}
 //### public setter/getter #########################
 int32_t CCDecimal::getPrecision() {
 	return *pPrecision - 1;
