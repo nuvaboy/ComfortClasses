@@ -5,6 +5,8 @@
  *      Author: marlo
  */
 
+
+
 #ifndef CCDECIMAL_H_
 #define CCDECIMAL_H_
 
@@ -20,6 +22,11 @@
 
 using namespace std;
 
+/**
+ * @brief Implementation einer Dezimalzahl mit Gleitkomma-Arithmetik.
+ *
+ *
+ */
 class CCDecimal {
 
 	//TODO: Remove this in release version (for testing purposes only)
@@ -260,7 +267,7 @@ public:
 	 *
 	 *  @param ccStr CCString aus dem ein CCDecimal erzeugt werden soll.
 	 */
-	CCDecimal(const CCString& ccstr);
+	CCDecimal(const CCString& ccStr);
 
 	/** \brief Destruktor
 	 *
