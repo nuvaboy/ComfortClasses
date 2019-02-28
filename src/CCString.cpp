@@ -90,6 +90,10 @@ CCString::operator const char*() {
 	return internalStr.c_str();
 }
 
+CCString::operator std::string() {
+	return internalStr;
+}
+
 std::ostream& operator<<(std::ostream& os, const CCString& ccstr) {
 	os << ccstr.internalStr;
 	return os;

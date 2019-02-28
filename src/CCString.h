@@ -162,9 +162,35 @@ public:
 	std::string toString() const;
 
 	/**
-	 * @brief Umwandlungsoperator. Wandelt einen CCString implizit in einen nullterminierten C-String um.
+	 * @brief Umwandlungsoperator. Wandelt einen CCString explizit in einen nullterminierten C-String um.
+	 *
+	 * "Explizit" bedeutet hier, die Umwandlung findet nur bei Direkt-Initialisierung oder beim Casting statt.
+	 * @code
+	 * CCString ccstr;
+	 *
+	 * std::string str(ccstr);           // Direkt-Initialisierung
+	 *
+	 * printf("%s", (const char*)ccstr); // Casting
+	 * @endcode
+	 *
+	 * @see  operator std::string()
 	 */
-	operator const char*();
+	explicit operator const char*();
+	/**
+	 * @brief Umwandlungsoperator. Wandelt einen CCString explizit in einen Standard-C++-String um.
+	 *
+	 * "Explizit" bedeutet hier, die Umwandlung findet nur bei Direkt-Initialisierung oder beim Casting statt.
+	 * @code
+	 * CCString ccstr;
+	 *
+	 * std::string str(ccstr);           // Direkt-Initialisierung
+	 *
+	 * printf("%s", (const char*)ccstr); // Casting
+	 * @endcode
+	 *
+	 * @see  #operator const char*()
+	 */
+	explicit operator std::string();
 
 	/**
 	 * @brief Streamoperator zum Einfügen in C++-Output-Streams.
