@@ -16,6 +16,7 @@
 #include <regex>
 //#include <sstream>
 #include <string>
+#include <type_traits>
 
 /**
  * @brief Vereinfachte String-Klasse.
@@ -29,6 +30,16 @@ private:
 	std::string internalStr;
 
 	class SplitIterator;
+
+	template<typename type>
+	struct is_supported: std::integral_constant
+	<bool,
+			std::is_arithmetic<type>() ||
+			std::is_same<type, std::string>() ||
+			std::is_same<type, const char*>() ||
+			std::is_same<type, CCString>()
+			>
+	{};
 
 public:
 	/**
@@ -191,6 +202,13 @@ public:
 	 * @see  #operator const char*()
 	 */
 	explicit operator std::string();
+
+	template<typename type>
+	operator type() {
+		static_assert(is_supported<type>(),
+				"(Implicit) conversion to this type not supported. Please revise your code.");
+		return type();
+	}
 
 	/**
 	 * @brief Streamoperator zum Einfügen in C++-Output-Streams.
@@ -422,8 +440,11 @@ public:
 	 * @brief Fängt ungültige (nicht unterstützte) Typen für #append ab.
 	 */
 	template<typename type>
-	/* operand type not supported   */CCString& append(const type&) = delete;
-
+	/* operand type not supported   */CCString& append(const type&) {
+		static_assert(is_supported<type>(),
+				"Operand type not supported. Please revise your code.");
+		return *this;
+	}
 	/**
 	 * @brief Fügt einen anderen CCString an diesen an.
 	 *
@@ -570,8 +591,11 @@ public:
 	 * @brief Fängt ungültige (nicht unterstützte) Typen für #operator+= ab.
 	 */
 	template<typename type>
-	/* operand type not supported   */CCString& operator+=(const type&) = delete;
-
+	/* operand type not supported   */CCString& operator+=(const type&) {
+		static_assert(is_supported<type>(),
+				"Operand type not supported. Please revise your code.");
+		return *this;
+	}
 	/**
 	 * @brief Fügt einen anderen CCString an diesen an.
 	 *
@@ -718,8 +742,11 @@ public:
 	 * @brief Fängt ungültige (nicht unterstützte) Typen für #operator<< ab.
 	 */
 	template<typename type>
-	/* operand type not supported   */CCString& operator<<(const type&) = delete;
-
+	/* operand type not supported   */CCString& operator<<(const type&) {
+		static_assert(is_supported<type>(),
+				"Operand type not supported. Please revise your code.");
+		return *this;
+	}
 	/**
 	 *
 	 * @param pos
@@ -925,8 +952,12 @@ public:
 	 * @brief Fängt ungültige (nicht unterstützte) Typen für #insert ab.
 	 */
 	template<typename type>
-	/* operand type not supported   */CCString& insert(size_t pos, const type&) = delete;
-
+	/* operand type not supported   */CCString& insert(size_t pos, const type&) {
+		static_assert(is_supported<type>(),
+				"Operand type not supported. Please revise your code.");
+		pos=0;
+		return *this;
+	}
 	/**
 	 * @brief Löscht Zeichen aus dem CCString.
 	 *
@@ -1132,9 +1163,11 @@ CCString operator+(long double lhs, const CCString& rhs);
  * @brief Fängt ungültige (nicht unterstützte) Typen für #operator+ ab.
  */
 template<typename type1, typename type2>
-/* operand type not supported   */CCString operator+(const type1&, const type2&) = delete;
-
-
+/* operand type not supported   */CCString operator+(const type1&, const type2&) {
+	static_assert(CCString::is_supported<type1>() && CCString::is_supported<type2>(),
+			"Operand type not supported. Please revise your code.");
+	return CCString();
+}
 /* as per https://en.cppreference.com/w/cpp/language/operators */
 /**
  * @brief Prüft zwei CCStrings auf Ungleichheit
