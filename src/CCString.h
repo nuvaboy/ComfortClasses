@@ -31,6 +31,15 @@ private:
 	class SplitIterator;
 
 public:
+	/**
+	 * Enthält den größtmöglichen Wert für size_t.
+	 *
+	 * Als Parameter bedeutet der Wert typischerweise "bis zum Ende des Strings",
+	 * als Rückgabewert zeigt er typischerweise an, dass es keine Funde gab, bspw. bei einer Suchfunktion.
+	 *
+	 * @see  find
+	 * @see  findLast
+	 */
 	static constexpr size_t npos = std::string::npos;
 
 //## constructors/destructors #############################
@@ -42,73 +51,73 @@ public:
 	/**
 	 * @brief Kopierkonstruktor
 	 *
-	 * @param ccstr CCString, der zu kopieren ist
+	 * @param ccstr  CCString, der zu kopieren ist
 	 */
 	CCString(const CCString& ccstr) = default;
 	//constructors for textual types
 	/**
 	 * @brief Umwandlungskonstruktor
 	 *
-	 * @param str der einzuspeichernde C++-String
+	 * @param str  der einzuspeichernde C++-String
 	 */
 	CCString(const std::string& str);
 	/**
 	 * @brief Umwandlungskonstruktor
 	 *
-	 * @param cstr der einzuspeichernde C-String
+	 * @param cstr  der einzuspeichernde C-String
 	 */
 	CCString(const char* cstr);
 	/**
 	 * @brief Umwandlungskonstruktor
 	 *
-	 * @param c das einzuspeichernde Zeichen
+	 * @param c  das einzuspeichernde Zeichen
 	 */
 	CCString(char c);
 //## constructor for boolean type #########################
 	/**
 	 * @brief Umwandlungskonstruktor
 	 *
-	 * Speichert die Textrepräsentation (typischerweise @c "true" oder @c "false" bzw. @c false) eines Wahrheitswerts ab.
+	 * Speichert die Textrepräsentation (typischerweise @p "true" oder @p "false" bzw. @p false) eines Wahrheitswerts ab.
 	 *
-	 * @param b der einzuspeichernde Wahrheitswert
+	 * @param b  der einzuspeichernde Wahrheitswert
 	 */
 	CCString(bool b);
 //## constructors for numeric types #######################
 	/**
 	 * @brief Umwandlungskonstruktor
 	 *
-	 * @param number die einzuspeichernde Ganzzahl
+	 * @param number  die einzuspeichernde Ganzzahl
 	 */
 	CCString(int16_t number);
 	/**
 	 * @brief Umwandlungskonstruktor
 	 *
-	 * @param number die einzuspeichernde Ganzzahl
+	 * @param number  die einzuspeichernde Ganzzahl
 	 */
 	CCString(int32_t number);
 	/**
 	 * @brief Umwandlungskonstruktor
 	 *
-	 * @param number die einzuspeichernde Ganzzahl
+	 * @param number  die einzuspeichernde Ganzzahl
 	 */
 	CCString(int64_t number);
 
 	/**
 	 * @brief Umwandlungskonstruktor
 	 *
-	 * @param number die einzuspeichernde Ganzzahl
+	 * @param number  die einzuspeichernde Ganzzahl
 	 */
 	CCString(uint16_t number);
 	/**
 	 * @brief Umwandlungskonstruktor
 	 *
-	 * @param number die einzuspeichernde Ganzzahl
+	 * @param number  die einzuspeichernde Ganzzahl
 	 */
 	CCString(uint32_t number);
 	/**
 	 * @brief Umwandlungskonstruktor
 	 *
-	 * @param number die einzuspeichernde Ganzzahl
+	 * @param number  die einzuspeichernde Ganzzahl
 	 */
 	CCString(uint64_t number);
 
@@ -116,24 +125,24 @@ public:
 	 * @brief Umwandlungskonstruktor
 	 *
 	 * @param number  die einzuspeichernde Gleitkommazahl
-	 * @param hiPrec  Falls @c true, speichert die Gleitkommazahl mit maximaler Anzahl Dezimalstellen ab,
-	 *        ggf. in wissenschaftlicher Notation, ansonsten mit genau 6 Nachkommastellen.
+	 * @param hiPrec  Falls @p true, speichert die Gleitkommazahl mit maximaler Anzahl Dezimalstellen ab,
+	 *                ggf. in wissenschaftlicher Notation, ansonsten mit genau 6 Nachkommastellen.
 	 */
 	CCString(float number, bool hiPrec = false);
 	/**
 	 * @brief Umwandlungskonstruktor
 	 *
-	 * @param number die einzuspeichernde Gleitkommazahl
-	 * @param hiPrec  Falls @c true, speichert die Gleitkommazahl mit maximaler Anzahl Dezimalstellen ab,
-	 *        ggf. in wissenschaftlicher Notation, ansonsten mit genau 6 Nachkommastellen.
+	 * @param number  die einzuspeichernde Gleitkommazahl
+	 * @param hiPrec  Falls @p true, speichert die Gleitkommazahl mit maximaler Anzahl Dezimalstellen ab,
+	 *                ggf. in wissenschaftlicher Notation, ansonsten mit genau 6 Nachkommastellen.
 	 */
 	CCString(double number, bool hiPrec = false);
 	/**
 	 * @brief Umwandlungskonstruktor
 	 *
-	 * @param number die einzuspeichernde Gleitkommazahl
-	 * @param hiPrec  Falls @c true, speichert die Gleitkommazahl mit maximaler Anzahl Dezimalstellen ab,
-	 *        ggf. in wissenschaftlicher Notation., ansonsten mit genau 6 Nachkommastellen.
+	 * @param number  die einzuspeichernde Gleitkommazahl
+	 * @param hiPrec  Falls @p true, speichert die Gleitkommazahl mit maximaler Anzahl Dezimalstellen ab,
+	 *                ggf. in wissenschaftlicher Notation., ansonsten mit genau 6 Nachkommastellen.
 	 */
 	CCString(long double number, bool hiPrec = false);
 
@@ -148,7 +157,7 @@ public:
 	/**
 	 * @brief  Gibt eine Kopie des Inhalts als C++-Standardstring zurück.
 	 *
-	 * @return Inhalt als C++-String
+	 * @return  Inhalt als C++-String
 	 */
 	std::string toString() const;
 
@@ -177,57 +186,60 @@ public:
 	/**
 	 * @brief Gibt die Länge des Strings zurück.
 	 *
-	 * @return die Länge des Strings
+	 * @return  die Länge des Strings
 	 */
 	size_t length() const;
 
 	/**
-	 * @brief Gibt eine Referenz auf das Zeichen an Stelle @c index zurück.
+	 * @brief Gibt eine Referenz auf das Zeichen an Stelle @p index zurück.
 	 *
-	 * @param index die Position des Zeichens
-	 * @return eine Referenz auf das Zeichen an der Stelle @c index
+	 * @param index  die Position des Zeichens
+	 * @return       eine Referenz auf das Zeichen an der Stelle @p index
 	 */
 	char& at(size_t index);
 	/**
-	 * @brief Gibt eine Referenz auf das Zeichen an Stelle @c index zurück.
+	 * @brief Gibt eine Referenz auf das Zeichen an Stelle @p index zurück.
 	 *
-	 * @param index die Position des Zeichens
-	 * @return eine Referenz auf das Zeichen an der Stelle @c index
+	 * @param index  die Position des Zeichens
+	 * @return       eine Referenz auf das Zeichen an der Stelle @p index
 	 */
 	char& operator[](size_t index);
 	/**
-	 * @brief Gibt eine konstante Referenz auf das Zeichen an Stelle @c index zurück.
+	 * @brief Gibt eine konstante Referenz auf das Zeichen an Stelle @p index zurück.
 	 *
 	 * Das Zeichen kann nicht geändert werden.
-	 * @param index die Position des Zeichens
-	 * @return eine Referenz auf das Zeichen an der Stelle @c index
+	 *
+	 * @param index  die Position des Zeichens
+	 * @return       eine Referenz auf das Zeichen an der Stelle @p index
 	 */
 	const char& at(size_t index) const;
 	/**
-	 * @brief Gibt eine konstante Referenz auf das Zeichen an Stelle @c index zurück.
+	 * @brief Gibt eine konstante Referenz auf das Zeichen an Stelle @p index zurück.
 	 *
 	 * Das Zeichen kann nicht geändert werden.
-	 * @param index die Position des Zeichens
-	 * @return eine Referenz auf das Zeichen an der Stelle @c index
+	 *
+	 * @param index  die Position des Zeichens
+	 * @return       eine Referenz auf das Zeichen an der Stelle @p index
 	 */
 	const char& operator[](size_t index) const;
 
 	/**
-	 * @brief Prüft, ob dieser CCString und @c other gleich sind.
-	 * @param other
-	 * @return @c true, wenn die CCStrings gleich sind, sonst @c false.
+	 * @brief Prüft, ob dieser CCString und @p other gleich sind.
+	 *
+	 * @param other  das andere CCString-Objekt
+	 * @return       @p true, wenn die CCStrings gleich sind, sonst @p false.
 	 */
 	bool operator==(const CCString& other) const;
 	/**
-	 * @brief Prüft, ob dieser String lexikalisch niederwertiger ist als @c other.
+	 * @brief Prüft, ob dieser String lexikalisch niederwertiger ist als @p other.
 	 *
 	 * "Niederwertiger" bedeutet:
 	 * - Alle Zeichen von String, die verglichen sind, sind gleich, aber dieser String ist kürzer, oder
 	 * - das erste Zeichen, das sich unterscheidet, ist in der Wertigkeit geringer
 	 *   (entsprechend des Zahlenwerts des Zeichens).
 	 *
-	 * @param other
-	 * @return @c true, wenn dieser CCString lexikalisch niederwertiger ist als @c other.
+	 * @param other  das andere CCString-Objekt
+	 * @return       @p true, wenn dieser CCString lexikalisch niederwertiger ist als @p other.
 	 */
 	bool operator<(const CCString& other) const;
 
@@ -272,7 +284,7 @@ public:
 	 */
 	CCString& append(char c);
 	/**
-	 * @brief Fügt die Textrepräsentation eines Wahrheitswerts (typischerweise @c "true" oder @c "false") an diesen CCString an.
+	 * @brief Fügt die Textrepräsentation eines Wahrheitswerts (typischerweise @p "true" oder @p "false") an diesen CCString an.
 	 *
 	 * @param b  der anzufügende Wahrheitswert
 	 * @return   eine Referenz auf dieses Objekt
@@ -347,7 +359,7 @@ public:
 	 * @brief Fügt eine Zahl in Textform an diesen CCString an.
 	 *
 	 * @param number  die anzufügende Zahl
-	 * @param hiPrec  Falls @c true, speichert die Gleitkommazahl mit maximaler Anzahl Dezimalstellen ab,
+	 * @param hiPrec  Falls @p true, speichert die Gleitkommazahl mit maximaler Anzahl Dezimalstellen ab,
 	 *                ggf. in wissenschaftlicher Notation, ansonsten mit genau 6 Nachkommastellen.
 	 * @return        eine Referenz auf dieses Objekt
 	 *
@@ -359,7 +371,7 @@ public:
 	 * @brief Fügt eine Zahl in Textform an diesen CCString an.
 	 *
 	 * @param number  die anzufügende Zahl
-	 * @param hiPrec  Falls @c true, speichert die Gleitkommazahl mit maximaler Anzahl Dezimalstellen ab,
+	 * @param hiPrec  Falls @p true, speichert die Gleitkommazahl mit maximaler Anzahl Dezimalstellen ab,
 	 *                ggf. in wissenschaftlicher Notation, ansonsten mit genau 6 Nachkommastellen.
 	 * @return        eine Referenz auf dieses Objekt
 	 *
@@ -371,7 +383,7 @@ public:
 	 * @brief Fügt eine Zahl in Textform an diesen CCString an.
 	 *
 	 * @param number  die anzufügende Zahl
-	 * @param hiPrec  Falls @c true, speichert die Gleitkommazahl mit maximaler Anzahl Dezimalstellen ab,
+	 * @param hiPrec  Falls @p true, speichert die Gleitkommazahl mit maximaler Anzahl Dezimalstellen ab,
 	 *                ggf. in wissenschaftlicher Notation, ansonsten mit genau 6 Nachkommastellen.
 	 * @return        eine Referenz auf dieses Objekt
 	 *
@@ -427,7 +439,7 @@ public:
 	 */
 	CCString& operator+=(char c);
 	/**
-	 * @brief Fügt die Textrepräsentation eines Wahrheitswerts (typischerweise @c "true" oder @c "false") an diesen CCString an.
+	 * @brief Fügt die Textrepräsentation eines Wahrheitswerts (typischerweise @p "true" oder @p "false") an diesen CCString an.
 	 *
 	 * @param b  der anzufügende Wahrheitswert
 	 * @return   eine Referenz auf dieses Objekt
@@ -575,7 +587,7 @@ public:
 	 */
 	CCString& operator<<(char c);
 	/**
-	 * @brief Fügt die Textrepräsentation eines Wahrheitswerts (typischerweise @c "true" oder @c "false") an diesen CCString an.
+	 * @brief Fügt die Textrepräsentation eines Wahrheitswerts (typischerweise @p "true" oder @p "false") an diesen CCString an.
 	 *
 	 * @param b  der anzufügende Wahrheitswert
 	 * @return   eine Referenz auf dieses Objekt
@@ -697,60 +709,65 @@ public:
 	 * @brief Fügt einen anderen CCString in diesen ein.
 	 *
 	 * @param pos    die Stelle im String, an der eingefügt werden soll
+	 *               @n Hinweis: Das erste Zeichen hat den Index 0.
 	 * @param ccStr  die anzufügende Zeichenkette
 	 * @return       eine Referenz auf dieses Objekt
 	 *
 	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
 	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
-	 * @throws out_of_range  falls @c pos nicht innerhalb des Strings liegt.
+	 * @throws out_of_range  falls @p pos nicht innerhalb des Strings liegt.
 	 */
 	CCString& insert(size_t pos, const CCString& ccStr);
 	/**
 	 * @brief Fügt einen C++-String in diesen CCString ein.
 	 *
 	 * @param pos  die Stelle im String, an der eingefügt werden soll
+	 *             @n Hinweis: Das erste Zeichen hat den Index 0.
 	 * @param str  der anzufügende C++-String
 	 * @return     eine Referenz auf dieses Objekt
 	 *
 	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
 	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
-	 * @throws out_of_range  falls @c pos nicht innerhalb des Strings liegt.
+	 * @throws out_of_range  falls @p pos nicht innerhalb des Strings liegt.
 	 */
 	CCString& insert(size_t pos, const std::string& str);
 	/**
 	 * @brief Fügt einen C-String in diesen CCString ein.
 	 *
 	 * @param pos   die Stelle im String, an der eingefügt werden soll
+	 *              @n Hinweis: Das erste Zeichen hat den Index 0.
 	 * @param cstr  der anzufügende C-String
 	 * @return      eine Referenz auf dieses Objekt
 	 *
 	 * @throws length_error  falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
 	 * @throws bad_alloc     falls dem String intern kein Speicher zugewiesen werden konnte.
-	 * @throws out_of_range  falls @c pos nicht innerhalb des Strings liegt.
+	 * @throws out_of_range  falls @p pos nicht innerhalb des Strings liegt.
 	 */
 	CCString& insert(size_t pos, const char* cstr);
 	/**
 	 * @brief Fügt ein Zeichen in diesen CCString ein.
 	 *
 	 * @param pos  die Stelle im String, an der eingefügt werden soll
+	 *             @n Hinweis: Das erste Zeichen hat den Index 0.
 	 * @param c    das anzufügende Zeichen
 	 * @return     eine Referenz auf dieses Objekt
 	 *
 	 * @throws length_error  falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
 	 * @throws bad_alloc     falls dem String intern kein Speicher zugewiesen werden konnte.
-	 * @throws out_of_range  falls @c pos nicht innerhalb des Strings liegt.
+	 * @throws out_of_range  falls @p pos nicht innerhalb des Strings liegt.
 	 */
 	CCString& insert(size_t pos, char c);
 	/**
-	 * @brief Fügt die Textrepräsentation eines Wahrheitswerts (typischerweise @c "true" oder @c "false") in diesen CCString ein.
+	 * @brief Fügt die Textrepräsentation eines Wahrheitswerts (typischerweise @p "true" oder @p "false") in diesen CCString ein.
 	 *
 	 * @param pos  die Stelle im String, an der eingefügt werden soll
+	 *             @n Hinweis: Das erste Zeichen hat den Index 0.
 	 * @param b    der anzufügende Wahrheitswert
 	 * @return     eine Referenz auf dieses Objekt
 	 *
 	 * @throws length_error  falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
 	 * @throws bad_alloc     falls dem String intern kein Speicher zugewiesen werden konnte.
-	 * @throws out_of_range  falls @c pos nicht innerhalb des Strings liegt.
+	 * @throws out_of_range  falls @p pos nicht innerhalb des Strings liegt.
 	 */
 	CCString& insert(size_t pos, bool b);
 
@@ -758,114 +775,123 @@ public:
 	 * @brief Fügt eine Zahl in Textform in den CCString ein.
 	 *
 	 * @param pos     die Stelle im String, an der eingefügt werden soll
+	 *                @n Hinweis: Das erste Zeichen hat den Index 0.
 	 * @param number  die einzufügende Zahl
 	 * @return        eine Referenz auf dieses Objekt
 	 *
 	 * @throws length_error  falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
 	 * @throws bad_alloc     falls dem String intern kein Speicher zugewiesen werden konnte.
-	 * @throws out_of_range  falls @c pos nicht innerhalb des Strings liegt.
+	 * @throws out_of_range  falls @p pos nicht innerhalb des Strings liegt.
 	 */
 	CCString& insert(size_t pos, int16_t number);
 	/**
 	 * @brief Fügt eine Zahl in Textform in den CCString ein.
 	 *
 	 * @param pos     die Stelle im String, an der eingefügt werden soll
+	 *                @n Hinweis: Das erste Zeichen hat den Index 0.
 	 * @param number  die einzufügende Zahl
 	 * @return        eine Referenz auf dieses Objekt
 	 *
 	 * @throws length_error  falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
 	 * @throws bad_alloc     falls dem String intern kein Speicher zugewiesen werden konnte.
-	 * @throws out_of_range  falls @c pos nicht innerhalb des Strings liegt.
+	 * @throws out_of_range  falls @p pos nicht innerhalb des Strings liegt.
 	 */
 	CCString& insert(size_t pos, int32_t number);
 	/**
 	 * @brief Fügt eine Zahl in Textform in den CCString ein.
 	 *
 	 * @param pos     die Stelle im String, an der eingefügt werden soll
+	 *                @n Hinweis: Das erste Zeichen hat den Index 0.
 	 * @param number  die einzufügende Zahl
 	 * @return        eine Referenz auf dieses Objekt
 	 *
 	 * @throws length_error  falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
 	 * @throws bad_alloc     falls dem String intern kein Speicher zugewiesen werden konnte.
-	 * @throws out_of_range  falls @c pos nicht innerhalb des Strings liegt.
+	 * @throws out_of_range  falls @p pos nicht innerhalb des Strings liegt.
 	 */
 	CCString& insert(size_t pos, int64_t number);
 	/**
 	 * @brief Fügt eine Zahl in Textform in den CCString ein.
 	 *
 	 * @param pos     die Stelle im String, an der eingefügt werden soll
+	 *                @n Hinweis: Das erste Zeichen hat den Index 0.
 	 * @param number  die einzufügende Zahl
 	 * @return        eine Referenz auf dieses Objekt
 	 *
 	 * @throws length_error  falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
 	 * @throws bad_alloc     falls dem String intern kein Speicher zugewiesen werden konnte.
-	 * @throws out_of_range  falls @c pos nicht innerhalb des Strings liegt.
+	 * @throws out_of_range  falls @p pos nicht innerhalb des Strings liegt.
 	 */
 	CCString& insert(size_t pos, uint16_t number);
 	/**
 	 * @brief Fügt eine Zahl in Textform in den CCString ein.
 	 *
 	 * @param pos     die Stelle im String, an der eingefügt werden soll
+	 *                @n Hinweis: Das erste Zeichen hat den Index 0.
 	 * @param number  die einzufügende Zahl
 	 * @return        eine Referenz auf dieses Objekt
 	 *
 	 * @throws length_error  falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
 	 * @throws bad_alloc     falls dem String intern kein Speicher zugewiesen werden konnte.
-	 * @throws out_of_range  falls @c pos nicht innerhalb des Strings liegt.
+	 * @throws out_of_range  falls @p pos nicht innerhalb des Strings liegt.
 	 */
 	CCString& insert(size_t pos, uint32_t number);
 	/**
 	 * @brief Fügt eine Zahl in Textform in den CCString ein.
 	 *
 	 * @param pos     die Stelle im String, an der eingefügt werden soll
+	 *                @n Hinweis: Das erste Zeichen hat den Index 0.
 	 * @param number  die einzufügende Zahl
 	 * @return        eine Referenz auf dieses Objekt
 	 *
 	 * @throws length_error  falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
 	 * @throws bad_alloc     falls dem String intern kein Speicher zugewiesen werden konnte.
-	 * @throws out_of_range  falls @c pos nicht innerhalb des Strings liegt.
+	 * @throws out_of_range  falls @p pos nicht innerhalb des Strings liegt.
 	 */
 	CCString& insert(size_t pos, uint64_t number);
 	/**
 	 * @brief Fügt eine Zahl in Textform in den CCString ein.
 	 *
 	 * @param pos     die Stelle im String, an der eingefügt werden soll
+	 *                @n Hinweis: Das erste Zeichen hat den Index 0.
 	 * @param number  die einzufügende Zahl
-	 * @param hiPrec  Falls @c true, speichert die Gleitkommazahl mit maximaler Anzahl Dezimalstellen ab,
+	 * @param hiPrec  Falls @p true, speichert die Gleitkommazahl mit maximaler Anzahl Dezimalstellen ab,
 	 *                ggf. in wissenschaftlicher Notation, ansonsten mit genau 6 Nachkommastellen.
 	 * @return        eine Referenz auf dieses Objekt
 	 *
 	 * @throws length_error  falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
 	 * @throws bad_alloc     falls dem String intern kein Speicher zugewiesen werden konnte.
-	 * @throws out_of_range  falls @c pos nicht innerhalb des Strings liegt.
+	 * @throws out_of_range  falls @p pos nicht innerhalb des Strings liegt.
 	 */
 	CCString& insert(size_t pos, float number, bool hiPrec = false);
 	/**
 	 * @brief Fügt eine Zahl in Textform in den CCString ein.
 	 *
 	 * @param pos     die Stelle im String, an der eingefügt werden soll
+	 *                @n Hinweis: Das erste Zeichen hat den Index 0.
 	 * @param number  die einzufügende Zahl
-	 * @param hiPrec  Falls @c true, speichert die Gleitkommazahl mit maximaler Anzahl Dezimalstellen ab,
+	 * @param hiPrec  Falls @p true, speichert die Gleitkommazahl mit maximaler Anzahl Dezimalstellen ab,
 	 *                ggf. in wissenschaftlicher Notation, ansonsten mit genau 6 Nachkommastellen.
 	 * @return        eine Referenz auf dieses Objekt
 	 *
 	 * @throws length_error  falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
 	 * @throws bad_alloc     falls dem String intern kein Speicher zugewiesen werden konnte.
-	 * @throws out_of_range  falls @c pos nicht innerhalb des Strings liegt.
+	 * @throws out_of_range  falls @p pos nicht innerhalb des Strings liegt.
 	 */
 	CCString& insert(size_t pos, double number, bool hiPrec = false);
 	/**
 	 * @brief Fügt eine Zahl in Textform in den CCString ein.
 	 *
 	 * @param pos     die Stelle im String, an der eingefügt werden soll
+	 *                @n Hinweis: Das erste Zeichen hat den Index 0.
 	 * @param number  die einzufügende Zahl
-	 * @param hiPrec  Falls @c true, speichert die Gleitkommazahl mit maximaler Anzahl Dezimalstellen ab,
+	 * @param hiPrec  Falls @p true, speichert die Gleitkommazahl mit maximaler Anzahl Dezimalstellen ab,
 	 *                ggf. in wissenschaftlicher Notation, ansonsten mit genau 6 Nachkommastellen.
 	 * @return        eine Referenz auf dieses Objekt
 	 *
 	 * @throws length_error  falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
 	 * @throws bad_alloc     falls dem String intern kein Speicher zugewiesen werden konnte.
-	 * @throws out_of_range  falls @c pos nicht innerhalb des Strings liegt.
+	 * @throws out_of_range  falls @p pos nicht innerhalb des Strings liegt.
 	 */
 	CCString& insert(size_t pos, long double number, bool hiPrec = false);
 
@@ -878,14 +904,15 @@ public:
 	/**
 	 * @brief Löscht Zeichen aus dem CCString.
 	 *
-	 * Entfernt Zeichen beginnend an der Stelle @c pos, bis @c length Zeichen gelöscht sind,
+	 * Entfernt Zeichen beginnend an der Stelle @p pos, bis @p length Zeichen gelöscht sind,
 	 * maximal jedoch bis zum Ende des Strings.
 	 *
 	 * @param pos     Position des ersten zu entfernenden Zeichens
+	 *                @n Hinweis: Das erste Zeichen hat den Index 0.
 	 * @param length  Anzahl der zu entfernenden Zeichen
 	 * @return        eine Referenz auf dieses Objekt
 	 *
-	 * @throws out_of_range  falls @c pos nicht innerhalb des Strings liegt.
+	 * @throws out_of_range  falls @p pos nicht innerhalb des Strings liegt.
 	 */
 	CCString& erase(size_t pos, size_t length);
 
@@ -896,17 +923,107 @@ public:
 	 */
 	CCString& trim();
 
+	/**
+	 * @brief Erzeugt einen Teilstring.
+	 *
+	 * Erzeugt einen neuen CCString und kopiert @p length Zeichen dieses Strings von @p pos an.
+	 *
+	 * @param pos     der Index des ersten zu kopierenden Zeichens
+	 *                @n Hinweis: Das erste Zeichen hat den Index 0.
+	 * @param length  die Anzahl der zu kopierenden Zeichen
+	 * @return        der erzeugte Teilstring
+	 *
+	 * @throws bad_alloc     falls dem String intern kein Speicher zugewiesen werden konnte.
+	 * @throws out_of_range  falls @p pos nicht innerhalb des Strings liegt.
+	 */
 	CCString subString(size_t pos, size_t length) const;
 
+	/**
+	 * @brief Sucht nach dem ersten Auftreten des Strings @p ccstr im aktuellen String.
+	 *
+	 * @param ccstr  Der String, nach dem zu suchen ist. Jedes Zeichen muss übereinstimmen.
+	 * @param pos    Die Stelle, von der an zu suchen ist. Jedes Zeichen davor wird ignoriert.
+	 *               Standardmäßig wird der gesamte String durchsucht.
+	 *               @n Hinweis: Das erste Zeichen hat den Index 0.
+	 * @return       Der Index des ersten Zeichens des Fundes oder #npos, falls nichts gefunden wurde.
+	 */
 	size_t find(const CCString& ccstr, size_t pos = 0) const;
+	/**
+	 * @brief Sucht nach dem ersten Auftreten des Strings @p str im aktuellen String.
+	 *
+	 * @param str  Der String, nach dem zu suchen ist. Jedes Zeichen muss übereinstimmen.
+	 * @param pos  Die Stelle, von der an zu suchen ist. Jedes Zeichen davor wird ignoriert.
+	 *             Standardmäßig wird der gesamte String durchsucht.
+	 *             @n Hinweis: Das erste Zeichen hat den Index 0.
+	 * @return     Der Index des ersten Zeichens des Fundes oder #npos, falls nichts gefunden wurde.
+	 */
 	size_t find(const std::string& str, size_t pos = 0) const;
+	/**
+	 * @brief Sucht nach dem ersten Auftreten des Strings @p cstr im aktuellen String.
+	 *
+	 * @param cstr  Der String, nach dem zu suchen ist. Jedes Zeichen muss übereinstimmen.
+	 *              @n Hinweis: Der C-String muss null-terminiert sein!
+	 * @param pos   Die Stelle, von der an zu suchen ist. Jedes Zeichen davor wird ignoriert.
+	 *              Standardmäßig wird der gesamte String durchsucht.
+	 *              @n Hinweis: Das erste Zeichen hat den Index 0.
+	 * @return      Der Index des ersten Zeichens des Fundes oder #npos, falls nichts gefunden wurde.
+	 */
 	size_t find(const char* cstr, size_t pos = 0) const;
+	/**
+	 * @brief Sucht nach dem ersten Auftreten des Zeichens @p c im aktuellen String.
+	 *
+	 * @param c    Das Zeichen, nach dem zu suchen ist. Jedes Zeichen muss übereinstimmen.
+	 * @param pos  Die Stelle, von der an zu suchen ist. Jedes Zeichen davor wird ignoriert.
+	 *             Standardmäßig wird der gesamte String durchsucht.
+	 *             @n Hinweis: Das erste Zeichen hat den Index 0.
+	 * @return     Der Index des ersten Zeichens des Fundes oder #npos, falls nichts gefunden wurde.
+	 */
 	size_t find(char c, size_t pos = 0) const;
 
-	size_t findLast(const CCString& ccstr, size_t pos = std::string::npos) const;
-	size_t findLast(const std::string& str, size_t pos = std::string::npos) const;
-	size_t findLast(const char* cstr, size_t pos = std::string::npos) const;
-	size_t findLast(char c, size_t pos = std::string::npos) const;
+	/**
+	 * @brief Sucht nach dem letzten Auftreten des Strings @p ccstr im aktuellen String.
+	 *
+	 * @param ccstr  Der String, nach dem zu suchen ist. Jedes Zeichen muss übereinstimmen.
+	 * @param pos    Die Stelle des letzten Zeichens, das der Beginn eines Fundes sein kann.
+	 *               Jedes Zeichen danach wird als Beginn eines Fundes ignoriert.
+	 *               Standardmäßig wird der gesamte String durchsucht.
+	 *               @n Hinweis: Das erste Zeichen hat den Index 0.
+	 * @return       Der Index des ersten Zeichens des Fundes oder #npos, falls nichts gefunden wurde.
+	 */
+	size_t findLast(const CCString& ccstr, size_t pos = npos) const;
+	/**
+	 * @brief Sucht nach dem letzten Auftreten des Strings @p str im aktuellen String.
+	 *
+	 * @param str  Der String, nach dem zu suchen ist. Jedes Zeichen muss übereinstimmen.
+	 * @param pos  Die Stelle des letzten Zeichens, das der Beginn eines Fundes sein kann.
+	 *             Jedes Zeichen danach wird als Beginn eines Fundes ignoriert.
+	 *             Standardmäßig wird der gesamte String durchsucht.
+	 *             @n Hinweis: Das erste Zeichen hat den Index 0.
+	 * @return     Der Index des ersten Zeichens des Fundes oder #npos, falls nichts gefunden wurde.
+	 */
+	size_t findLast(const std::string& str, size_t pos = npos) const;
+	/**
+	 * @brief Sucht nach dem letzten Auftreten des Strings @p cstr im aktuellen String.
+	 *
+	 * @param cstr  Der String, nach dem zu suchen ist. Jedes Zeichen muss übereinstimmen.
+	 * @param pos   Die Stelle des letzten Zeichens, das der Beginn eines Fundes sein kann.
+	 *              Jedes Zeichen danach wird als Beginn eines Fundes ignoriert.
+	 *              Standardmäßig wird der gesamte String durchsucht.
+	 *              @n Hinweis: Das erste Zeichen hat den Index 0.
+	 * @return      Der Index des ersten Zeichens des Fundes oder #npos, falls nichts gefunden wurde.
+	 */
+	size_t findLast(const char* cstr, size_t pos = npos) const;
+	/**
+	 * @brief Sucht nach dem letzten Auftreten des Zeichens @p c im aktuellen String.
+	 *
+	 * @param c    Der String, nach dem zu suchen ist. Jedes Zeichen muss übereinstimmen.
+	 * @param pos  Die Stelle des letzten Zeichens, das ein Fund sein kann.
+	 *             Jedes Zeichen danach wird als Fund ignoriert.
+	 *             Standardmäßig wird der gesamte String durchsucht.
+	 *             @n Hinweis: Das erste Zeichen hat den Index 0.
+	 * @return     Der Index des Fundes oder #npos, falls nichts gefunden wurde.
+	 */
+	size_t findLast(char c, size_t pos = npos) const;
 
 	/**
 	 * @brief Erzeugt einen SplitIterator, der den CCString anhand des gegebenen Trennzeichens auftrennt.
@@ -914,9 +1031,11 @@ public:
 	 * Zu Beginn zeigt der Iterator auf den allerersten Teilstring.
 	 *
 	 * Wird dieser Iterator inkrementiert, zeigt der Iterator auf den nächsten Teilstring, bis der Iterator äquivalent zu #splitEnd ist.
-	 * @param regex Das Trennzeichen, spezifiziert als regulärer Ausdruck.
-	 * @return ein SplitIterator, der auf den ersten Teilstring zeigt.
-	 * @see    SplitIterator::SplitIterator(const CCString&, const CCString&)
+	 *
+	 * @param regex  das Trennzeichen, spezifiziert als regulärer Ausdruck
+	 * @return       ein SplitIterator, der auf den ersten Teilstring zeigt
+	 *
+	 * @see  SplitIterator::SplitIterator(const CCString&, const CCString&)
 	 */
 	SplitIterator splitBegin(const CCString& regex) const;
 	/**
@@ -924,13 +1043,15 @@ public:
 	 *
 	 * Dieser Iterator zeigt hinter den letzten aller möglichen Teilstrings,
 	 * unabhängig eines Trennzeichens.
+	 *
 	 * @return ein SplitIterator, der auf den Teilstring hinter jedem möglichem Teilstring zeigt.
-	 * @see    SplitIterator::SplitIterator(const CCString&)
+	 *
+	 * @see  SplitIterator::SplitIterator(const CCString&)
 	 */
 	SplitIterator splitEnd() const;
 
-	bool matches(const CCString& regex) const;
-	bool contains(const CCString& regex) const;
+	bool isMatch(const CCString& regex) const;
+	bool containsMatch(const CCString& regex) const;
 	CCString getMatch(const CCString& regex) const;
 	CCString replaceAll(const CCString& regex, const CCString& replacement) const;
 	CCString replaceFirst(const CCString& regex, const CCString& replacement) const;
@@ -993,7 +1114,7 @@ template<typename type1, typename type2>
  * @brief Prüft zwei CCStrings auf Ungleichheit
  * @param lhs der erste CCString
  * @param rhs der zweite CCString
- * @return @c true, falls @code!(lhs == rhs)@endcode @c true ergibt, sonst @c false.
+ * @return @p true, falls @code!(lhs == rhs)@endcode @p true ergibt, sonst @p false.
  * @see   CCString::operator==()
  */
 inline bool operator!=(const CCString& lhs, const CCString& rhs) {
@@ -1003,7 +1124,7 @@ inline bool operator!=(const CCString& lhs, const CCString& rhs) {
  * @brief Prüft, ob der erste CCString lexikalisch höherwertiger ist als der zweite.
  * @param lhs der erste CCString
  * @param rhs der zweite CCString
- * @return @c true, falls @code rhs < lhs@endcode @c true ergibt, sonst @c false.
+ * @return @p true, falls @code rhs < lhs@endcode @p true ergibt, sonst @p false.
  * @see   CCString::operator<()
  */
 inline bool operator>(const CCString& lhs, const CCString& rhs) {
@@ -1013,7 +1134,7 @@ inline bool operator>(const CCString& lhs, const CCString& rhs) {
  * @brief Prüft, ob der erste CCString lexikalisch gleich- oder niederwertiger zum zweiten ist.
  * @param lhs der erste CCString
  * @param rhs der zweite CCString
- * @return @c true, falls @code!(lhs > rhs)@endcode @c true ergibt, sonst @c false.
+ * @return @p true, falls @code!(lhs > rhs)@endcode @p true ergibt, sonst @p false.
  * @see   CCString::operator<()
  */
 inline bool operator<=(const CCString& lhs, const CCString& rhs) {
@@ -1023,7 +1144,7 @@ inline bool operator<=(const CCString& lhs, const CCString& rhs) {
  * @brief Prüft, ob der erste CCString lexikalisch gleich- oder höherwertiger zum zweiten ist.
  * @param lhs der erste CCString
  * @param rhs der zweite CCString
- * @return @c true, falls @code!(lhs < rhs)@endcode @c true ergibt, sonst @c false.
+ * @return @p true, falls @code!(lhs < rhs)@endcode @p true ergibt, sonst @p false.
  * @see   CCString::operator<()
  */
 inline bool operator>=(const CCString& lhs, const CCString& rhs) {
@@ -1061,7 +1182,7 @@ private:
 	/**
 	 * @brief Zeigt an, ob es beim letzten Aufruf von doSplit einen Match gab.
 	 *
-	 * Ist standardmäßig @c true, damit auch Strings ohne Trennzeichen wiedergegeben werden.
+	 * Ist standardmäßig @p true, damit auch Strings ohne Trennzeichen wiedergegeben werden.
 	 */
 	bool hadMatch = true;
 
@@ -1091,7 +1212,7 @@ public:
 	SplitIterator(const SplitIterator& orig);
 
 	/**
-	 * @brief Erzeugt einen SplitIterator, der @c origin anhand des Trennzeichens @c regex auftrennt.
+	 * @brief Erzeugt einen SplitIterator, der @p origin anhand des Trennzeichens @p regex auftrennt.
 	 *
 	 * Dieser Konstruktor wird ausschließlich von #splitBegin() aufgerufen.
 	 *
@@ -1109,11 +1230,11 @@ public:
 	 *
 	 * Dieser Konstruktor wird ausschließlich von #splitEnd() aufgerufen.
 	 *
-	 * Der erzeugte Iterator markiert das Ende einer Auftrennung des CCStrings @c origin.
+	 * Der erzeugte Iterator markiert das Ende einer Auftrennung des CCStrings @p origin.
 	 * Er benötigt kein Trennzeichen, da er bereits auf den Teilstring hinter jedem möglichen
 	 * Teilstring zeigt.
 	 *
-	 * Intern sind alle Strings als leer initialisiert und isFinished ist als @c true gesetzt.
+	 * Intern sind alle Strings als leer initialisiert und isFinished ist als @p true gesetzt.
 	 *
 	 * @param origin der CCString, auf dem der Iterator arbeitet
 	 * @see   CCString::splitEnd()
@@ -1162,14 +1283,14 @@ public:
 	 *
 	 * Iteratoren, die hinter den letzten Teilstring zeigen, werden separat behandelt.
 	 * @param other
-	 * @return @c true, wenn die Iteratoren gleich sind
+	 * @return @p true, wenn die Iteratoren gleich sind
 	 */
 	bool operator==(const SplitIterator& other) const;
 
 	/**
 	 * @brief Prüft zwei Iteratoren auf Ungleichheit.
 	 * @param other der andere Iterator
-	 * @return @c true, wenn @code!(*this == other)@endcode @c true ergibt, sonst @c false.
+	 * @return @p true, wenn @code!(*this == other)@endcode @p true ergibt, sonst @p false.
 	 * @see   SplitIterator::operator==
 	 */
 	bool operator!=(const SplitIterator& other) const {

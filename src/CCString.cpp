@@ -636,11 +636,11 @@ size_t CCString::findLast(char c, size_t pos) const {
 	return internalStr.rfind(c, pos);
 }
 
-bool CCString::matches(const CCString& regex) const {
+bool CCString::isMatch(const CCString& regex) const {
 	std::regex re(regex.internalStr);
 	return std::regex_match(internalStr, re);
 }
-bool CCString::contains(const CCString& regex) const {
+bool CCString::containsMatch(const CCString& regex) const {
 	std::regex re(regex.internalStr);
 	return std::regex_search(internalStr, re);
 }
