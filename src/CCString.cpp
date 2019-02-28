@@ -7,8 +7,6 @@
 
 #include "CCString.h"
 
-//#include "tinyutf8.h"
-
 #include <iomanip>
 #include <limits>
 #include <locale>
@@ -79,6 +77,15 @@ CCString::CCString(float number, bool hiPrec) :
 		CCString(static_cast<long double>(number), hiPrec) {
 }
 
+CCString::CCString(const CCDecimal& number, int32_t sigDigits) {
+	internalStr = number.toString(sigDigits, true);
+}
+
+CCString::CCString(const CCDecimal& number) :
+		CCString() {
+	internalStr = number.toString();
+}
+
 CCString::~CCString() = default;
 
 /* ######################################### */
@@ -143,9 +150,6 @@ bool CCString::operator<(const CCString& other) const {
 }
 
 CCString& CCString::append(const CCString& ccStr) {
-
-
-
 
 	try {
 		internalStr.append(ccStr.internalStr);

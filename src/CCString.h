@@ -8,13 +8,12 @@
 #ifndef CCSTRING_H_
 #define CCSTRING_H_
 
-//#include "tinyutf8.h"
+#include "CCDecimal.h"
 
 #include <cstddef>
 #include <iterator>
 #include <memory>
 #include <regex>
-//#include <sstream>
 #include <string>
 
 /**
@@ -28,6 +27,9 @@ private:
 	 */
 	std::string internalStr;
 
+	/**
+	 * @class SplitIterator
+	 */
 	class SplitIterator;
 
 public:
@@ -145,6 +147,32 @@ public:
 	 *                ggf. in wissenschaftlicher Notation., ansonsten mit genau 6 Nachkommastellen.
 	 */
 	CCString(long double number, bool hiPrec = false);
+
+	/**
+	 * @brief Umwandlungskonstruktor
+	 *
+	 * Erzeugt einen CCString aus der Textrepräsentation der gegebenen CCDecimal-Zahl.
+	 * Die Zahl wird in wissenschaftlicher Notation repräsentiert und mit der gegebenen
+	 * Anzahl Stellen übernommen.
+	 *
+	 * @param number     die einzuspeichernde CCDecimal-Gleitkommazahl
+	 * @param sigDigits  Falls @p true, speichert die Gleitkommazahl mit dieser Anzahl Dezimalstellen.
+	 *
+	 * @see  #CCDecimal::toString(int32_t, bool)
+	 */
+	CCString(const CCDecimal& number, int32_t sigDigits);
+	/**
+	 * @brief Umwandlungskonstruktor
+	 *
+	 * Erzeugt einen CCString aus der Textrepräsentation der gegebenen CCDecimal-Zahl.
+	 * Die Zahl wird mit der über die Präzision der Zahl festgelegten Anzahl Nachkommastellen übernommen.
+	 *
+	 * @param number  die einzuspeichernde CCDecimal-Gleitkommazahl
+	 *
+	 * @see  #CCDecimal::toString()
+	 * @see  #CCDecimal::getPrecision()
+	 */
+	CCString(const CCDecimal& number);
 
 	/**
 	 * @brief Fängt ungültige (nicht unterstützte) Typen ab.
@@ -721,15 +749,37 @@ public:
 	/* operand type not supported   */CCString& operator<<(const type&) = delete;
 
 	/**
+	 * @brief Überschreibt einen Teil dieses Strings durch den gegebenen CCString.
 	 *
-	 * @param pos
-	 * @param ccStr
-	 * @return
+	 * Ersetzt alle Zeichen von @p pos an durch @p ccStr, maximal jedoch bis zum Ende dieses Strings
+	 *   @n Hinweis: arithmetische Typen werden von replace nicht unterstützt.
+	 *      Kapselung in einem CCString-Objekt wird empfohlen, z.B.:
+	 *      @code
+	 *      CCString ccstr1("#################");
+	 *      double d = 1.23456789;
+	 *
+	 *      CCString ccstr2 = ccstr1.replace(3, CCString(d).subString(0, 4));
+	 *      @endcode
+	 * @param pos    die Stelle im String, an der eingefügt werden soll
+	 *               @n Hinweis: Das erste Zeichen hat den Index 0.
+	 * @param ccstr  der hineinzukopierende String
+	 * @return       eine Referenz auf dieses Objekt
+	 *
+	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
+	 * @throws out_of_range  falls @p pos nicht innerhalb des Strings liegt.
 	 */
-	CCString& replace(size_t pos, const CCString& ccStr);
+	CCString& replace(size_t pos, const CCString& ccstr);
 	CCString& replace(size_t pos, const std::string& str);
 	CCString& replace(size_t pos, const char* cstr);
 	CCString& replace(size_t pos, char c);
+	/**
+	 * @brief Fängt ungültige (nicht unterstützte) Typen für #replace ab.
+	 *
+	 * @see  #replace(size_t,const CCString&)
+	 */
+	template<typename type>
+	/* operand type not supported   */CCString& replace(size_t pos, const type&) = delete;
 
 	/**
 	 * @brief Fügt einen anderen CCString in diesen ein.
@@ -1079,6 +1129,7 @@ public:
 	bool isMatch(const CCString& regex) const;
 	bool containsMatch(const CCString& regex) const;
 	CCString getMatch(const CCString& regex) const;
+
 	CCString replaceAll(const CCString& regex, const CCString& replacement) const;
 	CCString replaceFirst(const CCString& regex, const CCString& replacement) const;
 
@@ -1134,7 +1185,6 @@ CCString operator+(long double lhs, const CCString& rhs);
 template<typename type1, typename type2>
 /* operand type not supported   */CCString operator+(const type1&, const type2&) = delete;
 
-
 /* as per https://en.cppreference.com/w/cpp/language/operators */
 /**
  * @brief Prüft zwei CCStrings auf Ungleichheit
@@ -1178,7 +1228,8 @@ inline bool operator>=(const CCString& lhs, const CCString& rhs) {
 }
 
 /**
- * @brief Iterator-Typ zur Implementierung von Spaltungen an Trennzeichen.
+ * @class SplitIterator
+ * @brief Iterator-Typ zur Implementierung von Auftrennungen an Trennzeichen.
  *
  * Iteriert über alle Teil-Strings zwischen den Trennzeichen, einschließlich leerer Teilstrings,
  * falls sich Trennzeichen hintereinander befinden oder sich ein Trennzeichen am Anfang oder Ende befindet.
