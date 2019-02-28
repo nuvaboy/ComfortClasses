@@ -277,7 +277,7 @@ public:
 	 *
 	 * @return Präzision des CCDecimal's
 	 */
-	int32_t getPrecision();
+	int32_t getPrecision() const;
 
 	/** \brief Setzt die lokale Präzision.
 	 *  Aktualisiert den Zeiger #pPrecision, damit dieser auf die lokale Präzision #localPrecision verweist.

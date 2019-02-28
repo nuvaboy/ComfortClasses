@@ -69,7 +69,7 @@ CCDecimal::CCDecimal(const CCString& ccStr) : CCDecimal(){
 	constructFromString(ccStr.toString());
 }
 //### public setter/getter #########################
-int32_t CCDecimal::getPrecision() {
+int32_t CCDecimal::getPrecision() const{
 	return *pPrecision - 1;
 }
 void CCDecimal::setLocalPrecision(int32_t precision) {
@@ -77,7 +77,7 @@ void CCDecimal::setLocalPrecision(int32_t precision) {
 	localPrecision = precision + 1;
 	pPrecision = &localPrecision;
 }
-int32_t CCDecimal::getGlobalPrecision() {
+int32_t CCDecimal::getGlobalPrecision(){
 	return CCDecimal::globalPrecision - 1;
 }
 void CCDecimal::setGlobalPrecision(int32_t precision) {
