@@ -90,6 +90,10 @@ CCString::operator const char*() {
 	return internalStr.c_str();
 }
 
+CCString::operator std::string() {
+	return internalStr;
+}
+
 std::ostream& operator<<(std::ostream& os, const CCString& ccstr) {
 	os << ccstr.internalStr;
 	return os;
@@ -111,9 +115,7 @@ char& CCString::at(size_t index) {
 		e.what();
 		throw std::out_of_range("Index pointing outside of the string.");
 	}
-	catch (...) {
-		throw std::exception();
-	}
+
 }
 const char& CCString::at(size_t index) const {
 	try {
@@ -123,9 +125,7 @@ const char& CCString::at(size_t index) const {
 		e.what();
 		throw std::out_of_range("Index pointing outside of the string.");
 	}
-	catch (...) {
-		throw std::exception();
-	}
+
 }
 
 char& CCString::operator[](size_t index) {
@@ -155,9 +155,7 @@ CCString& CCString::append(const CCString& ccStr) {
 		e.what();
 		throw std::bad_alloc();
 	}
-	catch (...) {
-		throw std::exception();
-	}
+
 }
 CCString& CCString::append(const std::string& str) {
 	try {
@@ -172,9 +170,7 @@ CCString& CCString::append(const std::string& str) {
 		e.what();
 		throw std::bad_alloc();
 	}
-	catch (...) {
-		throw std::exception();
-	}
+
 }
 CCString& CCString::append(const char* cstr) {
 	try {
@@ -189,9 +185,7 @@ CCString& CCString::append(const char* cstr) {
 		e.what();
 		throw std::bad_alloc();
 	}
-	catch (...) {
-		throw std::exception();
-	}
+
 }
 CCString& CCString::append(char c) {
 	try {
@@ -206,9 +200,7 @@ CCString& CCString::append(char c) {
 		e.what();
 		throw std::bad_alloc();
 	}
-	catch (...) {
-		throw std::exception();
-	}
+
 }
 CCString& CCString::append(bool b) {
 	return append(CCString(b));
@@ -328,106 +320,66 @@ CCString& CCString::operator+=(long double d) {
 }
 
 CCString operator+(const CCString& lhs, const CCString& rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
+	return CCString(lhs) += rhs;
 }
 CCString operator+(const CCString& lhs, const char* rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
+	return CCString(lhs) += rhs;
 }
 CCString operator+(const char* lhs, const CCString& rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
+	return CCString(lhs) += rhs;
 }
 CCString operator+(const CCString& lhs, const std::string& rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
+	return CCString(lhs) += rhs;
 }
 CCString operator+(const std::string& lhs, const CCString& rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
+	return CCString(lhs) += rhs;
 }
 CCString operator+(const CCString& lhs, char rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
+	return CCString(lhs) += rhs;
 }
 CCString operator+(char lhs, const CCString& rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
+	return CCString(lhs) += rhs;
 }
 
 CCString operator+(const CCString& lhs, bool rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
+	return CCString(lhs) += rhs;
 }
 CCString operator+(bool lhs, const CCString& rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
+	return CCString(lhs) += rhs;
 }
 CCString operator+(const CCString& lhs, int16_t rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
+	return CCString(lhs) += rhs;
 }
 CCString operator+(int16_t lhs, const CCString& rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
+	return CCString(lhs) += rhs;
 }
 CCString operator+(const CCString& lhs, int32_t rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
+	return CCString(lhs) += rhs;
 }
 CCString operator+(int32_t lhs, const CCString& rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
+	return CCString(lhs) += rhs;
 }
 CCString operator+(const CCString& lhs, int64_t rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
+	return CCString(lhs) += rhs;
 }
 CCString operator+(int64_t lhs, const CCString& rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
+	return CCString(lhs) += rhs;
 }
 CCString operator+(float lhs, const CCString& rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
+	return CCString(lhs) += rhs;
 }
 
 CCString operator+(const CCString& lhs, double rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
+	return CCString(lhs) += rhs;
 }
 CCString operator+(double lhs, const CCString& rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
+	return CCString(lhs) += rhs;
 }
 CCString operator+(const CCString& lhs, long double rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
+	return CCString(lhs) += rhs;
 }
 CCString operator+(long double lhs, const CCString& rhs) {
-	CCString copy(lhs);
-	copy += rhs;
-	return copy;
+	return CCString(lhs) += rhs;
 }
 
 CCString& CCString::replace(size_t pos, const CCString& ccStr) {
@@ -446,9 +398,6 @@ CCString& CCString::replace(size_t pos, const CCString& ccStr) {
 	catch (std::bad_alloc& e) {
 		e.what();
 		throw std::bad_alloc();
-	}
-	catch (...) {
-		throw std::exception();
 	}
 
 }
@@ -469,10 +418,10 @@ CCString& CCString::replace(size_t pos, const std::string& str) {
 		e.what();
 		throw std::bad_alloc();
 	}
-	catch (...) {
-		throw std::exception();
-	}
+
+	throw std::exception();
 }
+
 CCString& CCString::replace(size_t pos, const char* cstr) {
 	try {
 		internalStr.replace(pos, std::char_traits<char>::length(cstr), cstr);
@@ -490,9 +439,7 @@ CCString& CCString::replace(size_t pos, const char* cstr) {
 		e.what();
 		throw std::bad_alloc();
 	}
-	catch (...) {
-		throw std::exception();
-	}
+
 }
 CCString& CCString::replace(size_t pos, char c) {
 	try {
@@ -503,9 +450,7 @@ CCString& CCString::replace(size_t pos, char c) {
 		e.what();
 		throw std::out_of_range("Position pointing outside of the string.");
 	}
-	catch (...) {
-		throw std::exception();
-	}
+
 }
 
 CCString& CCString::insert(size_t pos, const CCString& ccStr) {
@@ -525,9 +470,7 @@ CCString& CCString::insert(size_t pos, const CCString& ccStr) {
 		e.what();
 		throw std::bad_alloc();
 	}
-	catch (...) {
-		throw std::exception();
-	}
+
 }
 CCString& CCString::insert(size_t pos, const std::string& str) {
 	try {
@@ -546,9 +489,7 @@ CCString& CCString::insert(size_t pos, const std::string& str) {
 		e.what();
 		throw std::bad_alloc();
 	}
-	catch (...) {
-		throw std::exception();
-	}
+
 }
 CCString& CCString::insert(size_t pos, const char* cstr) {
 	try {
@@ -567,9 +508,7 @@ CCString& CCString::insert(size_t pos, const char* cstr) {
 		e.what();
 		throw std::bad_alloc();
 	}
-	catch (...) {
-		throw std::exception();
-	}
+
 }
 CCString& CCString::insert(size_t pos, char c) {
 	try {
@@ -588,9 +527,7 @@ CCString& CCString::insert(size_t pos, char c) {
 		e.what();
 		throw std::bad_alloc();
 	}
-	catch (...) {
-		throw std::exception();
-	}
+
 }
 
 CCString& CCString::insert(size_t pos, bool b) {
@@ -634,9 +571,7 @@ CCString& CCString::erase(size_t pos, size_t length) {
 		e.what();
 		throw std::out_of_range("Position pointing outside of the string.");
 	}
-	catch (...) {
-		throw std::exception();
-	}
+
 }
 
 CCString& CCString::trim() {
@@ -676,9 +611,7 @@ CCString CCString::subString(size_t pos, size_t length) const {
 		e.what();
 		throw std::bad_alloc();
 	}
-	catch (...) {
-		throw std::exception();
-	}
+
 }
 
 size_t CCString::find(const CCString& ccstr, size_t pos) const {
@@ -707,11 +640,11 @@ size_t CCString::findLast(char c, size_t pos) const {
 	return internalStr.rfind(c, pos);
 }
 
-bool CCString::matches(const CCString& regex) const {
+bool CCString::isMatch(const CCString& regex) const {
 	std::regex re(regex.internalStr);
 	return std::regex_match(internalStr, re);
 }
-bool CCString::contains(const CCString& regex) const {
+bool CCString::containsMatch(const CCString& regex) const {
 	std::regex re(regex.internalStr);
 	return std::regex_search(internalStr, re);
 }
@@ -749,17 +682,17 @@ CCString CCString::replaceFirst(const CCString& regex, const CCString& replaceme
 	return regex;
 }
 
-CCString::splitIterator CCString::splitBegin(const CCString& regex) const {
-	return splitIterator(*this, regex);
+CCString::SplitIterator CCString::splitBegin(const CCString& regex) const {
+	return SplitIterator(*this, regex);
 }
 
-CCString::splitIterator CCString::splitEnd() const {
-	return splitIterator(*this);
+CCString::SplitIterator CCString::splitEnd() const {
+	return SplitIterator(*this);
 }
 
-CCString::splitIterator::splitIterator(const splitIterator& orig) :
+CCString::SplitIterator::SplitIterator(const SplitIterator& orig) :
 		originString(orig.originString), //
-		originRegex(orig.originRegex), //
+		separatorRegex(orig.separatorRegex), //
 		currentSplit(new CCString(*orig.currentSplit)), //
 		currentRemainder(orig.currentRemainder), //
 		hadMatch(orig.hadMatch), //
@@ -767,30 +700,23 @@ CCString::splitIterator::splitIterator(const splitIterator& orig) :
 {
 }
 
-CCString::splitIterator::splitIterator(const CCString& origin, const CCString& regex) :
+CCString::SplitIterator::SplitIterator(const CCString& origin, const CCString& regex) :
 		originString(&origin), //
-		originRegex(regex.internalStr), //
+		separatorRegex(regex.internalStr), //
 		currentSplit(new CCString()), //
 		currentRemainder(origin.internalStr) //
 {
 	doSplit();
 }
 
-CCString::splitIterator::splitIterator(const CCString& origin) :
+CCString::SplitIterator::SplitIterator(const CCString& origin) :
 		originString(&origin), //
 		currentSplit(new CCString()), //
 		isFinished(true) {
 }
 
-/**
- * @brief Trennt den nächsten Teilstring ab.
- *
- * Sucht das nächste Trennzeichen in #currentRemainder und speichert alle Zeichen
- * vor dem Trennzeichen in #currentSplit ab und alle Zeichen danach in #currentRemainder.
- * Aktualisiert hadMatch und isFinished entsprechend.
- */
-void CCString::splitIterator::doSplit() {
-	std::regex re(originRegex);
+void CCString::SplitIterator::doSplit() {
+	std::regex re(separatorRegex);
 	std::smatch matches;
 	std::regex_search(currentRemainder, matches, re);
 	while (!matches.ready())
@@ -821,38 +747,35 @@ void CCString::splitIterator::doSplit() {
 	}
 }
 
-CCString::splitIterator& CCString::splitIterator::operator++() {
+CCString::SplitIterator& CCString::SplitIterator::operator++() {
 	doSplit();
 	return *this;
 }
 
-CCString::splitIterator CCString::splitIterator::operator++(int) {
-	splitIterator copy(*this);
+CCString::SplitIterator CCString::SplitIterator::operator++(int) {
+	SplitIterator copy(*this);
 	doSplit();
 	return copy;
 }
 
-const CCString& CCString::splitIterator::operator*() {
+const CCString& CCString::SplitIterator::operator*() const {
 	return *currentSplit;
 }
 
-const CCString* CCString::splitIterator::operator->() {
+const CCString* CCString::SplitIterator::operator->() const {
 	return currentSplit.get();
 }
 
-bool CCString::splitIterator::operator==(const splitIterator& other) {
+bool CCString::SplitIterator::operator==(const SplitIterator& other) const {
 
-	//Check for domain (operating on the same CCString?)
+//Check for domain (operating on the same CCString?)
 	if (originString != other.originString) return false;
 
-	//Check for end
-	if (currentRemainder.empty() && other.currentRemainder.empty())
-		if (currentSplit->length() == 0 && other.currentSplit->length() == 0)
-		//Check for past-the-end
-			return isFinished && other.isFinished;
+//Check for past-the-end
+	if (isFinished || other.isFinished) return isFinished && other.isFinished;
 
-	//check for equality on: regex and position
-	if (originRegex == other.originRegex)
+//check for equality on: regex and position
+	if (separatorRegex == other.separatorRegex)
 		if (*currentSplit == *other.currentSplit)
 			if (currentRemainder == other.currentRemainder) return true;
 
