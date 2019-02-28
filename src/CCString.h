@@ -23,6 +23,7 @@
 class CCString {
 private:
 	/**
+	 *
 	 * @brief Internes String-Objekt zur Speicherung und Bereitstellung der meisten String-Funktionen
 	 */
 	std::string internalStr;

@@ -431,6 +431,10 @@ public:
 	//### comparison operators #########################
 	/** \brief Prüft auf Gleichheit zweier Dezimalzahlen.
 	 *
+	 * Verwendet ein Operand die gesamte Kapazität #MAX an Dezimalstellen und
+	 * hat mehr Nachkommastellen als die globale Präzision #globalPrecision garantiert,
+	 * wird diese anhand der LSD (Least Significant Digit) gerundet.
+	 *
 	 * @param op2 der CCDecimal, mit dem verglichen werden soll
 	 * @return bool ('true', wenn Werte gleich sind)
 	 *
@@ -438,6 +442,11 @@ public:
 	bool operator ==(const CCDecimal& op2) const;
 
 	/** \brief Prüft auf Ungleichheit zweier Dezimalzahlen.
+	 * Verwendet #operator ==.
+	 *
+	 * Verwendet ein Operand die gesamte Kapazität #MAX an Dezimalstellen und
+	 * hat mehr Nachkommastellen als die globale Präzision #globalPrecision garantiert,
+	 * wird diese anhand der LSD (Least Significant Digit) gerundet.
 	 *
 	 * @param op2 der CCDecimal, mit dem verglichen werden soll
 	 * @return bool ('true', wenn Werte ungleich sind)
@@ -447,6 +456,10 @@ public:
 
 	/** \brief Prüft ob Dezimalzahl kleiner ist als 'op2'.
 	 *
+	 * Verwendet ein Operand die gesamte Kapazität #MAX an Dezimalstellen und
+	 * hat mehr Nachkommastellen als die globale Präzision #globalPrecision garantiert,
+	 * wird diese anhand der LSD (Least Significant Digit) gerundet.
+	 *
 	 * @param op2 der CCDecimal, mit dem verglichen werden soll
 	 * @return bool ('true', wenn Wert kleiner ist)
 	 *
@@ -455,11 +468,39 @@ public:
 
 	/** \brief Prüft ob Dezimalzahl größer ist als 'op2'.
 	 *
+	 * Verwendet ein Operand die gesamte Kapazität #MAX an Dezimalstellen und
+	 * hat mehr Nachkommastellen als die globale Präzision #globalPrecision garantiert,
+	 * wird diese anhand der LSD (Least Significant Digit) gerundet.
+	 *
 	 * @param op2 der CCDecimal, mit dem verglichen werden soll
 	 * @return bool ('true', wenn Wert größer ist)
 	 *
 	 */
 	bool operator >(const CCDecimal& op2) const;
+
+	/** \brief Prüft ob Dezimalzahl kleiner oder gleich 'op2' ist.
+	 *
+	 * Verwendet ein Operand die gesamte Kapazität #MAX an Dezimalstellen und
+	 * hat mehr Nachkommastellen als die globale Präzision #globalPrecision garantiert,
+	 * wird diese anhand der LSD (Least Significant Digit) gerundet.
+	 *
+	 * @param op2 der CCDecimal, mit dem verglichen werden soll
+	 * @return bool ('true', wenn Wert kleiner oder gleich ist)
+	 *
+	 */
+	bool operator <=(const CCDecimal& op2) const;
+
+	/** \brief Prüft ob Dezimalzahl größer oder gleich 'op2' ist.
+	 *
+	 * Verwendet ein Operand die gesamte Kapazität #MAX an Dezimalstellen und
+	 * hat mehr Nachkommastellen als die globale Präzision #globalPrecision garantiert,
+	 * wird diese anhand der LSD (Least Significant Digit) gerundet.
+	 *
+	 * @param op2 der CCDecimal, mit dem verglichen werden soll
+	 * @return bool ('true', wenn Wert größer oder gleich ist)
+	 *
+	 */
+	bool operator >=(const CCDecimal& op2) const;
 
 	//### conversion functions #########################
 	/** \brief Rundet eine CCDecimal
