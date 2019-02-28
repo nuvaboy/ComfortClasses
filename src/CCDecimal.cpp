@@ -833,7 +833,6 @@ void CCDecimal::div(CCDecimal* result, const CCDecimal& divisor) const {
 
 	//some special values
 	const CCDecimal VALUE_2(2);
-	const CCDecimal VALUE_0;
 
 	if (divisor.used == 0) {
 		throw std::domain_error("divide by zero");
@@ -867,7 +866,7 @@ void CCDecimal::div(CCDecimal* result, const CCDecimal& divisor) const {
 
 	bool runDivision = true;
 
-	while (runDivision && nominator != VALUE_0) {
+	while (runDivision && nominator.used != 0) {
 
 		int temp = 0;
 		while (runDivision && !nominator.magnitudeLessThan(div_arr[0])) {
@@ -884,7 +883,7 @@ void CCDecimal::div(CCDecimal* result, const CCDecimal& divisor) const {
 			nominator = subResult;
 			temp += DIV_CONST[div_index];
 
-			if (nominator == VALUE_0) runDivision = false;
+			if (nominator.used == 0) runDivision = false;
 		}
 
 		//apply temp
@@ -926,10 +925,9 @@ void CCDecimal::div(CCDecimal* result, const CCDecimal& divisor) const {
 void CCDecimal::mod(CCDecimal* nominator, const CCDecimal& divisor) const {
 	//some special values
 	const CCDecimal VALUE_2(2);
-	const CCDecimal VALUE_0;
 
-	if (*this == VALUE_0) return;
-	if (divisor == VALUE_0) throw std::domain_error("divide by zero");
+	if (used == 0) return;
+	if (divisor.used == 0) throw std::domain_error("divide by zero");
 	if (this->magnitudeLessThan(divisor)) return;
 
 	CCDecimal div_arr[4]; //holds multiples of the divider (* 2^i)

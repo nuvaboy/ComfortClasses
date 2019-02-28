@@ -136,11 +136,10 @@ void testToStr(const string r) {
 	CCDecimal d1 = r;
 	EXPECT_EQ(d1.toString(), r);
 }
-void testToDouble(const string s1, const double r){
+void testToDouble(const string s1, const double r) {
 	CCDecimal d1 = s1;
 	EXPECT_EQ(CCDecimal(d1.toDouble()), CCDecimal(r));
 }
-
 
 //void testToStrSci(const string s1, const string r){
 //	CCDecimal d1 = s1;
@@ -319,6 +318,7 @@ GROUP_TEST(Subtraction, CCDecimalTest, sub_shift) {
 GROUP_TEST(Subtraction, CCDecimalTest, sub_cut) {
 
 	CCDecimal::setGlobalPrecision(2);
+
 	//Id. 0: cut 0 digits, result reached maximal capacity (MAX)
 	testSub("123456789012345678901234.5", "12345.678901", "123456789012345678888888.821099");
 
@@ -338,10 +338,6 @@ GROUP_TEST(Subtraction, CCDecimalTest, sub_cut) {
 	//Id. 4: cut one digit and reduce size by ten more trailing zeroes (flooding into head)
 	testSub("123456789012345678901034.5678042", "34.56780412", "123456789012345678901000");
 
-	//new
-	testSub("1234567890123456789012345678.907",
-			                           "6.2059",
-		    "1234567890123456789012345672.701");
 }
 
 GROUP_TEST(Subtraction, CCDecimalTest, sub_special) {
@@ -360,17 +356,19 @@ GROUP_TEST(Subtraction, CCDecimalTest, sub_special) {
 	//Id. 3: subtraction causes overflow (could not preserve required precision)
 	EXPECT_THROW(CCDecimal("12345678901234567890123456789.01") - CCDecimal("0.853"),
 			std::overflow_error);
-//new
+
+	//Id. 4: subtraction causes overflow (could not preserve capacity requirements, used = MAX+1)
+	EXPECT_THROW(CCDecimal("10000000000000000000000100000000") - CCDecimal("67890123"),
+			std::overflow_error); //"10000000000000000000000032109877");
+
+	/*Id. 5: subtraction causes overflow
+	 (could not preserve capacity requirements even though the leading zero was eliminated, used = MAX+2)*/
 	EXPECT_THROW(
 			CCDecimal("100012345678900000000000000000000")
-		      - CCDecimal("12345678901234567890123456789"), std::overflow_error);
+					- CCDecimal("12345678901234567890123456789"), std::overflow_error);
 
-
-	EXPECT_THROW(CCDecimal("10000000000000000000000100000000") -
-			                             CCDecimal("67890123"),
-			std::overflow_error);
-	//			           "10000000000000000000000032109877");
-
+	//Id. 6: cut 1 (trailing zeroes would be possible but do not generate)
+	testSub("1234567890123456789012345678.907", "6.2059", "1234567890123456789012345672.701");
 
 }
 
@@ -734,7 +732,7 @@ GROUP_TEST(Conversion, CCDecimalTest, toString_sci) {
 
 }
 
-GROUP_TEST(Conversion, CCDecimalTest, toString_round) {
+GROUP_TEST(Conversion, CCDecimalTest, utility_round) {
 	CCDecimal::setGlobalPrecision(2);
 
 	//Id.0 : round down
@@ -788,49 +786,12 @@ GROUP_TEST(Multiplication, CCDecimalTest, mult_special) {
 	EXPECT_THROW(a * b, std::overflow_error);
 	// 15241578753238825910684444703552
 
-	//new ##############################################################################################################
-
 	//Id. 4: reaches maximal capacity (MAX=31)
-	testMult("1199999999999999",
-			 "1199999999999999",
-			 "1439999999999997600000000000001");
+	testMult("1199999999999999", "1199999999999999", "1439999999999997600000000000001");
 
 	//Id. 5: Can cut one more digit to prevent overflow after the last carry would have caused one.
-	testMult("5.234567890123456","5.234567890123456","27.40070099631152972687092138394");
+	testMult("5.234567890123456", "5.234567890123456", "27.40070099631152972687092138394");
 
-
-	//ov in MSD?
-//	EXPECT_THROW(CCDecimal("9999999999999999") *
-//			     CCDecimal("9999999999999999"),
-//			std::overflow_error);
-	//99999999999999980000000000000001
-
-	//(CCDecimal("1199999999999999")*CCDecimal("1199999999999999"));
-
-	//30 = 15+15
-
-	//testMult("9", "9", "81");
-	//testMult("21", "21", "441");
-
-	testMult("12359999999999929", "556565565656789", "6879150391517872523844838367981");
-
-	//a: b: c: : : :""
-	//":a:b:" => vor
-
-	//""
-	//":"
-	/*
-	 * if (match){
-	 *    vor match
-	 * }
-	 * else{
-	 *  remainder
-	 * }
-	 */
-	//
-	/* This test case is very critical !!!!!
-	 worstcase (msi1 + msi2 = MAX, ), bestcase (msi1 + msi2 = MAX - 1) 15 + 15 = 30 */
-	//testMult("9.999999999999978", "9.999999999999978", "99.99999999999956000000000000048");
 }
 
 GROUP_TEST(Multiplication, CCDecimalTest, mult_tz) {
@@ -847,50 +808,59 @@ GROUP_TEST(Multiplication, CCDecimalTest, mult_accuracy) {
 }
 
 // Division ###############################################
-GROUP_TEST(Division, CCDecimalTest, div) {
+GROUP_TEST(Division, CCDecimalTest, div_special) {
 	CCDecimal::setGlobalPrecision(2);
 
-	//### special
-
-	//divide by zero
+	//Id. 0.1: divide by zero
 	EXPECT_THROW(CCDecimal(15.0) / CCDecimal(0.0), std::domain_error);
+
+	//Id. 0.2: divide by zero
 	EXPECT_THROW(CCDecimal(0.0) / CCDecimal(0.0), std::domain_error);
 
-	//divide by itself
+	//Id. 1: divide by itself
 	testDiv("123.249", "123.249", "1");
 
-	CCDecimal drei = 3.0;
-	CCDecimal eins = 1.0;
-	CCDecimal r = (eins / drei) * drei;
-	isEqual(r,  eins);
-
-	testDiv("31.8", "3.2", "9.9375");
-	testDiv("2", "5", "0.4");
-	testDiv("9000", "15", "600");
-	testDiv("26", "0.004", "6500");
-	testDiv("0.0009", "24", "0.0000375");
-	testDiv("1", "3", "0.3333333333333333333333333333333");
-	testDiv("5", "523456789012345678901234567891",
-			"0.000000000000000000000000000009551886812728061632818220006512");
-	testDiv("4568997890123456789012345678901", //should not throw exception ?
-			"5234567890123456789012345678901", "0.8728510138810516803809035462051");
-
+	//Id. 2: numerator is 0
 	testDiv("0", "15.398", "0");
 
-	testDiv("1689.5775", "1689.5775", "1");
-	testDiv("1000", "250", "4");
-	EXPECT_THROW(CCDecimal("98.23") / CCDecimal(), std::logic_error);
+	//Id. 3: can not cut, because of precision requirements
+	EXPECT_THROW(CCDecimal("800000000000000000000000000000") / CCDecimal("7"), std::overflow_error);
+}
 
-	EXPECT_THROW(CCDecimal("800000000000000000000000000000") /
-			     CCDecimal("7"), std::overflow_error);
+GROUP_TEST(Division, CCDecimalTest, div_zeroes) {
+	CCDecimal::setGlobalPrecision(2);
 
+	//divider has leading zeroes
+	testDiv("26", "0.004", "6500");
+
+	//divider has trailing zeroes
+	testDiv("26", "4000", "0.0065");
+
+	//numerator has leading zeroes
+	testDiv("0.0009", "24", "0.0000375");
+
+	//numerator has trailing zeroes
+	testDiv("9000", "15", "600");
+
+}
+
+GROUP_TEST(Division, CCDecimalTest, div_cut) {
+	CCDecimal::setGlobalPrecision(2);
+
+	//Id. 0: no cut, result reaches capacity (MAX = 31)
+	testDiv("5", "523456789012345678901234567891",
+			"0.000000000000000000000000000009551886812728061632818220006512");
+
+	//Id. 1: cut (rounding required)
+	testDiv("4568997890123456789012345678901", "5234567890123456789012345678901",
+			"0.8728510138810516803809035462051");
+	// 0.87285101388105168038090354620509 ... 690121005126262467034564700871148712647118928422158393290896574903692307605998148...
+
+	//1,142 857 142 857 142 857 142 857 142 85,7 ...
 
 	CCDecimal a = "12.29";
 	CCDecimal m = "5";
 	isEqual(a % m, CCDecimal("2.29"));
-
-
-
 
 }
 
@@ -944,8 +914,25 @@ GROUP_TEST(Arithmetic, CCDecimalTest, arith_mult) {
 
 }
 
+GROUP_TEST(Arithmetic, CCDecimalTest, arith_div) {
+	CCDecimal::setGlobalPrecision(2);
+
+	//Id 0: div (pos, neg)
+	testDiv("25", "-15", "-1.6666666666666666666666666666666");
+
+	//Id 1: div (neg, pos)
+	testDiv("-0.28", "2600", "-0.0001076923076923076923076923076923");
+
+	//Id 2: div (pos, pos)
+	testDiv("156.28", "8", "19.535");
+
+	//Id 3: div (neg, neg)
+	testDiv("-.89", "-12", "0.07416666666666666666666666666667");
+
+}
+
 //Comparison #############################################
-GROUP_TEST(Comparison, CCDecimalTest, lessThan) {
+GROUP_TEST(Comparison, CCDecimalTest, cmp_lessThan) {
 
 	CCDecimal::setGlobalPrecision(2);
 
@@ -971,7 +958,7 @@ GROUP_TEST(Comparison, CCDecimalTest, lessThan) {
 	testLessThan("3500", "-3500", false);
 }
 
-GROUP_TEST(Comparison, CCDecimalTest, moreThan) {
+GROUP_TEST(Comparison, CCDecimalTest, cmp_moreThan) {
 	CCDecimal::setGlobalPrecision(2);
 
 	//Id. 0: neg, pos, abs(value) is equal		=> TRUE
@@ -996,7 +983,7 @@ GROUP_TEST(Comparison, CCDecimalTest, moreThan) {
 	testMoreThan("3500", "-3500", true);
 }
 
-GROUP_TEST(Comparison, CCDecimalTest, equal) {
+GROUP_TEST(Comparison, CCDecimalTest, cmp_equal) {
 	CCDecimal::setGlobalPrecision(2);
 
 	//Id. 0: different sign
@@ -1020,62 +1007,96 @@ GROUP_TEST(Comparison, CCDecimalTest, equal) {
 	//Id. 3.2: equal
 	testEqual("-0", "0", true);
 
-
 }
 
 //Operators ##############################################
-GROUP_TEST(Operators, CCDecimalTest, op_consistency) {
+GROUP_TEST(Operators, CCDecimalTest, op_arith) {
 	CCDecimal a = "15.23";
 	CCDecimal b = "3.4";
 
 	CCDecimal c = a;
+
+	//Id. 0 division consistency
 	isEqual(c /= b, a / b);
 
+	//Id. 1 multiplication consistency
 	c = a;
 	isEqual(c *= b, a * b);
 
+	//Id. 2 addition
 	c = a;
 	isEqual(c += b, a + b);
 
+	//Id. 3 subtraction
 	c = a;
 	isEqual(c -= b, a - b);
 
+	//Id. 4 modulo
 	c = a;
 	isEqual(c %= b, a % b);
 
+}
+
+GROUP_TEST(Operators, CCDecimalTest, op_cmp) {
 	CCDecimal dec1 = 15.5, dec2 = 15.5;
 	CCDecimal dec3 = 8.2;
 
+	//Id. 0 ==, <= consistency
 	isEqual(dec1 == dec2, dec1 <= dec2);
-	isEqual(dec2 == dec2, dec1 >= dec2);
+
+	//Id. 1 ==, >= consistency
+	isEqual(dec1 == dec2, dec1 >= dec2);
+
+	//Id. 2 <, <= consistency
 	isEqual(dec3 < dec2, dec3 <= dec2);
+
+	//Id. 3 >, >= consistency
 	isEqual(dec3 > dec2, dec3 >= dec2);
-
-
-
 }
-GROUP_TEST(Operators, CCDecimalTest, op_incdec) {
+
+GROUP_TEST(Operators, CCDecimalTest, op_inc_dec) {
 
 	CCDecimal d = "0.026";
+
+	//Id. 0 post increment
 	isEqual(d++, CCDecimal("0.026"));
+
+	//Id. 1 pre increment
 	isEqual(++d, CCDecimal("2.026"));
+
+	//Id. 2 post decrement
 	isEqual(d--, CCDecimal("2.026"));
+
+	//Id. 3 pre decrement
 	isEqual(--d, CCDecimal("0.026"));
+
 }
 
-GROUP_TEST(Operators, CCDecimalTest, op_stream){
+GROUP_TEST(Operators, CCDecimalTest, op_stream) {
 	CCDecimal::setGlobalPrecision(2);
 
-	//Id. 0: not scientific notation
-	cout << CCDecimal("123456") << endl;
+	std::stringstream stringStream;
+
+	//Id. 0: no scientific notation
+	stringStream << std::setprecision(4);
+	stringStream << CCDecimal("123.456789");
+	isEqual(stringStream.str(), "123.4568");
+	stringStream.str("");
 
 	//Id. 1: scientific notation
-	cout << std::scientific << CCDecimal("123.4567") << endl;
+	stringStream << std::scientific;
+	stringStream << std::scientific << CCDecimal("123.456789");
+	isEqual(stringStream.str(), "1.2346e+002");
+
 }
 
+GROUP_TEST(Conversions, CCDecimalTest, toDouble) {
 
-GROUP_TEST(Conversions, CCDecimalTest, toDouble){
+	//Id. 0 double can store all digits
 	testToDouble("1234.123456789", 1234.123456789);
-	testToDouble("123456789012345678901234567890100000000000000000", 123456789012345680000000000000000000000000000000.0);
+
+	//Id. 1 double eliminates digits
+	testToDouble("123456789012345678901234567890100000000000000000",
+			123456789012345680000000000000000000000000000000.0);
 }
 
