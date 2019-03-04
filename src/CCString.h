@@ -1230,7 +1230,7 @@ inline bool operator>=(const CCString& lhs, const CCString& rhs) {
 }
 
 /**
- * @class SplitIterator
+ * @class CCString::SplitIterator
  * @brief Iterator-Typ zur Implementierung von Auftrennungen an Trennzeichen.
  *
  * Iteriert über alle Teil-Strings zwischen den Trennzeichen, einschließlich leerer Teilstrings,
