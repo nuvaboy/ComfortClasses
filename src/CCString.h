@@ -16,6 +16,8 @@
 #include <regex>
 #include <string>
 
+class CCDecimal;
+
 /**
  * @brief Vereinfachte String-Klasse.
  */

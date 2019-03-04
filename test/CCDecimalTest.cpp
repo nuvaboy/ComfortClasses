@@ -8,6 +8,7 @@ using namespace std;
  */
 #define GROUP_TESTS
 
+
 #ifdef GROUP_TESTS
 #define GROUP_TEST(GroupName, TestBase, TestName) \
 TEST(TestBase##_##GroupName, TestName)
@@ -53,14 +54,19 @@ public:
 
 		dec.shift = shift;
 	}
+
+	static int32_t getMAX(){
+		return CCDecimal::MAX;
+	}
+
 };
 
 void isEqual(const CCDecimal& value, const CCDecimal& cmp) {
 	bool eq = (value == cmp);
 	EXPECT_TRUE(eq);
 	if (eq == false) {
-		cout << "value was: " << value.toString(MAX - 1) << " correct value: "
-				<< cmp.toString(MAX - 1) << endl;
+		cout << "value was: " << value.toString(CCDecimalTest::getMAX() - 1) << " correct value: "
+				<< cmp.toString(CCDecimalTest::getMAX() - 1) << endl;
 	}
 }
 
@@ -97,7 +103,7 @@ void testLessThan(string s1, string s2, bool r) {
 	EXPECT_EQ(b, r);
 
 	if (b != r) {
-		cout << "  d1: " << d1.toString(MAX - 1) << " d2: " << d2.toString(MAX - 1) << endl;
+		cout << "  d1: " << d1.toString(CCDecimalTest::getMAX() - 1) << " d2: " << d2.toString(CCDecimalTest::getMAX() - 1) << endl;
 	}
 
 }
@@ -109,7 +115,7 @@ void testMoreThan(string s1, string s2, bool r) {
 	EXPECT_EQ(b, r);
 
 	if (b != r) {
-		cout << "  d1: " << d1.toString(MAX - 1) << " d2: " << d2.toString(MAX - 1) << endl;
+		cout << "  d1: " << d1.toString(CCDecimalTest::getMAX() - 1) << " d2: " << d2.toString(CCDecimalTest::getMAX() - 1) << endl;
 	}
 }
 void testEqual(string s1, string s2, bool r) {
@@ -121,7 +127,7 @@ void testEqual(string s1, string s2, bool r) {
 	EXPECT_EQ(d1 != d2, !r);
 
 	if (b != r) {
-		cout << "  d1: " << d1.toString(MAX - 1) << " d2: " << d2.toString(MAX - 1) << endl;
+		cout << "  d1: " << d1.toString(CCDecimalTest::getMAX() - 1) << " d2: " << d2.toString(CCDecimalTest::getMAX() - 1) << endl;
 	}
 }
 
@@ -344,7 +350,7 @@ GROUP_TEST(Subtraction, CCDecimalTest, sub_zeroes) {
 
 GROUP_TEST(Subtraction, CCDecimalTest, sub_normal) {
 
-	CCDecimal::setGlobalPrecision(MAX - 1);
+	CCDecimal::setGlobalPrecision(CCDecimalTest::getMAX() - 1);
 
 	testSub("10", "3", "7");
 	testSub("7689", "7600", "89");

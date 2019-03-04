@@ -10,7 +10,7 @@
 #ifndef CCDECIMAL_H_
 #define CCDECIMAL_H_
 
-#define MAX 31 //31
+//#define MAX 31 //31
 
 #include <stdint.h>
 #include <iostream>
@@ -19,6 +19,8 @@
 
 
 #include "CCString.h"
+
+class CCString;
 
 using namespace std;
 
@@ -29,10 +31,28 @@ using namespace std;
  */
 class CCDecimal {
 
+
+
 	//TODO: Remove this in release version (for testing purposes only)
 	friend class CCDecimalTest;
 
 private:
+
+	/**
+	 * \brief globale Präzision
+	 *
+	 * Die globale Präzision wirkt sich auf alle Instanzen von CCDecimal aus,
+	 * deren lokale Präzision #localPrecision nicht explizit gesetzt wurde.
+	 * Die Präzision wird für die entsprechende (Anzahl-1) an Nachkommastellen garantiert.
+	 * Es wird eine Stelle weniger garantiert, da diese intern für ein korrektes Runden benötigt wird.
+	 */
+	static int32_t globalPrecision;
+
+	 /** \brief Länge der Mantisse
+	  * Legt fest, wie viele Dezimalstellen im Array #digit abgespeichert werden können.
+	  *
+	  */
+	static const int32_t MAX = 31;
 
 	//### attributes ##################################
 	/**
@@ -42,7 +62,7 @@ private:
 	 * Die maximale Kapazität ist durch das Define #MAX vorgegeben.
 	 * Es wird jedocch eine weitere Stelle für den Fall eines Overflows reserviert.
 	 */
-	int8_t digit[MAX + 1] = { 0 };
+	int8_t digit[CCDecimal::MAX + 1] = { 0 };
 
 	/**
 	 * \brief Anzahl belegter Dezimalstellen
@@ -86,15 +106,7 @@ private:
 	 */
 	int32_t* pPrecision;
 
-	/**
-	 * \brief globale Präzision
-	 *
-	 * Die globale Präzision wirkt sich auf alle Instanzen von CCDecimal aus,
-	 * deren lokale Präzision #localPrecision nicht explizit gesetzt wurde.
-	 * Die Präzision wird für die entsprechende (Anzahl-1) an Nachkommastellen garantiert.
-	 * Es wird eine Stelle weniger garantiert, da diese intern für ein korrektes Runden benötigt wird.
-	 */
-	static int32_t globalPrecision;
+
 
 	//### utility funcions ############################
 	/** \brief Erzeugt einen CCDecimal aus einer String-Darstellung.
@@ -267,7 +279,7 @@ public:
 	 *
 	 *  @param ccStr CCString aus dem ein CCDecimal erzeugt werden soll.
 	 */
-	CCDecimal(const CCString& ccStr);
+	//CCDecimal(const CCString& ccStr);
 
 	/** \brief Destruktor
 	 *

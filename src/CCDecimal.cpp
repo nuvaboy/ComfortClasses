@@ -26,6 +26,7 @@
 
 using namespace std;
 
+
 //### static attribute initialization
 int32_t CCDecimal::globalPrecision = 11;
 
@@ -65,9 +66,9 @@ CCDecimal::CCDecimal(const string& numberStr) :
 CCDecimal::CCDecimal(const char* numberCStr) :
 		CCDecimal(string(numberCStr)) {
 }
-CCDecimal::CCDecimal(const CCString& ccStr) : CCDecimal(){
-	constructFromString(ccStr.toString());
-}
+//CCDecimal::CCDecimal(const CCString& ccStr) : CCDecimal(){
+//	constructFromString(ccStr.toString());
+//}
 //### public setter/getter #########################
 int32_t CCDecimal::getPrecision() const{
 	return *pPrecision - 1;
