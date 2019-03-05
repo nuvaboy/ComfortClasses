@@ -30,7 +30,6 @@ class CCDecimal;
 class CCString {
 private:
 	/**
-	 *
 	 * @brief Internes String-Objekt zur Speicherung und Bereitstellung der meisten String-Funktionen
 	 */
 	std::string internalStr;
@@ -455,6 +454,41 @@ public:
 	CCString& append(long double number, bool hiPrec = false);
 
 	/**
+	 * @brief Fügt eine Zahl in Textform an diesen CCString an.
+	 *
+	 * Die Zahl wird in wissenschaftlicher Notation repräsentiert und mit der gegebenen
+	 * Anzahl Stellen übernommen.
+	 *
+	 * @param number     die anzufügende CCDecimal-Gleitkommazahl
+	 * @param sigDigits  Speichert die Gleitkommazahl mit dieser Anzahl Dezimalstellen.
+	 * @return           eine Referenz auf dieses Objekt
+	 *
+	 * @throws length_error  falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc     falls dem String intern kein Speicher zugewiesen werden konnte.
+	 *
+	 * @see  CCString(const CCDecimal&)
+	 * @see  CCDecimal::toString()
+	 */
+	CCString& append(const CCDecimal& number, int32_t sigDigits);
+
+	/**
+	 * @brief Fügt eine Zahl in Textform an diesen CCString an.
+	 *
+	 * Die Zahl wird mit der über die Präzision der Zahl festgelegten Anzahl Nachkommastellen übernommen.
+	 *
+	 * @param number  die anzufügende CCDecimal-Gleitkommazahl
+	 * @return        eine Referenz auf dieses Objekt
+	 *
+	 * @throws length_error  falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc     falls dem String intern kein Speicher zugewiesen werden konnte.
+	 *
+	 * @see  CCString(const CCDecimal&)
+	 * @see  CCDecimal::toString()
+	 * @see  CCDecimal::getPrecision()
+	 */
+	CCString& append(const CCDecimal& number);
+
+	/**
 	 * @brief Fängt ungültige (nicht unterstützte) Typen für #append ab.
 	 */
 	template<typename type>
@@ -601,6 +635,22 @@ public:
 	 * @throws bad_alloc     falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& operator+=(long double number);
+	/**
+	 * @brief Fügt eine Zahl in Textform an diesen CCString an.
+	 *
+	 * Die Zahl wird mit der über die Präzision der Zahl festgelegten Anzahl Nachkommastellen übernommen.
+	 *
+	 * @param number  die anzufügende CCDecimal-Gleitkommazahl
+	 * @return        eine Referenz auf dieses Objekt
+	 *
+	 * @throws length_error  falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc     falls dem String intern kein Speicher zugewiesen werden konnte.
+	 *
+	 * @see  CCString(const CCDecimal&)
+	 * @see  CCDecimal::toString()
+	 * @see  CCDecimal::getPrecision()
+	 */
+	CCString& operator+=(const CCDecimal& number);
 
 	/**
 	 * @brief Fängt ungültige (nicht unterstützte) Typen für #operator+= ab.
@@ -749,6 +799,22 @@ public:
 	 * @throws bad_alloc     falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& operator<<(long double number);
+	/**
+	 * @brief Fügt eine Zahl in Textform an diesen CCString an.
+	 *
+	 * Die Zahl wird mit der über die Präzision der Zahl festgelegten Anzahl Nachkommastellen übernommen.
+	 *
+	 * @param number  die anzufügende CCDecimal-Gleitkommazahl
+	 * @return        eine Referenz auf dieses Objekt
+	 *
+	 * @throws length_error  falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc     falls dem String intern kein Speicher zugewiesen werden konnte.
+	 *
+	 * @see  CCString(const CCDecimal&)
+	 * @see  CCDecimal::toString()
+	 * @see  CCDecimal::getPrecision()
+	 */
+	CCString& operator<<(const CCDecimal& number);
 
 	/**
 	 * @brief Fängt ungültige (nicht unterstützte) Typen für #operator<< ab.
@@ -826,7 +892,8 @@ public:
 	 * @see  #replaceAt(size_t,const CCString&)
 	 */
 	template<typename type>
-	/* operand type not supported   */CCString& replaceAt(size_t pos, const type&) = delete;
+	/* operand type not supported   */CCString& replaceAt(size_t pos,
+			const type&) = delete;
 
 	/**
 	 * @brief Fügt einen anderen CCString in diesen ein.
@@ -1017,6 +1084,45 @@ public:
 	 * @throws out_of_range  falls @p pos nicht innerhalb des Strings liegt.
 	 */
 	CCString& insert(size_t pos, long double number, bool hiPrec = false);
+	/**
+	 * @brief Fügt eine Zahl in Textform in diesen CCString ein.
+	 *
+	 * Die Zahl wird mit der über die Präzision der Zahl festgelegten Anzahl Nachkommastellen übernommen.
+	 *
+	 * @param pos     die Stelle im String, an der eingefügt werden soll
+	 *                @n Hinweis: Das erste Zeichen hat den Index 0.
+	 * @param number  die anzufügende CCDecimal-Gleitkommazahl
+	 * @return        eine Referenz auf dieses Objekt
+	 *
+	 * @throws length_error  falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc     falls dem String intern kein Speicher zugewiesen werden konnte.
+	 * @throws out_of_range  falls @p pos nicht innerhalb des Strings liegt.
+	 *
+	 * @see  CCString(const CCDecimal&)
+	 * @see  CCDecimal::toString()
+	 * @see  CCDecimal::getPrecision()
+	 */
+	CCString& insert(size_t pos, const CCDecimal& number);
+	/**
+	 * @brief Fügt eine Zahl in Textform in diesen CCString ein.
+	 *
+	 * Die Zahl wird in wissenschaftlicher Notation repräsentiert und mit der gegebenen
+	 * Anzahl Stellen übernommen.
+	 *
+	 * @param pos        die Stelle im String, an der eingefügt werden soll
+	 *                   @n Hinweis: Das erste Zeichen hat den Index 0.
+	 * @param number     die anzufügende CCDecimal-Gleitkommazahl
+	 * @param sigDigits  Speichert die Gleitkommazahl mit dieser Anzahl Dezimalstellen.
+	 * @return           eine Referenz auf dieses Objekt
+	 *
+	 * @throws length_error  falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc     falls dem String intern kein Speicher zugewiesen werden konnte.
+	 * @throws out_of_range  falls @p pos nicht innerhalb des Strings liegt.
+	 *
+	 * @see  CCString(const CCDecimal&)
+	 * @see  CCDecimal::toString()
+	 */
+	CCString& insert(size_t pos, const CCDecimal& number, int32_t sigDigits);
 
 	/**
 	 * @brief Fängt ungültige (nicht unterstützte) Typen für #insert ab.
@@ -1226,7 +1332,8 @@ public:
 	 * @return             die bearbeitete Kopie dieses Strings.
 	 *                     Gleichwertig zu diesem String, falls @p regex nicht gefunden wurde.
 	 */
-	CCString replaceAll(const CCString& regex, const CCString& replacement) const;
+	CCString replaceAll(const CCString& regex,
+			const CCString& replacement) const;
 	/**
 	 * @brief Ersetzt das erste Vorkommen des regulären Ausdrucks @p regex durch den regulären Ausdruck @p replacement.
 	 *
@@ -1241,7 +1348,8 @@ public:
 	 * @return             die bearbeitete Kopie dieses Strings.
 	 *                     Gleichwertig zu diesem String, falls @p regex nicht gefunden wurde.
 	 */
-	CCString replaceFirst(const CCString& regex, const CCString& replacement) const;
+	CCString replaceFirst(const CCString& regex,
+			const CCString& replacement) const;
 
 };
 
@@ -1337,7 +1445,6 @@ CCString operator+(const CCString& lhs, char rhs);
  */
 CCString operator+(char lhs, const CCString& rhs);
 
-
 /**
  * @brief Konkatenation der Textform eines Wahrheitswerts und eines CCStrings.
  *
@@ -1379,7 +1486,7 @@ CCString operator+(const CCString& lhs, bool rhs);
  */
 CCString operator+(const CCString& lhs, int16_t rhs);
 /**
- * @brief Konkatenation einer Ganzzahl und eines CCStrings.
+ * @brief Konkatenation einer Ganzzahl und einer Ganzzahl.
  *
  * Äquivalent zu:
  * @n<tt>CCString(lhs)+=rhs;</tt>
@@ -1405,7 +1512,7 @@ CCString operator+(int16_t lhs, const CCString& rhs);
  */
 CCString operator+(const CCString& lhs, int32_t rhs);
 /**
- * @brief Konkatenation einer Ganzzahl und eines CCStrings.
+ * @brief Konkatenation einer Ganzzahl und einer Ganzzahl.
  *
  * Äquivalent zu:
  * @n<tt>CCString(lhs)+=rhs;</tt>
@@ -1431,7 +1538,7 @@ CCString operator+(int32_t lhs, const CCString& rhs);
  */
 CCString operator+(const CCString& lhs, int64_t rhs);
 /**
- * @brief Konkatenation einer Ganzzahl und eines CCStrings.
+ * @brief Konkatenation einer Ganzzahl und einer Ganzzahl.
  *
  * Äquivalent zu:
  * @n<tt>CCString(lhs)+=rhs;</tt>
@@ -1458,7 +1565,7 @@ CCString operator+(int64_t lhs, const CCString& rhs);
  */
 CCString operator+(const CCString& lhs, uint16_t rhs);
 /**
- * @brief Konkatenation einer Ganzzahl und eines CCStrings.
+ * @brief Konkatenation einer Ganzzahl und einer Ganzzahl.
  *
  * Äquivalent zu:
  * @n<tt>CCString(lhs)+=rhs;</tt>
@@ -1484,7 +1591,7 @@ CCString operator+(uint16_t lhs, const CCString& rhs);
  */
 CCString operator+(const CCString& lhs, uint32_t rhs);
 /**
- * @brief Konkatenation einer Ganzzahl und eines CCStrings.
+ * @brief Konkatenation einer Ganzzahl und einer Ganzzahl.
  *
  * Äquivalent zu:
  * @n<tt>CCString(lhs)+=rhs;</tt>
@@ -1510,7 +1617,7 @@ CCString operator+(uint32_t lhs, const CCString& rhs);
  */
 CCString operator+(const CCString& lhs, uint64_t rhs);
 /**
- * @brief Konkatenation einer Ganzzahl und eines CCStrings.
+ * @brief Konkatenation einer Ganzzahl und einer Ganzzahl.
  *
  * Äquivalent zu:
  * @n<tt>CCString(lhs)+=rhs;</tt>
@@ -1537,7 +1644,7 @@ CCString operator+(uint64_t lhs, const CCString& rhs);
  */
 CCString operator+(const CCString& lhs, float rhs);
 /**
- * @brief Konkatenation einer Ganzzahl und eines CCStrings.
+ * @brief Konkatenation einer Ganzzahl und einer Gleitkommazahl.
  *
  * Äquivalent zu:
  * @n<tt>CCString(lhs)+=rhs;</tt>
@@ -1563,7 +1670,7 @@ CCString operator+(float lhs, const CCString& rhs);
  */
 CCString operator+(const CCString& lhs, double rhs);
 /**
- * @brief Konkatenation einer Ganzzahl und eines CCStrings.
+ * @brief Konkatenation einer Ganzzahl und einer Gleitkommazahl.
  *
  * Äquivalent zu:
  * @n<tt>CCString(lhs)+=rhs;</tt>
@@ -1589,7 +1696,7 @@ CCString operator+(double lhs, const CCString& rhs);
  */
 CCString operator+(const CCString& lhs, long double rhs);
 /**
- * @brief Konkatenation einer Ganzzahl und eines CCStrings.
+ * @brief Konkatenation einer Ganzzahl und einer Gleitkommazahl.
  *
  * Äquivalent zu:
  * @n<tt>CCString(lhs)+=rhs;</tt>
@@ -1601,6 +1708,32 @@ CCString operator+(const CCString& lhs, long double rhs);
  * @see    CCString::operator+=(const CCString&)
  */
 CCString operator+(long double lhs, const CCString& rhs);
+/**
+ * @brief Konkatenation eines CCStrings und einer CCDecimal-Gleitkommazahl.
+ *
+ * Äquivalent zu:
+ * @n<tt>CCString(lhs)+=rhs;</tt>
+ *
+ * @param  lhs
+ * @param  rhs
+ * @return rhs, angefügt an lhs
+ * @see    CCString::CCString(const CCString&)
+ * @see    CCString::operator+=(long double)
+ */
+CCString operator+(const CCString& lhs, const CCDecimal& rhs);
+/**
+ * @brief Konkatenation einer Ganzzahl und einer CCDecimal-Gleitkommazahl.
+ *
+ * Äquivalent zu:
+ * @n<tt>CCString(lhs)+=rhs;</tt>
+ *
+ * @param  lhs
+ * @param  rhs
+ * @return rhs, angefügt an lhs
+ * @see    CCString::CCString(long double)
+ * @see    CCString::operator+=(const CCString&)
+ */
+CCString operator+(const CCDecimal& lhs, const CCString& rhs);
 
 /**
  * @brief Fängt ungültige (nicht unterstützte) Typen für #operator+ ab.
@@ -1657,7 +1790,8 @@ inline bool operator>=(const CCString& lhs, const CCString& rhs) {
  * Iteriert über alle Teil-Strings zwischen den Trennzeichen, einschließlich leerer Teilstrings,
  * falls sich Trennzeichen hintereinander befinden oder sich ein Trennzeichen am Anfang oder Ende befindet.
  */
-class CCString::SplitIterator: public std::iterator<std::input_iterator_tag, const CCString> {
+class CCString::SplitIterator: public std::iterator<std::input_iterator_tag,
+		const CCString> {
 private:
 	/**
 	 * @brief Zeiger auf den CCString, der aufgetrennt wird.
