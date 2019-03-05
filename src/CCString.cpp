@@ -655,7 +655,14 @@ CCString CCString::replaceFirst(const CCString& regex,
 		const CCString& replacement) const {
 	std::regex re(regex.internalStr);
 	std::smatch matches;
-	std::regex_search(internalStr, re);
+	std::regex_search(internalStr, matches, re);
+
+	if (matches.empty()) {
+		return CCString(*this);
+	}
+	if (!matches[0].matched) {
+		return CCString(*this);
+	}
 
 	auto startOfString = matches.prefix().first;
 	auto endOfFirstMatch = matches[0].second;
@@ -664,8 +671,8 @@ CCString CCString::replaceFirst(const CCString& regex,
 	std::string resultFirstHalf;
 	std::regex_replace(std::back_inserter(resultFirstHalf), startOfString,
 			endOfFirstMatch, re, replacement.internalStr);
-	resultFirstHalf += std::string(endOfFirstMatch, endOfAll);
-	return regex;
+	resultFirstHalf.append(endOfFirstMatch, endOfAll);
+	return CCString(resultFirstHalf);
 }
 
 CCString::SplitIterator CCString::splitBegin(const CCString& regex) const {
