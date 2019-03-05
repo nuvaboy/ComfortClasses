@@ -279,7 +279,7 @@ public:
 	 *
 	 *  @param ccStr CCString aus dem ein CCDecimal erzeugt werden soll.
 	 */
-	//CCDecimal(const CCString& ccStr);
+	CCDecimal(const CCString& ccStr);
 
 	/** \brief Destruktor
 	 *
