@@ -5,6 +5,14 @@
  *      Author: jan
  */
 
+/**
+ * @file    CCString.cpp
+ *
+ * @brief   Implementierung von CCString, CCString::SplitIterator und anderen zusammenhängenden Funktionen.
+ *
+ * @author  Jan Alexander Stiehl
+ */
+
 #include "CCString.h"
 
 #include <iomanip>

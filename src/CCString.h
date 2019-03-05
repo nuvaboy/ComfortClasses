@@ -5,6 +5,14 @@
  *      Author: jan
  */
 
+/**
+ * @file    CCString.h
+ *
+ * @brief   Definition von CCString, CCString::SplitIterator und anderen zusammenhängenden Funktionen.
+ *
+ * @author  Jan Alexander Stiehl
+ */
+
 #ifndef CCSTRING_H_
 #define CCSTRING_H_
 
