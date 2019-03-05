@@ -5,16 +5,23 @@
  *      Author: jan
  */
 
+/**
+ * @file    CCString.h
+ *
+ * @brief   Definition von CCString, CCString::SplitIterator und anderen zusammenhängenden Funktionen.
+ *
+ * @author  Jan Alexander Stiehl
+ */
+
 #ifndef CCSTRING_H_
 #define CCSTRING_H_
 
-//#include "tinyutf8.h"
+class CCDecimal;
+#include "CCDecimal.h"
 
 #include <cstddef>
 #include <iterator>
 #include <memory>
-#include <regex>
-//#include <sstream>
 #include <string>
 #include <type_traits>
 
@@ -24,11 +31,13 @@
 class CCString {
 private:
 	/**
-	 *
 	 * @brief Internes String-Objekt zur Speicherung und Bereitstellung der meisten String-Funktionen
 	 */
 	std::string internalStr;
 
+	/**
+	 * @class SplitIterator
+	 */
 	class SplitIterator;
 
 	template<typename type>
@@ -156,6 +165,32 @@ public:
 	 *                ggf. in wissenschaftlicher Notation., ansonsten mit genau 6 Nachkommastellen.
 	 */
 	CCString(long double number, bool hiPrec = false);
+
+	/**
+	 * @brief Umwandlungskonstruktor
+	 *
+	 * Erzeugt einen CCString aus der Textrepräsentation der gegebenen CCDecimal-Zahl.
+	 * Die Zahl wird in wissenschaftlicher Notation repräsentiert und mit der gegebenen
+	 * Anzahl Stellen übernommen.
+	 *
+	 * @param number     die einzuspeichernde CCDecimal-Gleitkommazahl
+	 * @param sigDigits  Falls @p true, speichert die Gleitkommazahl mit dieser Anzahl Dezimalstellen.
+	 *
+	 * @see  CCDecimal::toString()
+	 */
+	CCString(const CCDecimal& number, int32_t sigDigits);
+	/**
+	 * @brief Umwandlungskonstruktor
+	 *
+	 * Erzeugt einen CCString aus der Textrepräsentation der gegebenen CCDecimal-Zahl.
+	 * Die Zahl wird mit der über die Präzision der Zahl festgelegten Anzahl Nachkommastellen übernommen.
+	 *
+	 * @param number  die einzuspeichernde CCDecimal-Gleitkommazahl
+	 *
+	 * @see  CCDecimal::toString()
+	 * @see  CCDecimal::getPrecision()
+	 */
+	CCString(const CCDecimal& number);
 
 	/**
 	 * @brief Fängt ungültige (nicht unterstützte) Typen ab.
@@ -437,6 +472,41 @@ public:
 	CCString& append(long double number, bool hiPrec = false);
 
 	/**
+	 * @brief Fügt eine Zahl in Textform an diesen CCString an.
+	 *
+	 * Die Zahl wird in wissenschaftlicher Notation repräsentiert und mit der gegebenen
+	 * Anzahl Stellen übernommen.
+	 *
+	 * @param number     die anzufügende CCDecimal-Gleitkommazahl
+	 * @param sigDigits  Speichert die Gleitkommazahl mit dieser Anzahl Dezimalstellen.
+	 * @return           eine Referenz auf dieses Objekt
+	 *
+	 * @throws length_error  falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc     falls dem String intern kein Speicher zugewiesen werden konnte.
+	 *
+	 * @see  CCString(const CCDecimal&)
+	 * @see  CCDecimal::toString()
+	 */
+	CCString& append(const CCDecimal& number, int32_t sigDigits);
+
+	/**
+	 * @brief Fügt eine Zahl in Textform an diesen CCString an.
+	 *
+	 * Die Zahl wird mit der über die Präzision der Zahl festgelegten Anzahl Nachkommastellen übernommen.
+	 *
+	 * @param number  die anzufügende CCDecimal-Gleitkommazahl
+	 * @return        eine Referenz auf dieses Objekt
+	 *
+	 * @throws length_error  falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc     falls dem String intern kein Speicher zugewiesen werden konnte.
+	 *
+	 * @see  CCString(const CCDecimal&)
+	 * @see  CCDecimal::toString()
+	 * @see  CCDecimal::getPrecision()
+	 */
+	CCString& append(const CCDecimal& number);
+
+	/**
 	 * @brief Fängt ungültige (nicht unterstützte) Typen für #append ab.
 	 */
 	template<typename type>
@@ -586,6 +656,22 @@ public:
 	 * @throws bad_alloc     falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& operator+=(long double number);
+	/**
+	 * @brief Fügt eine Zahl in Textform an diesen CCString an.
+	 *
+	 * Die Zahl wird mit der über die Präzision der Zahl festgelegten Anzahl Nachkommastellen übernommen.
+	 *
+	 * @param number  die anzufügende CCDecimal-Gleitkommazahl
+	 * @return        eine Referenz auf dieses Objekt
+	 *
+	 * @throws length_error  falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc     falls dem String intern kein Speicher zugewiesen werden konnte.
+	 *
+	 * @see  CCString(const CCDecimal&)
+	 * @see  CCDecimal::toString()
+	 * @see  CCDecimal::getPrecision()
+	 */
+	CCString& operator+=(const CCDecimal& number);
 
 	/**
 	 * @brief Fängt ungültige (nicht unterstützte) Typen für #operator+= ab.
@@ -737,6 +823,22 @@ public:
 	 * @throws bad_alloc     falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
 	CCString& operator<<(long double number);
+	/**
+	 * @brief Fügt eine Zahl in Textform an diesen CCString an.
+	 *
+	 * Die Zahl wird mit der über die Präzision der Zahl festgelegten Anzahl Nachkommastellen übernommen.
+	 *
+	 * @param number  die anzufügende CCDecimal-Gleitkommazahl
+	 * @return        eine Referenz auf dieses Objekt
+	 *
+	 * @throws length_error  falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc     falls dem String intern kein Speicher zugewiesen werden konnte.
+	 *
+	 * @see  CCString(const CCDecimal&)
+	 * @see  CCDecimal::toString()
+	 * @see  CCDecimal::getPrecision()
+	 */
+	CCString& operator<<(const CCDecimal& number);
 
 	/**
 	 * @brief Fängt ungültige (nicht unterstützte) Typen für #operator<< ab.
@@ -748,15 +850,77 @@ public:
 		return *this;
 	}
 	/**
+	 * @brief Überschreibt einen Teil dieses Strings durch den gegebenen CCString.
 	 *
-	 * @param pos
-	 * @param ccStr
-	 * @return
+	 * Ersetzt alle Zeichen von @p pos an durch @p ccstr, maximal jedoch bis zum Ende dieses Strings
+	 *   @n Hinweis: arithmetische Typen werden von replace nicht unterstützt.
+	 *      Kapselung in einem CCString-Objekt wird empfohlen, z.B.:
+	 *      @code
+	 *      CCString ccstr1("#################");
+	 *      double d = 1.23456789;
+	 *
+	 *      CCString ccstr2 = ccstr1.replace(3, CCString(d));
+	 *      @endcode
+	 * @param pos    die Stelle im String, an der eingefügt werden soll
+	 *               @n Hinweis: Das erste Zeichen hat den Index 0.
+	 * @param ccstr  der hineinzukopierende String
+	 * @return       eine Referenz auf dieses Objekt
+	 *
+	 * @throws length_error  falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc     falls dem String intern kein Speicher zugewiesen werden konnte.
+	 * @throws out_of_range  falls @p pos nicht innerhalb des Strings liegt.
 	 */
-	CCString& replace(size_t pos, const CCString& ccStr);
-	CCString& replace(size_t pos, const std::string& str);
-	CCString& replace(size_t pos, const char* cstr);
-	CCString& replace(size_t pos, char c);
+	CCString& replaceAt(size_t pos, const CCString& ccstr);
+	/**
+	 * @brief Überschreibt einen Teil dieses Strings durch den gegebenen C++-SString.
+	 *
+	 * Ersetzt alle Zeichen von @p pos an durch @p ccstr, maximal jedoch bis zum Ende dieses Strings.
+	 * @param pos  die Stelle im String, an der eingefügt werden soll
+	 *             @n Hinweis: Das erste Zeichen hat den Index 0.
+	 * @param str  der hineinzukopierende String
+	 * @return     eine Referenz auf dieses Objekt
+	 *
+	 * @throws length_error  falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc     falls dem String intern kein Speicher zugewiesen werden konnte.
+	 * @throws out_of_range  falls @p pos nicht innerhalb des Strings liegt.
+	 *
+	 * @see  #replaceAt(size_t,const CCString&)
+	 */
+	CCString& replaceAt(size_t pos, const std::string& str);
+	/**
+	 * @brief Überschreibt einen Teil dieses Strings durch den gegebenen C-String.
+	 *
+	 * Ersetzt alle Zeichen von @p pos an durch @p cstr, maximal jedoch bis zum Ende dieses Strings.
+	 * @param pos   die Stelle im String, an der eingefügt werden soll
+	 *              @n Hinweis: Das erste Zeichen hat den Index 0.
+	 * @param cstr  der hineinzukopierende String
+	 * @return      eine Referenz auf dieses Objekt
+	 *
+	 * @throws length_error  falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc     falls dem String intern kein Speicher zugewiesen werden konnte.
+	 * @throws out_of_range  falls @p pos nicht innerhalb des Strings liegt.
+	 *
+	 * @see  #replaceAt(size_t,const CCString&)
+	 */
+	CCString& replaceAt(size_t pos, const char* cstr);
+	/**
+	 * @brief Überschreibt das Zeichen and der Stelle @p pos mit @c c.
+	 *
+	 * @param pos  die Stelle, an der überschrieben werden soll
+	 * @param c    das Zeichen, das geschrieben werden soll
+	 * @return     eine Referenz auf dieses Objekt
+	 *
+	 * @see  #replaceAt(size_t,const CCString&)
+	 */
+	CCString& replaceAt(size_t pos, char c);
+	/**
+	 * @brief Fängt ungültige (nicht unterstützte) Typen für replaceAt ab.
+	 *
+	 * @see  #replaceAt(size_t,const CCString&)
+	 */
+	template<typename type>
+	/* operand type not supported   */CCString& replaceAt(size_t pos,
+			const type&) = delete;
 
 	/**
 	 * @brief Fügt einen anderen CCString in diesen ein.
@@ -766,8 +930,8 @@ public:
 	 * @param ccStr  die anzufügende Zeichenkette
 	 * @return       eine Referenz auf dieses Objekt
 	 *
-	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
-	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
+	 * @throws length_error  falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc     falls dem String intern kein Speicher zugewiesen werden konnte.
 	 * @throws out_of_range  falls @p pos nicht innerhalb des Strings liegt.
 	 */
 	CCString& insert(size_t pos, const CCString& ccStr);
@@ -779,8 +943,8 @@ public:
 	 * @param str  der anzufügende C++-String
 	 * @return     eine Referenz auf dieses Objekt
 	 *
-	 * @throws length_error falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
-	 * @throws bad_alloc    falls dem String intern kein Speicher zugewiesen werden konnte.
+	 * @throws length_error  falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc     falls dem String intern kein Speicher zugewiesen werden konnte.
 	 * @throws out_of_range  falls @p pos nicht innerhalb des Strings liegt.
 	 */
 	CCString& insert(size_t pos, const std::string& str);
@@ -947,6 +1111,45 @@ public:
 	 * @throws out_of_range  falls @p pos nicht innerhalb des Strings liegt.
 	 */
 	CCString& insert(size_t pos, long double number, bool hiPrec = false);
+	/**
+	 * @brief Fügt eine Zahl in Textform in diesen CCString ein.
+	 *
+	 * Die Zahl wird mit der über die Präzision der Zahl festgelegten Anzahl Nachkommastellen übernommen.
+	 *
+	 * @param pos     die Stelle im String, an der eingefügt werden soll
+	 *                @n Hinweis: Das erste Zeichen hat den Index 0.
+	 * @param number  die anzufügende CCDecimal-Gleitkommazahl
+	 * @return        eine Referenz auf dieses Objekt
+	 *
+	 * @throws length_error  falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc     falls dem String intern kein Speicher zugewiesen werden konnte.
+	 * @throws out_of_range  falls @p pos nicht innerhalb des Strings liegt.
+	 *
+	 * @see  CCString(const CCDecimal&)
+	 * @see  CCDecimal::toString()
+	 * @see  CCDecimal::getPrecision()
+	 */
+	CCString& insert(size_t pos, const CCDecimal& number);
+	/**
+	 * @brief Fügt eine Zahl in Textform in diesen CCString ein.
+	 *
+	 * Die Zahl wird in wissenschaftlicher Notation repräsentiert und mit der gegebenen
+	 * Anzahl Stellen übernommen.
+	 *
+	 * @param pos        die Stelle im String, an der eingefügt werden soll
+	 *                   @n Hinweis: Das erste Zeichen hat den Index 0.
+	 * @param number     die anzufügende CCDecimal-Gleitkommazahl
+	 * @param sigDigits  Speichert die Gleitkommazahl mit dieser Anzahl Dezimalstellen.
+	 * @return           eine Referenz auf dieses Objekt
+	 *
+	 * @throws length_error  falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
+	 * @throws bad_alloc     falls dem String intern kein Speicher zugewiesen werden konnte.
+	 * @throws out_of_range  falls @p pos nicht innerhalb des Strings liegt.
+	 *
+	 * @see  CCString(const CCDecimal&)
+	 * @see  CCDecimal::toString()
+	 */
+	CCString& insert(size_t pos, const CCDecimal& number, int32_t sigDigits);
 
 	/**
 	 * @brief Fängt ungültige (nicht unterstützte) Typen für #insert ab.
@@ -1085,9 +1288,12 @@ public:
 	/**
 	 * @brief Erzeugt einen SplitIterator, der den CCString anhand des gegebenen Trennzeichens auftrennt.
 	 *
-	 * Zu Beginn zeigt der Iterator auf den allerersten Teilstring.
+	 * Das "Trennzeichen" kann ein einzelnes Zeichen sein, ein String oder ein regulärer Ausdruck,
+	 * spezifiziert als regulärer Ausdruck.
+	 * Der erzeugte Iterator zeigt auf den allerersten Teilstring.
 	 *
-	 * Wird dieser Iterator inkrementiert, zeigt der Iterator auf den nächsten Teilstring, bis der Iterator äquivalent zu #splitEnd ist.
+	 * Wird dieser Iterator inkrementiert, zeigt der Iterator auf den nächsten Teilstring. Wird der
+	 * Iterator nach dem letztmöglichen Fund inkrementiert, wird er äquivalent zu #splitEnd.
 	 *
 	 * @param regex  das Trennzeichen, spezifiziert als regulärer Ausdruck
 	 * @return       ein SplitIterator, der auf den ersten Teilstring zeigt
@@ -1107,58 +1313,459 @@ public:
 	 */
 	SplitIterator splitEnd() const;
 
+	/**
+	 * @brief Prüft, ob dieser String dem regulären Ausdruck @p regex genügt.
+	 *
+	 * Hinweis: @n Reguläre Ausdrücke verwenden die C++-Variante der ECMAScript-Grammatik für reguläre Ausdrücke
+	 * (<a href="http://ecma-international.org/ecma-262/5.1/#sec-15.10">ECMAScript RegEx-Grammatik (Standard)</a>,
+	 * <a href="https://en.cppreference.com/w/cpp/regex/ecmascript">ECMAScript RegEx-Grammatik (modifiziert, C++-Variante)</a>).
+	 *
+	 * @param regex  der reguläre Ausdruck, dem dieser String entsprechen soll
+	 * @return       @p true, wenn der String diesem regulären Ausdruck entspricht, sonst @p false
+	 */
 	bool isMatch(const CCString& regex) const;
+	/**
+	 * @brief Prüft, ob ein Teil dieses Strings dem regulären Ausdruck @p regex entspricht.
+	 *
+	 * Hinweis: @n Reguläre Ausdrücke verwenden die C++-Variante der ECMAScript-Grammatik für reguläre Ausdrücke
+	 * (<a href="http://ecma-international.org/ecma-262/5.1/#sec-15.10">ECMAScript RegEx-Grammatik (Standard)</a>,
+	 * <a href="https://en.cppreference.com/w/cpp/regex/ecmascript">ECMAScript RegEx-Grammatik (modifiziert, C++-Variante)</a>).
+	 *
+	 * @param regex  der reguläre Ausdruck, nach dem in diesem String gesucht werden soll
+	 * @return       @p true, wenn ein Teil dieses Strings diesem regulären Ausdruck entspricht, sonst @p false
+	 */
 	bool containsMatch(const CCString& regex) const;
+
+	/**
+	 * @brief Gibt den Teil dieses Strings zurück, der dem regulären Ausdruck @p regex entspricht.
+	 *
+	 * Hinweis: @n Reguläre Ausdrücke verwenden die C++-Variante der ECMAScript-Grammatik für reguläre Ausdrücke
+	 * (<a href="http://ecma-international.org/ecma-262/5.1/#sec-15.10">ECMAScript RegEx-Grammatik (Standard)</a>,
+	 * <a href="https://en.cppreference.com/w/cpp/regex/ecmascript">ECMAScript RegEx-Grammatik (modifiziert, C++-Variante)</a>).
+	 *
+	 * @param regex  der reguläre Ausdruck, nach dem in diesem String gesucht werden soll
+	 * @return       Der Treffer der Suche oder ein leerer String, falls nichts gefunden wurde.
+	 *               Ist genau dann gleichwertig zu diesem String, falls <tt>isMatch(regex) == true</tt>.
+	 */
 	CCString getMatch(const CCString& regex) const;
-	CCString replaceAll(const CCString& regex, const CCString& replacement) const;
-	CCString replaceFirst(const CCString& regex, const CCString& replacement) const;
+
+	/**
+	 * @brief Ersetzt alle Vorkommen des regulären Ausdrucks @p regex durch den regulären Ausdruck @p replacement.
+	 *
+	 * Arbeitet an einer Kopie dieses Strings.
+	 *
+	 * Hinweis: @n Reguläre Ausdrücke verwenden die C++-Variante der ECMAScript-Grammatik für reguläre Ausdrücke
+	 * (<a href="http://ecma-international.org/ecma-262/5.1/#sec-15.10">ECMAScript RegEx-Grammatik (Standard)</a>,
+	 * <a href="https://en.cppreference.com/w/cpp/regex/ecmascript">ECMAScript RegEx-Grammatik (modifiziert, C++-Variante)</a>).
+	 *
+	 * @param regex        der reguläre Ausdruck, nach dem in diesem String gesucht werden soll
+	 * @param replacement  der reguläre Ausdruck, mit dem Treffer ersetzt werden sollen
+	 * @return             die bearbeitete Kopie dieses Strings.
+	 *                     Gleichwertig zu diesem String, falls @p regex nicht gefunden wurde.
+	 */
+	CCString replaceAll(const CCString& regex,
+			const CCString& replacement) const;
+	/**
+	 * @brief Ersetzt das erste Vorkommen des regulären Ausdrucks @p regex durch den regulären Ausdruck @p replacement.
+	 *
+	 * Arbeitet an einer Kopie dieses Strings.
+	 *
+	 * Hinweis: @n Reguläre Ausdrücke verwenden die C++-Variante der ECMAScript-Grammatik für reguläre Ausdrücke
+	 * (<a href="http://ecma-international.org/ecma-262/5.1/#sec-15.10">ECMAScript RegEx-Grammatik (Standard)</a>,
+	 * <a href="https://en.cppreference.com/w/cpp/regex/ecmascript">ECMAScript RegEx-Grammatik (modifiziert, C++-Variante)</a>).
+	 *
+	 * @param regex        der reguläre Ausdruck, nach dem in diesem String gesucht werden soll
+	 * @param replacement  der reguläre Ausdruck, mit dem Treffer ersetzt werden sollen
+	 * @return             die bearbeitete Kopie dieses Strings.
+	 *                     Gleichwertig zu diesem String, falls @p regex nicht gefunden wurde.
+	 */
+	CCString replaceFirst(const CCString& regex,
+			const CCString& replacement) const;
 
 };
-///@{
+
 /**
  * @brief Konkatenation zweier CCStrings.
  *
  * Äquivalent zu:
- * @
- * CCString(lhs)+=rhs;
+ * @n<tt>CCString(lhs)+=rhs;</tt>
  *
  * @param  lhs
  * @param  rhs
  * @return rhs, angefügt an lhs
- * @see    CCString::operator+=()
+ * @see    CCString::CCString(const CCString&)
+ * @see    CCString::operator+=(const CCString&)
  */
 CCString operator+(const CCString& lhs, const CCString& rhs);
+/**
+ * @brief Konkatenation eines CCStrings und eines C-Strings.
+ *
+ * Äquivalent zu:
+ * @n<tt>CCString(lhs)+=rhs;</tt>
+ *
+ * @param  lhs
+ * @param  rhs
+ * @return rhs, angefügt an lhs
+ * @see    CCString::CCString(const CCString&)
+ * @see    CCString::operator+=(const char*)
+ */
 CCString operator+(const CCString& lhs, const char* rhs);
+/**
+ * @brief Konkatenation eines C-Strings und eines CCStrings.
+ *
+ * Äquivalent zu:
+ * @n<tt>CCString(lhs)+=rhs;</tt>
+ *
+ * @param  lhs
+ * @param  rhs
+ * @return rhs, angefügt an lhs
+ * @see    CCString::CCString(const char*)
+ * @see    CCString::operator+=(const CCString&)
+ */
 CCString operator+(const char* lhs, const CCString& rhs);
+/**
+ * @brief Konkatenation eines CCStrings und eines C++-Strings.
+ *
+ * Äquivalent zu:
+ * @n<tt>CCString(lhs)+=rhs;</tt>
+ *
+ * @param  lhs
+ * @param  rhs
+ * @return rhs, angefügt an lhs
+ * @see    CCString::CCString(const CCString&)
+ * @see    CCString::operator+=(const std::string&)
+ */
 CCString operator+(const CCString& lhs, const std::string& rhs);
+/**
+ * @brief Konkatenation eines C++-Strings und eines CCStrings.
+ *
+ * Äquivalent zu:
+ * @n<tt>CCString(lhs)+=rhs;</tt>
+ *
+ * @param  lhs
+ * @param  rhs
+ * @return rhs, angefügt an lhs
+ * @see    CCString::CCString(const std::string&)
+ * @see    CCString::operator+=(const CCString&)
+ */
 CCString operator+(const std::string& lhs, const CCString& rhs);
+/**
+ * @brief Konkatenation eines CCStrings und eines Zeichens.
+ *
+ * Äquivalent zu:
+ * @n<tt>CCString(lhs)+=rhs;</tt>
+ *
+ * @param  lhs
+ * @param  rhs
+ * @return rhs, angefügt an lhs
+ * @see    CCString::CCString(const CCString&)
+ * @see    CCString::operator+=(char)
+ */
 CCString operator+(const CCString& lhs, char rhs);
+/**
+ * @brief Konkatenation eines Zeichens und eines CCStrings.
+ *
+ * Äquivalent zu:
+ * @n<tt>CCString(lhs)+=rhs;</tt>
+ *
+ * @param  lhs
+ * @param  rhs
+ * @return rhs, angefügt an lhs
+ * @see    CCString::CCString(char)
+ * @see    CCString::operator+=(const CCString&)
+ */
 CCString operator+(char lhs, const CCString& rhs);
 
+/**
+ * @brief Konkatenation der Textform eines Wahrheitswerts und eines CCStrings.
+ *
+ * Äquivalent zu:
+ * @n<tt>CCString(lhs)+=rhs;</tt>
+ *
+ * @param  lhs
+ * @param  rhs
+ * @return rhs, angefügt an lhs
+ * @see    CCString::CCString(bool)
+ * @see    CCString::operator+=(const CCString&)
+ */
 CCString operator+(bool lhs, const CCString& rhs);
+/**
+ * @brief Konkatenation eines CCStrings und der Textform eines Wahrheitswerts.
+ *
+ * Äquivalent zu:
+ * @n<tt>CCString(lhs)+=rhs;</tt>
+ *
+ * @param  lhs
+ * @param  rhs
+ * @return rhs, angefügt an lhs
+ * @see    CCString::CCString(const CCString&)
+ * @see    CCString::operator+=(bool)
+ */
 CCString operator+(const CCString& lhs, bool rhs);
 
+/**
+ * @brief Konkatenation eines CCStrings und einer Ganzzahl.
+ *
+ * Äquivalent zu:
+ * @n<tt>CCString(lhs)+=rhs;</tt>
+ *
+ * @param  lhs
+ * @param  rhs
+ * @return rhs, angefügt an lhs
+ * @see    CCString::CCString(const CCString&)
+ * @see    CCString::operator+=(int16_t)
+ */
 CCString operator+(const CCString& lhs, int16_t rhs);
+/**
+ * @brief Konkatenation einer Ganzzahl und einer Ganzzahl.
+ *
+ * Äquivalent zu:
+ * @n<tt>CCString(lhs)+=rhs;</tt>
+ *
+ * @param  lhs
+ * @param  rhs
+ * @return rhs, angefügt an lhs
+ * @see    CCString::CCString(int16_t)
+ * @see    CCString::operator+=(const CCString&)
+ */
 CCString operator+(int16_t lhs, const CCString& rhs);
+/**
+ * @brief Konkatenation eines CCStrings und einer Ganzzahl.
+ *
+ * Äquivalent zu:
+ * @n<tt>CCString(lhs)+=rhs;</tt>
+ *
+ * @param  lhs
+ * @param  rhs
+ * @return rhs, angefügt an lhs
+ * @see    CCString::CCString(const CCString&)
+ * @see    CCString::operator+=(int32_t)
+ */
 CCString operator+(const CCString& lhs, int32_t rhs);
+/**
+ * @brief Konkatenation einer Ganzzahl und einer Ganzzahl.
+ *
+ * Äquivalent zu:
+ * @n<tt>CCString(lhs)+=rhs;</tt>
+ *
+ * @param  lhs
+ * @param  rhs
+ * @return rhs, angefügt an lhs
+ * @see    CCString::CCString(int32_t)
+ * @see    CCString::operator+=(const CCString&)
+ */
 CCString operator+(int32_t lhs, const CCString& rhs);
+/**
+ * @brief Konkatenation eines CCStrings und einer Ganzzahl.
+ *
+ * Äquivalent zu:
+ * @n<tt>CCString(lhs)+=rhs;</tt>
+ *
+ * @param  lhs
+ * @param  rhs
+ * @return rhs, angefügt an lhs
+ * @see    CCString::CCString(const CCString&)
+ * @see    CCString::operator+=(int64_t)
+ */
 CCString operator+(const CCString& lhs, int64_t rhs);
+/**
+ * @brief Konkatenation einer Ganzzahl und einer Ganzzahl.
+ *
+ * Äquivalent zu:
+ * @n<tt>CCString(lhs)+=rhs;</tt>
+ *
+ * @param  lhs
+ * @param  rhs
+ * @return rhs, angefügt an lhs
+ * @see    CCString::CCString(int64_t)
+ * @see    CCString::operator+=(const CCString&)
+ */
 CCString operator+(int64_t lhs, const CCString& rhs);
 
+/**
+ * @brief Konkatenation eines CCStrings und einer Ganzzahl.
+ *
+ * Äquivalent zu:
+ * @n<tt>CCString(lhs)+=rhs;</tt>
+ *
+ * @param  lhs
+ * @param  rhs
+ * @return rhs, angefügt an lhs
+ * @see    CCString::CCString(const CCString&)
+ * @see    CCString::operator+=(uint16_t)
+ */
 CCString operator+(const CCString& lhs, uint16_t rhs);
+/**
+ * @brief Konkatenation einer Ganzzahl und einer Ganzzahl.
+ *
+ * Äquivalent zu:
+ * @n<tt>CCString(lhs)+=rhs;</tt>
+ *
+ * @param  lhs
+ * @param  rhs
+ * @return rhs, angefügt an lhs
+ * @see    CCString::CCString(uint16_t)
+ * @see    CCString::operator+=(const CCString&)
+ */
 CCString operator+(uint16_t lhs, const CCString& rhs);
+/**
+ * @brief Konkatenation eines CCStrings und einer Ganzzahl.
+ *
+ * Äquivalent zu:
+ * @n<tt>CCString(lhs)+=rhs;</tt>
+ *
+ * @param  lhs
+ * @param  rhs
+ * @return rhs, angefügt an lhs
+ * @see    CCString::CCString(const CCString&)
+ * @see    CCString::operator+=(uint32_t)
+ */
 CCString operator+(const CCString& lhs, uint32_t rhs);
+/**
+ * @brief Konkatenation einer Ganzzahl und einer Ganzzahl.
+ *
+ * Äquivalent zu:
+ * @n<tt>CCString(lhs)+=rhs;</tt>
+ *
+ * @param  lhs
+ * @param  rhs
+ * @return rhs, angefügt an lhs
+ * @see    CCString::CCString(uint32_t)
+ * @see    CCString::operator+=(const CCString&)
+ */
 CCString operator+(uint32_t lhs, const CCString& rhs);
+/**
+ * @brief Konkatenation eines CCStrings und einer Ganzzahl.
+ *
+ * Äquivalent zu:
+ * @n<tt>CCString(lhs)+=rhs;</tt>
+ *
+ * @param  lhs
+ * @param  rhs
+ * @return rhs, angefügt an lhs
+ * @see    CCString::CCString(const CCString&)
+ * @see    CCString::operator+=(uint64_t)
+ */
 CCString operator+(const CCString& lhs, uint64_t rhs);
+/**
+ * @brief Konkatenation einer Ganzzahl und einer Ganzzahl.
+ *
+ * Äquivalent zu:
+ * @n<tt>CCString(lhs)+=rhs;</tt>
+ *
+ * @param  lhs
+ * @param  rhs
+ * @return rhs, angefügt an lhs
+ * @see    CCString::CCString(uint64_t)
+ * @see    CCString::operator+=(const CCString&)
+ */
 CCString operator+(uint64_t lhs, const CCString& rhs);
 
+/**
+ * @brief Konkatenation eines CCStrings und einer Gleitkommazahl.
+ *
+ * Äquivalent zu:
+ * @n<tt>CCString(lhs)+=rhs;</tt>
+ *
+ * @param  lhs
+ * @param  rhs
+ * @return rhs, angefügt an lhs
+ * @see    CCString::CCString(const CCString&)
+ * @see    CCString::operator+=(float)
+ */
 CCString operator+(const CCString& lhs, float rhs);
+/**
+ * @brief Konkatenation einer Ganzzahl und einer Gleitkommazahl.
+ *
+ * Äquivalent zu:
+ * @n<tt>CCString(lhs)+=rhs;</tt>
+ *
+ * @param  lhs
+ * @param  rhs
+ * @return rhs, angefügt an lhs
+ * @see    CCString::CCString(float)
+ * @see    CCString::operator+=(const CCString&)
+ */
 CCString operator+(float lhs, const CCString& rhs);
+/**
+ * @brief Konkatenation eines CCStrings und einer Gleitkommazahl.
+ *
+ * Äquivalent zu:
+ * @n<tt>CCString(lhs)+=rhs;</tt>
+ *
+ * @param  lhs
+ * @param  rhs
+ * @return rhs, angefügt an lhs
+ * @see    CCString::CCString(const CCString&)
+ * @see    CCString::operator+=(double)
+ */
 CCString operator+(const CCString& lhs, double rhs);
+/**
+ * @brief Konkatenation einer Ganzzahl und einer Gleitkommazahl.
+ *
+ * Äquivalent zu:
+ * @n<tt>CCString(lhs)+=rhs;</tt>
+ *
+ * @param  lhs
+ * @param  rhs
+ * @return rhs, angefügt an lhs
+ * @see    CCString::CCString(double)
+ * @see    CCString::operator+=(const CCString&)
+ */
 CCString operator+(double lhs, const CCString& rhs);
+/**
+ * @brief Konkatenation eines CCStrings und einer Gleitkommazahl.
+ *
+ * Äquivalent zu:
+ * @n<tt>CCString(lhs)+=rhs;</tt>
+ *
+ * @param  lhs
+ * @param  rhs
+ * @return rhs, angefügt an lhs
+ * @see    CCString::CCString(const CCString&)
+ * @see    CCString::operator+=(long double)
+ */
 CCString operator+(const CCString& lhs, long double rhs);
+/**
+ * @brief Konkatenation einer Ganzzahl und einer Gleitkommazahl.
+ *
+ * Äquivalent zu:
+ * @n<tt>CCString(lhs)+=rhs;</tt>
+ *
+ * @param  lhs
+ * @param  rhs
+ * @return rhs, angefügt an lhs
+ * @see    CCString::CCString(long double)
+ * @see    CCString::operator+=(const CCString&)
+ */
 CCString operator+(long double lhs, const CCString& rhs);
-///@}
+/**
+ * @brief Konkatenation eines CCStrings und einer CCDecimal-Gleitkommazahl.
+ *
+ * Äquivalent zu:
+ * @n<tt>CCString(lhs)+=rhs;</tt>
+ *
+ * @param  lhs
+ * @param  rhs
+ * @return rhs, angefügt an lhs
+ * @see    CCString::CCString(const CCString&)
+ * @see    CCString::operator+=(long double)
+ */
+CCString operator+(const CCString& lhs, const CCDecimal& rhs);
+/**
+ * @brief Konkatenation einer Ganzzahl und einer CCDecimal-Gleitkommazahl.
+ *
+ * Äquivalent zu:
+ * @n<tt>CCString(lhs)+=rhs;</tt>
+ *
+ * @param  lhs
+ * @param  rhs
+ * @return rhs, angefügt an lhs
+ * @see    CCString::CCString(long double)
+ * @see    CCString::operator+=(const CCString&)
+ */
+CCString operator+(const CCDecimal& lhs, const CCString& rhs);
+
 /**
  * @brief Fängt ungültige (nicht unterstützte) Typen für #operator+ ab.
  */
@@ -1168,6 +1775,7 @@ template<typename type1, typename type2>
 			"Operand type not supported. Please revise your code.");
 	return CCString();
 }
+
 /* as per https://en.cppreference.com/w/cpp/language/operators */
 /**
  * @brief Prüft zwei CCStrings auf Ungleichheit
@@ -1211,12 +1819,14 @@ inline bool operator>=(const CCString& lhs, const CCString& rhs) {
 }
 
 /**
- * @brief Iterator-Typ zur Implementierung von Spaltungen an Trennzeichen.
+ * @class CCString::SplitIterator
+ * @brief Iterator-Typ zur Implementierung von Auftrennungen an Trennzeichen.
  *
  * Iteriert über alle Teil-Strings zwischen den Trennzeichen, einschließlich leerer Teilstrings,
  * falls sich Trennzeichen hintereinander befinden oder sich ein Trennzeichen am Anfang oder Ende befindet.
  */
-class CCString::SplitIterator: public std::iterator<std::input_iterator_tag, const CCString> {
+class CCString::SplitIterator: public std::iterator<std::input_iterator_tag,
+		const CCString> {
 private:
 	/**
 	 * @brief Zeiger auf den CCString, der aufgetrennt wird.
