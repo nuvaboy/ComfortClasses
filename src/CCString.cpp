@@ -390,7 +390,7 @@ CCString operator+(long double lhs, const CCString& rhs) {
 	return CCString(lhs) += rhs;
 }
 
-CCString& CCString::replace(size_t pos, const CCString& ccStr) {
+CCString& CCString::replaceAt(size_t pos, const CCString& ccStr) {
 	try {
 		internalStr.replace(pos, ccStr.length(), ccStr.internalStr);
 		return *this;
@@ -409,7 +409,7 @@ CCString& CCString::replace(size_t pos, const CCString& ccStr) {
 	}
 
 }
-CCString& CCString::replace(size_t pos, const std::string& str) {
+CCString& CCString::replaceAt(size_t pos, const std::string& str) {
 	try {
 		internalStr.replace(pos, str.length(), str);
 		return *this;
@@ -430,7 +430,7 @@ CCString& CCString::replace(size_t pos, const std::string& str) {
 	throw std::exception();
 }
 
-CCString& CCString::replace(size_t pos, const char* cstr) {
+CCString& CCString::replaceAt(size_t pos, const char* cstr) {
 	try {
 		internalStr.replace(pos, std::char_traits<char>::length(cstr), cstr);
 		return *this;
@@ -449,7 +449,7 @@ CCString& CCString::replace(size_t pos, const char* cstr) {
 	}
 
 }
-CCString& CCString::replace(size_t pos, char c) {
+CCString& CCString::replaceAt(size_t pos, char c) {
 	try {
 		internalStr.at(pos) = c;
 		return *this;
