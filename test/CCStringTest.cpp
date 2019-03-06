@@ -109,13 +109,13 @@ GROUP_TEST(append, CCStringTest, concatenateOperator) {
 
 GROUP_TEST(edit, CCStringTest, replace) {
 	CCString ccstr = 1234567890;
-	ccstr.replace(0, CCString("abc"));
+	ccstr.replaceAt(0, CCString("abc"));
 	EXPECT_EQ(ccstr, CCString("abc4567890"));
-	ccstr.replace(3, std::string("def"));
+	ccstr.replaceAt(3, std::string("def"));
 	EXPECT_EQ(ccstr, CCString("abcdef7890"));
-	ccstr.replace(6, "ghi");
+	ccstr.replaceAt(6, "ghi");
 	EXPECT_EQ(ccstr, CCString("abcdefghi0"));
-	ccstr.replace(9, 'j');
+	ccstr.replaceAt(9, 'j');
 	EXPECT_EQ(ccstr, CCString("abcdefghij"));
 }
 
