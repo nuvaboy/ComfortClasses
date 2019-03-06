@@ -34,12 +34,12 @@ private:
 	 */
 	std::string internalStr;
 
+public:
 	/**
 	 * @class SplitIterator
 	 */
 	class SplitIterator;
 
-public:
 	/**
 	 * Enthält den größtmöglichen Wert für size_t.
 	 *
@@ -892,8 +892,7 @@ public:
 	 * @see  #replaceAt(size_t,const CCString&)
 	 */
 	template<typename type>
-	/* operand type not supported   */CCString& replaceAt(size_t pos,
-			const type&) = delete;
+	/* operand type not supported   */CCString& replaceAt(size_t pos, const type&) = delete;
 
 	/**
 	 * @brief Fügt einen anderen CCString in diesen ein.
@@ -1332,8 +1331,7 @@ public:
 	 * @return             die bearbeitete Kopie dieses Strings.
 	 *                     Gleichwertig zu diesem String, falls @p regex nicht gefunden wurde.
 	 */
-	CCString replaceAll(const CCString& regex,
-			const CCString& replacement) const;
+	CCString replaceAll(const CCString& regex, const CCString& replacement) const;
 	/**
 	 * @brief Ersetzt das erste Vorkommen des regulären Ausdrucks @p regex durch den regulären Ausdruck @p replacement.
 	 *
@@ -1348,9 +1346,7 @@ public:
 	 * @return             die bearbeitete Kopie dieses Strings.
 	 *                     Gleichwertig zu diesem String, falls @p regex nicht gefunden wurde.
 	 */
-	CCString replaceFirst(const CCString& regex,
-			const CCString& replacement) const;
-
+	CCString replaceFirst(const CCString& regex, const CCString& replacement) const;
 };
 
 /**
@@ -1790,8 +1786,7 @@ inline bool operator>=(const CCString& lhs, const CCString& rhs) {
  * Iteriert über alle Teil-Strings zwischen den Trennzeichen, einschließlich leerer Teilstrings,
  * falls sich Trennzeichen hintereinander befinden oder sich ein Trennzeichen am Anfang oder Ende befindet.
  */
-class CCString::SplitIterator: public std::iterator<std::input_iterator_tag,
-		const CCString> {
+class CCString::SplitIterator: public std::iterator<std::input_iterator_tag, const CCString> {
 private:
 	/**
 	 * @brief Zeiger auf den CCString, der aufgetrennt wird.
@@ -1844,6 +1839,13 @@ public:
 	 * @param orig Zu kopierender SplitIterator
 	 */
 	SplitIterator(const SplitIterator& orig);
+	/**
+	 * @brief Kopierzuweisung
+	 *
+	 * Erzeugt eine vollständige Kopie des Iterators. Alle internen Variablen werden kopiert.
+	 * @param orig Zuzuweisender SplitIterator
+	 */
+	SplitIterator& operator=(const SplitIterator& orig);
 
 	/**
 	 * @brief Erzeugt einen SplitIterator, der @p origin anhand des Trennzeichens @p regex auftrennt.
