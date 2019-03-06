@@ -5,6 +5,14 @@
  *      Author: jan
  */
 
+/**
+ * @file    CCString.cpp
+ *
+ * @brief   Implementierung von CCString, CCString::SplitIterator und anderen zusammenhängenden Funktionen.
+ *
+ * @author  Jan Alexander Stiehl
+ */
+
 #include "CCString.h"
 
 #include <iomanip>
@@ -29,10 +37,11 @@ CCString::CCString(char c) :
 CCString::CCString(bool b) :
 		CCString() {
 	if (b) {
-		internalStr = std::use_facet<std::numpunct<char>>(std::locale()).truename();
-	}
-	else {
-		internalStr = std::use_facet<std::numpunct<char>>(std::locale()).falsename();
+		internalStr =
+				std::use_facet<std::numpunct<char>>(std::locale()).truename();
+	} else {
+		internalStr =
+				std::use_facet<std::numpunct<char>>(std::locale()).falsename();
 	}
 }
 
@@ -63,10 +72,11 @@ CCString::CCString(long double number, bool hiPrec) :
 		CCString() {
 	if (hiPrec) {
 		std::stringstream stringStream;
-		stringStream << std::setprecision(std::numeric_limits<long double>::digits10) << number;
+		stringStream
+				<< std::setprecision(std::numeric_limits<long double>::digits10)
+				<< number;
 		internalStr = stringStream.str();
-	}
-	else {
+	} else {
 		internalStr = std::to_string(number);
 	}
 }
@@ -117,22 +127,18 @@ size_t CCString::length() const {
 char& CCString::at(size_t index) {
 	try {
 		return internalStr.at(index);
-	}
-	catch (std::out_of_range& e) {
+	} catch (std::out_of_range& e) {
 		e.what();
 		throw std::out_of_range("Index pointing outside of the string.");
 	}
-
 }
 const char& CCString::at(size_t index) const {
 	try {
 		return internalStr.at(index);
-	}
-	catch (std::out_of_range& e) {
+	} catch (std::out_of_range& e) {
 		e.what();
 		throw std::out_of_range("Index pointing outside of the string.");
 	}
-
 }
 
 char& CCString::operator[](size_t index) {
@@ -154,59 +160,44 @@ CCString& CCString::append(const CCString& ccStr) {
 	try {
 		internalStr.append(ccStr.internalStr);
 		return *this;
-	}
-	catch (std::length_error& e) {
+	} catch (std::length_error& e) {
 		e.what();
 		throw std::length_error("Result exceeding max length for a string.");
+	} catch (std::bad_alloc& e) {
+		throw;
 	}
-	catch (std::bad_alloc& e) {
-		e.what();
-		throw std::bad_alloc();
-	}
-
 }
 CCString& CCString::append(const std::string& str) {
 	try {
 		internalStr.append(str);
 		return *this;
-	}
-	catch (std::length_error& e) {
+	} catch (std::length_error& e) {
 		e.what();
 		throw std::length_error("Result exceeding max length for a string.");
+	} catch (std::bad_alloc& e) {
+		throw;
 	}
-	catch (std::bad_alloc& e) {
-		e.what();
-		throw std::bad_alloc();
-	}
-
 }
 CCString& CCString::append(const char* cstr) {
 	try {
 		internalStr.append(cstr);
 		return *this;
-	}
-	catch (std::length_error& e) {
+	} catch (std::length_error& e) {
 		e.what();
 		throw std::length_error("Result exceeding max length for a string.");
+	} catch (std::bad_alloc& e) {
+		throw;
 	}
-	catch (std::bad_alloc& e) {
-		e.what();
-		throw std::bad_alloc();
-	}
-
 }
 CCString& CCString::append(char c) {
 	try {
 		internalStr.push_back(c);
 		return *this;
-	}
-	catch (std::length_error& e) {
+	} catch (std::length_error& e) {
 		e.what();
 		throw std::length_error("Result exceeding max length for a string.");
-	}
-	catch (std::bad_alloc& e) {
-		e.what();
-		throw std::bad_alloc();
+	} catch (std::bad_alloc& e) {
+		throw;
 	}
 
 }
@@ -239,6 +230,12 @@ CCString& CCString::append(double d, bool hiPrec) {
 }
 CCString& CCString::append(long double d, bool hiPrec) {
 	return append(CCString(d, hiPrec));
+}
+CCString& CCString::append(const CCDecimal& d, int32_t sigDigits) {
+	return append(CCString(d, sigDigits));
+}
+CCString& CCString::append(const CCDecimal& d) {
+	return append(CCString(d));
 }
 
 CCString& CCString::operator<<(const CCString& ccStr) {
@@ -283,6 +280,9 @@ CCString& CCString::operator<<(double d) {
 CCString& CCString::operator<<(long double d) {
 	return append(CCString(d));
 }
+CCString& CCString::operator<<(const CCDecimal& d) {
+	return append(CCString(d));
+}
 
 CCString& CCString::operator+=(const CCString& ccStr) {
 	return append(ccStr);
@@ -324,6 +324,9 @@ CCString& CCString::operator+=(double d) {
 	return append(CCString(d));
 }
 CCString& CCString::operator+=(long double d) {
+	return append(CCString(d));
+}
+CCString& CCString::operator+=(const CCDecimal& d) {
 	return append(CCString(d));
 }
 
@@ -390,152 +393,121 @@ CCString operator+(long double lhs, const CCString& rhs) {
 	return CCString(lhs) += rhs;
 }
 
-CCString& CCString::replace(size_t pos, const CCString& ccStr) {
+CCString operator+(const CCString& lhs, const CCDecimal& rhs) {
+	return CCString(lhs) += rhs;
+}
+CCString operator+(const CCDecimal lhs, const CCString& rhs) {
+	return CCString(lhs) += rhs;
+}
+
+CCString& CCString::replaceAt(size_t pos, const CCString& ccStr) {
 	try {
 		internalStr.replace(pos, ccStr.length(), ccStr.internalStr);
 		return *this;
-	}
-	catch (std::out_of_range& e) {
+	} catch (std::out_of_range& e) {
 		e.what();
 		throw std::out_of_range("Position pointing outside of the string.");
-	}
-	catch (std::length_error& e) {
+	} catch (std::length_error& e) {
 		e.what();
 		throw std::length_error("Result exceeding max length for a string.");
+	} catch (std::bad_alloc& e) {
+		throw;
 	}
-	catch (std::bad_alloc& e) {
-		e.what();
-		throw std::bad_alloc();
-	}
-
 }
-CCString& CCString::replace(size_t pos, const std::string& str) {
+CCString& CCString::replaceAt(size_t pos, const std::string& str) {
 	try {
 		internalStr.replace(pos, str.length(), str);
 		return *this;
-	}
-	catch (std::out_of_range& e) {
+	} catch (std::out_of_range& e) {
 		e.what();
 		throw std::out_of_range("Position pointing outside of the string.");
-	}
-	catch (std::length_error& e) {
+	} catch (std::length_error& e) {
 		e.what();
 		throw std::length_error("Result exceeding max length for a string.");
+	} catch (std::bad_alloc& e) {
+		throw;
 	}
-	catch (std::bad_alloc& e) {
-		e.what();
-		throw std::bad_alloc();
-	}
-
-	throw std::exception();
 }
 
-CCString& CCString::replace(size_t pos, const char* cstr) {
+CCString& CCString::replaceAt(size_t pos, const char* cstr) {
 	try {
 		internalStr.replace(pos, std::char_traits<char>::length(cstr), cstr);
 		return *this;
-	}
-	catch (std::out_of_range& e) {
+	} catch (std::out_of_range& e) {
 		e.what();
 		throw std::out_of_range("Position pointing outside of the string.");
-	}
-	catch (std::length_error& e) {
+	} catch (std::length_error& e) {
 		e.what();
 		throw std::length_error("Result exceeding max length for a string.");
+	} catch (std::bad_alloc& e) {
+		throw;
 	}
-	catch (std::bad_alloc& e) {
-		e.what();
-		throw std::bad_alloc();
-	}
-
 }
-CCString& CCString::replace(size_t pos, char c) {
+CCString& CCString::replaceAt(size_t pos, char c) {
 	try {
 		internalStr.at(pos) = c;
 		return *this;
-	}
-	catch (std::out_of_range& e) {
+	} catch (std::out_of_range& e) {
 		e.what();
 		throw std::out_of_range("Position pointing outside of the string.");
 	}
-
 }
 
 CCString& CCString::insert(size_t pos, const CCString& ccStr) {
 	try {
 		internalStr.insert(pos, ccStr.internalStr);
 		return *this;
-	}
-	catch (std::out_of_range& e) {
+	} catch (std::out_of_range& e) {
 		e.what();
 		throw std::out_of_range("Position pointing outside of the string.");
-	}
-	catch (std::length_error& e) {
+	} catch (std::length_error& e) {
 		e.what();
 		throw std::length_error("Result exceeding max length for a string.");
+	} catch (std::bad_alloc& e) {
+		throw;
 	}
-	catch (std::bad_alloc& e) {
-		e.what();
-		throw std::bad_alloc();
-	}
-
 }
 CCString& CCString::insert(size_t pos, const std::string& str) {
 	try {
 		internalStr.insert(pos, str);
 		return *this;
-	}
-	catch (std::out_of_range& e) {
+	} catch (std::out_of_range& e) {
 		e.what();
 		throw std::out_of_range("Position pointing outside of the string.");
-	}
-	catch (std::length_error& e) {
+	} catch (std::length_error& e) {
 		e.what();
 		throw std::length_error("Result exceeding max length for a string.");
+	} catch (std::bad_alloc& e) {
+		throw;
 	}
-	catch (std::bad_alloc& e) {
-		e.what();
-		throw std::bad_alloc();
-	}
-
 }
 CCString& CCString::insert(size_t pos, const char* cstr) {
 	try {
 		internalStr.insert(pos, cstr);
 		return *this;
-	}
-	catch (std::out_of_range& e) {
+	} catch (std::out_of_range& e) {
 		e.what();
 		throw std::out_of_range("Position pointing outside of the string.");
-	}
-	catch (std::length_error& e) {
+	} catch (std::length_error& e) {
 		e.what();
 		throw std::length_error("Result exceeding max length for a string.");
+	} catch (std::bad_alloc& e) {
+		throw;
 	}
-	catch (std::bad_alloc& e) {
-		e.what();
-		throw std::bad_alloc();
-	}
-
 }
 CCString& CCString::insert(size_t pos, char c) {
 	try {
 		internalStr.insert(pos, 1, c);
 		return *this;
-	}
-	catch (std::out_of_range& e) {
+	} catch (std::out_of_range& e) {
 		e.what();
 		throw std::out_of_range("Position pointing outside of the string.");
-	}
-	catch (std::length_error& e) {
+	} catch (std::length_error& e) {
 		e.what();
 		throw std::length_error("Result exceeding max length for a string.");
+	} catch (std::bad_alloc& e) {
+		throw;
 	}
-	catch (std::bad_alloc& e) {
-		e.what();
-		throw std::bad_alloc();
-	}
-
 }
 
 CCString& CCString::insert(size_t pos, bool b) {
@@ -569,13 +541,18 @@ CCString& CCString::insert(size_t pos, double d, bool hiPrec) {
 CCString& CCString::insert(size_t pos, long double d, bool hiPrec) {
 	return insert(pos, CCString(d, hiPrec));
 }
+CCString& CCString::insert(size_t pos, const CCDecimal& d, int32_t sigDigits) {
+	return insert(pos, CCString(d, sigDigits));
+}
+CCString& CCString::insert(size_t pos, const CCDecimal& d) {
+	return insert(pos, CCString(d));
+}
 
 CCString& CCString::erase(size_t pos, size_t length) {
 	try {
 		internalStr.erase(pos, length);
 		return *this;
-	}
-	catch (std::out_of_range& e) {
+	} catch (std::out_of_range& e) {
 		e.what();
 		throw std::out_of_range("Position pointing outside of the string.");
 	}
@@ -584,10 +561,12 @@ CCString& CCString::erase(size_t pos, size_t length) {
 
 CCString& CCString::trim() {
 	for (auto it = internalStr.begin();
-			it != internalStr.end() && !std::isgraph(*it, std::locale()); internalStr.erase(it)) {
+			it != internalStr.end() && !std::isgraph(*it, std::locale());
+			internalStr.erase(it)) {
 	}
 	for (auto rit = internalStr.rbegin();
-			rit != internalStr.rend() && !std::isgraph(*rit, std::locale()); rit++) {
+			rit != internalStr.rend() && !std::isgraph(*rit, std::locale());
+			rit++) {
 		internalStr.erase(rit.base());
 	}
 	return *this;
@@ -610,14 +589,11 @@ CCString& CCString::trim() {
 CCString CCString::subString(size_t pos, size_t length) const {
 	try {
 		return CCString(internalStr.substr(pos, length));
-	}
-	catch (std::out_of_range& e) {
+	} catch (std::out_of_range& e) {
 		e.what();
 		throw std::out_of_range("Position pointing outside of the string.");
-	}
-	catch (std::bad_alloc& e) {
-		e.what();
-		throw std::bad_alloc();
+	} catch (std::bad_alloc& e) {
+		throw;
 	}
 
 }
@@ -670,24 +646,33 @@ CCString CCString::getMatch(const CCString& regex) const {
 	}
 	return CCString(std::string(matches[0]));
 }
-CCString CCString::replaceAll(const CCString& regex, const CCString& replacement) const {
+CCString CCString::replaceAll(const CCString& regex,
+		const CCString& replacement) const {
 	std::regex re(regex.internalStr);
 	return std::regex_replace(internalStr, re, replacement.internalStr);
 }
-CCString CCString::replaceFirst(const CCString& regex, const CCString& replacement) const {
+CCString CCString::replaceFirst(const CCString& regex,
+		const CCString& replacement) const {
 	std::regex re(regex.internalStr);
 	std::smatch matches;
-	std::regex_search(internalStr, re);
+	std::regex_search(internalStr, matches, re);
+
+	if (matches.empty()) {
+		return CCString(*this);
+	}
+	if (!matches[0].matched) {
+		return CCString(*this);
+	}
 
 	auto startOfString = matches.prefix().first;
 	auto endOfFirstMatch = matches[0].second;
 	auto endOfAll = matches.suffix().second;
 
 	std::string resultFirstHalf;
-	std::regex_replace(std::back_inserter(resultFirstHalf), startOfString, endOfFirstMatch, re,
-			replacement.internalStr);
-	resultFirstHalf += std::string(endOfFirstMatch, endOfAll);
-	return regex;
+	std::regex_replace(std::back_inserter(resultFirstHalf), startOfString,
+			endOfFirstMatch, re, replacement.internalStr);
+	resultFirstHalf.append(endOfFirstMatch, endOfAll);
+	return CCString(resultFirstHalf);
 }
 
 CCString::SplitIterator CCString::splitBegin(const CCString& regex) const {
@@ -708,7 +693,8 @@ CCString::SplitIterator::SplitIterator(const SplitIterator& orig) :
 {
 }
 
-CCString::SplitIterator::SplitIterator(const CCString& origin, const CCString& regex) :
+CCString::SplitIterator::SplitIterator(const CCString& origin,
+		const CCString& regex) :
 		originString(&origin), //
 		separatorRegex(regex.internalStr), //
 		currentSplit(new CCString()), //
@@ -741,12 +727,12 @@ void CCString::SplitIterator::doSplit() {
 		currentSplit.swap(newSplit);
 		//set remainder to empty
 		currentRemainder.erase();
-	}
-	else {
+	} else {
 		//mark match
 		hadMatch = true;
 		std::string splitStr(matches.prefix().first, matches.prefix().second);
-		std::string remainderStr(matches.suffix().first, matches.suffix().second);
+		std::string remainderStr(matches.suffix().first,
+				matches.suffix().second);
 
 		std::unique_ptr<CCString> newSplit(new CCString(splitStr));
 		currentSplit.swap(newSplit);
@@ -777,15 +763,18 @@ const CCString* CCString::SplitIterator::operator->() const {
 bool CCString::SplitIterator::operator==(const SplitIterator& other) const {
 
 //Check for domain (operating on the same CCString?)
-	if (originString != other.originString) return false;
+	if (originString != other.originString)
+		return false;
 
 //Check for past-the-end
-	if (isFinished || other.isFinished) return isFinished && other.isFinished;
+	if (isFinished || other.isFinished)
+		return isFinished && other.isFinished;
 
 //check for equality on: regex and position
 	if (separatorRegex == other.separatorRegex)
 		if (*currentSplit == *other.currentSplit)
-			if (currentRemainder == other.currentRemainder) return true;
+			if (currentRemainder == other.currentRemainder)
+				return true;
 
 	return false;
 }
