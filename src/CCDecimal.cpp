@@ -26,7 +26,6 @@
 
 using namespace std;
 
-
 //### static attribute initialization
 int32_t CCDecimal::globalPrecision = 11;
 
@@ -66,12 +65,13 @@ CCDecimal::CCDecimal(const string& numberStr) :
 CCDecimal::CCDecimal(const char* numberCStr) :
 		CCDecimal(string(numberCStr)) {
 }
-CCDecimal::CCDecimal(const CCString& ccStr) : CCDecimal(){
+CCDecimal::CCDecimal(const CCString& ccStr) :
+		CCDecimal() {
 	constructFromString(ccStr.toString());
 }
 
 //### public setter/getter #########################
-int32_t CCDecimal::getPrecision() const{
+int32_t CCDecimal::getPrecision() const {
 	return *pPrecision - 1;
 }
 void CCDecimal::setLocalPrecision(int32_t precision) {
@@ -79,7 +79,7 @@ void CCDecimal::setLocalPrecision(int32_t precision) {
 	localPrecision = precision + 1;
 	pPrecision = &localPrecision;
 }
-int32_t CCDecimal::getGlobalPrecision(){
+int32_t CCDecimal::getGlobalPrecision() {
 	return CCDecimal::globalPrecision - 1;
 }
 void CCDecimal::setGlobalPrecision(int32_t precision) {
@@ -297,7 +297,6 @@ ostream& operator <<(ostream& os, const CCDecimal& dec) {
 	return os << dec.toString(os.precision(), false);
 }
 
-
 //### conversion functions #########################
 void CCDecimal::round(CCDecimal* pDec, int32_t precOut) {
 
@@ -455,7 +454,6 @@ double CCDecimal::toDouble() const {
 //### utility funcions ############################
 void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 
-
 	//ASSERT_TRUE((*result == CCDecimal()));
 
 	//determine the most and the least precise decimal
@@ -483,7 +481,7 @@ void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 
 		if (digToSpend < digToCut) { //overflow
 
-			result->digit[MAX] = 1;
+			result->digit[MAX] = 1; //set overflow flag
 			return; //throw std::overflow_error("Result is too large to store in Decimal. Keep values in range or reduce precision!");
 		}
 
@@ -531,7 +529,7 @@ void CCDecimal::add(CCDecimal* result, const CCDecimal& op2) const {
 			result->digit[i - trailingZeroes] = result->digit[i];
 		}
 
-		//decrease used and increase shift according to the number of leading zeroes
+		//decrease used and increase shift according to the number of trailing zeroes
 		used_result -= trailingZeroes;
 		shift_result += trailingZeroes;
 
@@ -557,33 +555,30 @@ void CCDecimal::sub(CCDecimal* result, const CCDecimal& opSmall) const {
 
 	int32_t shift_delta = opSmall.shift - shift;
 
-	int32_t toCut = 0;
-	int32_t toSpend = 0;
+	int32_t digToCut = 0;
+	int32_t digToSpend = 0;
 
 	int32_t merged_used = max<int32_t>(-shift_delta, 0) + (int32_t) used;
 	int32_t tail_length = max<int32_t>(-shift_delta, 0);
 
 	//cutting
 	if (merged_used > MAX) {
-		toCut = merged_used - MAX;
-		toSpend = max<int32_t>(-min<int32_t>(shift, opSmall.shift) - *pPrecision, 0);
+		digToCut = merged_used - MAX - 1; //is one less, because we bet that that the subtraction results in one leading zero
+		digToSpend = max<int32_t>(-min<int32_t>(shift, opSmall.shift) - *pPrecision, 0);
 
-		if (toCut > toSpend + 1) { //overflows by more than one digit
+		if (digToCut > digToSpend) { //overflows by more than one digit
 			result->digit[MAX] = 1;
-			return; // throw std::overflow_error("Can not cut result to minimal precision!");
+			return;
 		}
-
-		// bet that one will be reduced
-		toCut--; //change: cut one less, if you can spend one
 	}
 
-	//Cut one less?toCut > 0
-	bool msdIsZero = false;
-
 	//can I spend digits?
-	if (toSpend >= toCut + 1) { //&& tz_body == 0 && tz_head == 0
+	if (digToSpend >= digToCut + 1) {
 
-	//Compute in advance if the MSD will become zero.
+		//Cut one less?
+		bool msdIsZero = false;
+
+		//Compute in advance if the MSD will become zero.
 		if (digit[used - 1] == 1) { //HINT: Where has to be a head, if cutting is necessary.
 			bool carryFromBody = false;
 
@@ -605,26 +600,27 @@ void CCDecimal::sub(CCDecimal* result, const CCDecimal& opSmall) const {
 					}
 				}
 			}
-			if (i < 0 || carryFromBody) { //tail follows directly after head
-				msdIsZero = true;
 
-				printf("MSD will become zero!\n");
-			}
+			//tail follows directly after head
+			if (i < 0 || carryFromBody) msdIsZero = true;
+
 		}
-		if (msdIsZero == false) toCut++;
+		if (msdIsZero == false) digToCut++;
 
 	}
 
 	bool hasTail = shift_delta < 0;
 
-	//trailing zeroes
+	//count trailing zeroes in head and body
 	bool carry = hasTail;
 	int32_t tz_body = 0;
 	int32_t tz_head = 0;
-	if (toCut == -shift_delta) {
+	if (digToCut == -shift_delta) { //there can only be trailing zeroes after the cut, if the LSD has the same index
 		int32_t search_pos = tail_length;
 
-		if (search_pos == (int32_t) opSmall.used) { //no body, trailing zero into head due to carry
+		if (search_pos == (int32_t) opSmall.used) {
+
+			//no body, trailing zero into head due to carry
 			if (hasTail && digit[0] == 1) {
 				search_pos++;
 				tz_head++;
@@ -633,7 +629,9 @@ void CCDecimal::sub(CCDecimal* result, const CCDecimal& opSmall) const {
 		}
 		else if (search_pos < (int32_t) opSmall.used) {
 
-			if (hasTail) { //trailing zero due to carry into body
+			if (hasTail) {
+
+				//trailing zero due to carry from tail into body
 				if (digit[search_pos - tail_length] == opSmall.digit[search_pos] + 1) {
 					tz_body++;
 					search_pos++;
@@ -641,10 +639,10 @@ void CCDecimal::sub(CCDecimal* result, const CCDecimal& opSmall) const {
 				}
 				else {
 					search_pos = MAX + 1; //end search for trailing zeroes
-
 				}
 			}
 
+			//trailing zeroes in body
 			while (search_pos < (int32_t) opSmall.used
 					&& digit[search_pos - tail_length] == opSmall.digit[search_pos]) {
 				search_pos++;
@@ -654,7 +652,6 @@ void CCDecimal::sub(CCDecimal* result, const CCDecimal& opSmall) const {
 		}
 
 		//trailing zeroes in head
-		//HINT:if (search_pos >= (int32_t) opSmall.used) is implicitly true
 		for (;
 				search_pos >= (int32_t) opSmall.used && search_pos < (int32_t) used
 						&& digit[search_pos - tail_length] == 0; search_pos++) {
@@ -664,8 +661,8 @@ void CCDecimal::sub(CCDecimal* result, const CCDecimal& opSmall) const {
 
 	int32_t result_pos = 0;
 
-//read tail (negative shift_delta)
-	int32_t i = toCut;
+	//read tail (negative shift_delta)
+	int32_t i = digToCut;
 	if (hasTail) {
 		if (i == 0) result->digit[result_pos++] = 10 - opSmall.digit[i++]; //LSD has no carry-in
 
@@ -676,14 +673,15 @@ void CCDecimal::sub(CCDecimal* result, const CCDecimal& opSmall) const {
 			result->digit[result_pos++] = 9;
 		}
 	}
-//read (positive shift_delta)
+
+	//read (positive shift_delta)
 	else {
 		for (; i < shift_delta; i++) {
 			result->digit[result_pos++] = digit[i];
 		}
 	}
 
-//read body
+	//read body
 	int32_t x = tail_length + tz_body;
 	for (; x < (int32_t) opSmall.used; x++) {
 		int32_t temp = digit[x - tail_length + max(0, shift_delta)] - opSmall.digit[x] - carry;
@@ -691,7 +689,7 @@ void CCDecimal::sub(CCDecimal* result, const CCDecimal& opSmall) const {
 		result->digit[result_pos++] = temp;
 	}
 
-//read head
+	//read head
 	for (int32_t i = max<int32_t>((int32_t) opSmall.used + shift_delta, 0) + tz_head;
 			i < (int32_t) used; i++) {
 		int32_t temp = digit[i] - carry;
@@ -700,27 +698,24 @@ void CCDecimal::sub(CCDecimal* result, const CCDecimal& opSmall) const {
 		result->digit[result_pos++] = temp;
 	}
 
-//last carry
-	if (result_pos > MAX) {
-		result_pos--;
-	}
-	else {
+	if (result_pos <= MAX) {
 		result->digit[result_pos] = carry;
 	}
+	else if (carry) {
 
-//leading zeroes
+		result_pos = MAX;
+		result->digit[MAX] = 1;
+		return;
+	}
+
+	//leading zeroes
 	while (result_pos >= 0 && result->digit[result_pos] == 0) {
 		result_pos--;
 	}
 
-//overflow detection
-//	if (result->digit[MAX] > 0) {
-//		throw std::overflow_error("overflow - capacity");
-//	}
-
-//adjust used and shift
+	//adjust used and shift
 	result->used = result_pos + 1;
-	result->shift = min<int32_t>(shift, opSmall.shift) + toCut + tz_body + tz_head;
+	result->shift = min<int32_t>(shift, opSmall.shift) + digToCut + tz_body + tz_head;
 
 	if (result_pos < 0) {
 		result->shift = 0;
@@ -822,7 +817,8 @@ void CCDecimal::mult(CCDecimal* result, const CCDecimal& op2) const {
 
 	//apply last carry
 	if (carry > 0) {
-		EXPECT_TRUE(resultIndex <= MAX);
+
+		//EXPECT_TRUE(resultIndex <= MAX);
 		result->digit[resultIndex] = carry;
 		if (carry > 0) result->used++;
 	}

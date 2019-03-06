@@ -1,6 +1,8 @@
 #include "gtest/gtest.h"
 #include "../src/CCDecimal.h"
 
+#include <cstdarg>
+
 using namespace std;
 
 /*MACRO: groups tests in the visual Junit-Test plugin for eclipse
