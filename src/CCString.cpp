@@ -37,11 +37,10 @@ CCString::CCString(char c) :
 CCString::CCString(bool b) :
 		CCString() {
 	if (b) {
-		internalStr =
-				std::use_facet<std::numpunct<char>>(std::locale()).truename();
-	} else {
-		internalStr =
-				std::use_facet<std::numpunct<char>>(std::locale()).falsename();
+		internalStr = std::use_facet<std::numpunct<char>>(std::locale()).truename();
+	}
+	else {
+		internalStr = std::use_facet<std::numpunct<char>>(std::locale()).falsename();
 	}
 }
 
@@ -72,11 +71,10 @@ CCString::CCString(long double number, bool hiPrec) :
 		CCString() {
 	if (hiPrec) {
 		std::stringstream stringStream;
-		stringStream
-				<< std::setprecision(std::numeric_limits<long double>::digits10)
-				<< number;
+		stringStream << std::setprecision(std::numeric_limits<long double>::digits10) << number;
 		internalStr = stringStream.str();
-	} else {
+	}
+	else {
 		internalStr = std::to_string(number);
 	}
 }
@@ -561,12 +559,10 @@ CCString& CCString::erase(size_t pos, size_t length) {
 
 CCString& CCString::trim() {
 	for (auto it = internalStr.begin();
-			it != internalStr.end() && !std::isgraph(*it, std::locale());
-			internalStr.erase(it)) {
+			it != internalStr.end() && !std::isgraph(*it, std::locale()); internalStr.erase(it)) {
 	}
 	for (auto rit = internalStr.rbegin();
-			rit != internalStr.rend() && !std::isgraph(*rit, std::locale());
-			rit++) {
+			rit != internalStr.rend() && !std::isgraph(*rit, std::locale()); rit++) {
 		internalStr.erase(rit.base());
 	}
 	return *this;
@@ -646,13 +642,11 @@ CCString CCString::getMatch(const CCString& regex) const {
 	}
 	return CCString(std::string(matches[0]));
 }
-CCString CCString::replaceAll(const CCString& regex,
-		const CCString& replacement) const {
+CCString CCString::replaceAll(const CCString& regex, const CCString& replacement) const {
 	std::regex re(regex.internalStr);
 	return std::regex_replace(internalStr, re, replacement.internalStr);
 }
-CCString CCString::replaceFirst(const CCString& regex,
-		const CCString& replacement) const {
+CCString CCString::replaceFirst(const CCString& regex, const CCString& replacement) const {
 	std::regex re(regex.internalStr);
 	std::smatch matches;
 	std::regex_search(internalStr, matches, re);
@@ -669,8 +663,8 @@ CCString CCString::replaceFirst(const CCString& regex,
 	auto endOfAll = matches.suffix().second;
 
 	std::string resultFirstHalf;
-	std::regex_replace(std::back_inserter(resultFirstHalf), startOfString,
-			endOfFirstMatch, re, replacement.internalStr);
+	std::regex_replace(std::back_inserter(resultFirstHalf), startOfString, endOfFirstMatch, re,
+			replacement.internalStr);
 	resultFirstHalf.append(endOfFirstMatch, endOfAll);
 	return CCString(resultFirstHalf);
 }
@@ -693,8 +687,19 @@ CCString::SplitIterator::SplitIterator(const SplitIterator& orig) :
 {
 }
 
-CCString::SplitIterator::SplitIterator(const CCString& origin,
-		const CCString& regex) :
+CCString::SplitIterator& CCString::SplitIterator::operator=(const CCString::SplitIterator& orig) {
+	if (this != &orig) {
+		originString = orig.originString;
+		separatorRegex = orig.separatorRegex;
+		currentSplit = std::unique_ptr<CCString>(new CCString(*orig.currentSplit));
+		currentRemainder = orig.currentRemainder;
+		hadMatch = orig.hadMatch;
+		isFinished = orig.isFinished;
+	}
+	return *this;
+}
+
+CCString::SplitIterator::SplitIterator(const CCString& origin, const CCString& regex) :
 		originString(&origin), //
 		separatorRegex(regex.internalStr), //
 		currentSplit(new CCString()), //
@@ -727,12 +732,12 @@ void CCString::SplitIterator::doSplit() {
 		currentSplit.swap(newSplit);
 		//set remainder to empty
 		currentRemainder.erase();
-	} else {
+	}
+	else {
 		//mark match
 		hadMatch = true;
 		std::string splitStr(matches.prefix().first, matches.prefix().second);
-		std::string remainderStr(matches.suffix().first,
-				matches.suffix().second);
+		std::string remainderStr(matches.suffix().first, matches.suffix().second);
 
 		std::unique_ptr<CCString> newSplit(new CCString(splitStr));
 		currentSplit.swap(newSplit);
@@ -763,18 +768,15 @@ const CCString* CCString::SplitIterator::operator->() const {
 bool CCString::SplitIterator::operator==(const SplitIterator& other) const {
 
 //Check for domain (operating on the same CCString?)
-	if (originString != other.originString)
-		return false;
+	if (originString != other.originString) return false;
 
 //Check for past-the-end
-	if (isFinished || other.isFinished)
-		return isFinished && other.isFinished;
+	if (isFinished || other.isFinished) return isFinished && other.isFinished;
 
 //check for equality on: regex and position
 	if (separatorRegex == other.separatorRegex)
 		if (*currentSplit == *other.currentSplit)
-			if (currentRemainder == other.currentRemainder)
-				return true;
+			if (currentRemainder == other.currentRemainder) return true;
 
 	return false;
 }
