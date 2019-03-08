@@ -75,7 +75,7 @@ public:
 	 *
 	 * @param cstr  der einzuspeichernde C-String
 	 */
-	CCString(const char* cstr);
+	CCString(const char cstr[]);
 	/**
 	 * @brief Umwandlungskonstruktor
 	 *
@@ -334,7 +334,7 @@ public:
 	 * @throws length_error  falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
 	 * @throws bad_alloc     falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
-	CCString& append(const char* cstr);
+	CCString& append(const char cstr[]);
 	/**
 	 * @brief Fügt ein Zeichen an diesen CCString an.
 	 *
@@ -524,7 +524,7 @@ public:
 	 * @throws length_error  falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
 	 * @throws bad_alloc     falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
-	CCString& operator+=(const char* cstr);
+	CCString& operator+=(const char cstr[]);
 	/**
 	 * @brief Fügt ein Zeichen an diesen CCString an.
 	 *
@@ -688,7 +688,7 @@ public:
 	 * @throws length_error  falls der CCString nach dieser Operation die Maximallänge eines Strings überschreitet.
 	 * @throws bad_alloc     falls dem String intern kein Speicher zugewiesen werden konnte.
 	 */
-	CCString& operator<<(const char* cstr);
+	CCString& operator<<(const char cstr[]);
 	/**
 	 * @brief Fügt ein Zeichen an diesen CCString an.
 	 *
@@ -876,7 +876,7 @@ public:
 	 *
 	 * @see  #replaceAt(size_t,const CCString&)
 	 */
-	CCString& replaceAt(size_t pos, const char* cstr);
+	CCString& replaceAt(size_t pos, const char cstr[]);
 	/**
 	 * @brief Überschreibt das Zeichen and der Stelle @p pos mit @c c.
 	 *
@@ -933,7 +933,7 @@ public:
 	 * @throws bad_alloc     falls dem String intern kein Speicher zugewiesen werden konnte.
 	 * @throws out_of_range  falls @p pos nicht innerhalb des Strings liegt.
 	 */
-	CCString& insert(size_t pos, const char* cstr);
+	CCString& insert(size_t pos, const char cstr[]);
 	/**
 	 * @brief Fügt ein Zeichen in diesen CCString ein.
 	 *
@@ -1197,7 +1197,7 @@ public:
 	 *              @n Hinweis: Das erste Zeichen hat den Index 0.
 	 * @return      Der Index des ersten Zeichens des Fundes oder #npos, falls nichts gefunden wurde.
 	 */
-	size_t find(const char* cstr, size_t pos = 0) const;
+	size_t find(const char cstr[], size_t pos = 0) const;
 	/**
 	 * @brief Sucht nach dem ersten Auftreten des Zeichens @p c im aktuellen String.
 	 *
@@ -1208,6 +1208,13 @@ public:
 	 * @return     Der Index des ersten Zeichens des Fundes oder #npos, falls nichts gefunden wurde.
 	 */
 	size_t find(char c, size_t pos = 0) const;
+	/**
+	 * @brief Fängt ungültige (nicht unterstützte) Typen für find ab.
+	 *
+	 * @see  #find(const CCString&, size_t)
+	 */
+//	template<typename type>
+//	/* operand type not supported   */size_t find(const type&, size_t) = delete;
 
 	/**
 	 * @brief Sucht nach dem letzten Auftreten des Strings @p ccstr im aktuellen String.
@@ -1241,7 +1248,7 @@ public:
 	 *              @n Hinweis: Das erste Zeichen hat den Index 0.
 	 * @return      Der Index des ersten Zeichens des Fundes oder #npos, falls nichts gefunden wurde.
 	 */
-	size_t findLast(const char* cstr, size_t pos = npos) const;
+	size_t findLast(const char cstr[] , size_t pos = npos) const;
 	/**
 	 * @brief Sucht nach dem letzten Auftreten des Zeichens @p c im aktuellen String.
 	 *
@@ -1253,6 +1260,13 @@ public:
 	 * @return     Der Index des Fundes oder #npos, falls nichts gefunden wurde.
 	 */
 	size_t findLast(char c, size_t pos = npos) const;
+	/**
+	 * @brief Fängt ungültige (nicht unterstützte) Typen für findLast ab.
+	 *
+	 * @see  #findLast(const CCString&, size_t)
+	 */
+//	template<typename type>
+//	/* operand type not supported   */size_t findLast(const type&, size_t) = delete;
 
 	/**
 	 * @brief Erzeugt einen SplitIterator, der den CCString anhand des gegebenen Trennzeichens auftrennt.
@@ -1348,395 +1362,398 @@ public:
 	 *                     Gleichwertig zu diesem String, falls @p regex nicht gefunden wurde.
 	 */
 	CCString replaceFirst(const CCString& regex, const CCString& replacement) const;
+
+
+
+	/**
+	 * @brief Konkatenation zweier CCStrings.
+	 *
+	 * Äquivalent zu:
+	 * @n<tt>CCString(lhs)+=rhs;</tt>
+	 *
+	 * @param  lhs
+	 * @param  rhs
+	 * @return rhs, angefügt an lhs
+	 * @see    CCString::CCString(const CCString&)
+	 * @see    CCString::operator+=(const CCString&)
+	 */
+	CCString friend operator+(const CCString& lhs, const CCString& rhs);
+	/**
+	 * @brief Konkatenation eines CCStrings und eines C-Strings.
+	 *
+	 * Äquivalent zu:
+	 * @n<tt>CCString(lhs)+=rhs;</tt>
+	 *
+	 * @param  lhs
+	 * @param  rhs
+	 * @return rhs, angefügt an lhs
+	 * @see    CCString::CCString(const CCString&)
+	 * @see    CCString::operator+=(const char*)
+	 */
+	CCString friend operator+(const CCString& lhs, const char* rhs);
+	/**
+	 * @brief Konkatenation eines C-Strings und eines CCStrings.
+	 *
+	 * Äquivalent zu:
+	 * @n<tt>CCString(lhs)+=rhs;</tt>
+	 *
+	 * @param  lhs
+	 * @param  rhs
+	 * @return rhs, angefügt an lhs
+	 * @see    CCString::CCString(const char*)
+	 * @see    CCString::operator+=(const CCString&)
+	 */
+	CCString friend operator+(const char* lhs, const CCString& rhs);
+	/**
+	 * @brief Konkatenation eines CCStrings und eines C++-Strings.
+	 *
+	 * Äquivalent zu:
+	 * @n<tt>CCString(lhs)+=rhs;</tt>
+	 *
+	 * @param  lhs
+	 * @param  rhs
+	 * @return rhs, angefügt an lhs
+	 * @see    CCString::CCString(const CCString&)
+	 * @see    CCString::operator+=(const std::string&)
+	 */
+	CCString friend operator+(const CCString& lhs, const std::string& rhs);
+	/**
+	 * @brief Konkatenation eines C++-Strings und eines CCStrings.
+	 *
+	 * Äquivalent zu:
+	 * @n<tt>CCString(lhs)+=rhs;</tt>
+	 *
+	 * @param  lhs
+	 * @param  rhs
+	 * @return rhs, angefügt an lhs
+	 * @see    CCString::CCString(const std::string&)
+	 * @see    CCString::operator+=(const CCString&)
+	 */
+	CCString friend operator+(const std::string& lhs, const CCString& rhs);
+	/**
+	 * @brief Konkatenation eines CCStrings und eines Zeichens.
+	 *
+	 * Äquivalent zu:
+	 * @n<tt>CCString(lhs)+=rhs;</tt>
+	 *
+	 * @param  lhs
+	 * @param  rhs
+	 * @return rhs, angefügt an lhs
+	 * @see    CCString::CCString(const CCString&)
+	 * @see    CCString::operator+=(char)
+	 */
+	CCString friend operator+(const CCString& lhs, char rhs);
+	/**
+	 * @brief Konkatenation eines Zeichens und eines CCStrings.
+	 *
+	 * Äquivalent zu:
+	 * @n<tt>CCString(lhs)+=rhs;</tt>
+	 *
+	 * @param  lhs
+	 * @param  rhs
+	 * @return rhs, angefügt an lhs
+	 * @see    CCString::CCString(char)
+	 * @see    CCString::operator+=(const CCString&)
+	 */
+	CCString friend operator+(char lhs, const CCString& rhs);
+
+	/**
+	 * @brief Konkatenation der Textform eines Wahrheitswerts und eines CCStrings.
+	 *
+	 * Äquivalent zu:
+	 * @n<tt>CCString(lhs)+=rhs;</tt>
+	 *
+	 * @param  lhs
+	 * @param  rhs
+	 * @return rhs, angefügt an lhs
+	 * @see    CCString::CCString(bool)
+	 * @see    CCString::operator+=(const CCString&)
+	 */
+	CCString friend operator+(bool lhs, const CCString& rhs);
+	/**
+	 * @brief Konkatenation eines CCStrings und der Textform eines Wahrheitswerts.
+	 *
+	 * Äquivalent zu:
+	 * @n<tt>CCString(lhs)+=rhs;</tt>
+	 *
+	 * @param  lhs
+	 * @param  rhs
+	 * @return rhs, angefügt an lhs
+	 * @see    CCString::CCString(const CCString&)
+	 * @see    CCString::operator+=(bool)
+	 */
+	CCString friend operator+(const CCString& lhs, bool rhs);
+
+	/**
+	 * @brief Konkatenation eines CCStrings und einer Ganzzahl.
+	 *
+	 * Äquivalent zu:
+	 * @n<tt>CCString(lhs)+=rhs;</tt>
+	 *
+	 * @param  lhs
+	 * @param  rhs
+	 * @return rhs, angefügt an lhs
+	 * @see    CCString::CCString(const CCString&)
+	 * @see    CCString::operator+=(int16_t)
+	 */
+	CCString friend operator+(const CCString& lhs, int16_t rhs);
+	/**
+	 * @brief Konkatenation einer Ganzzahl und einer Ganzzahl.
+	 *
+	 * Äquivalent zu:
+	 * @n<tt>CCString(lhs)+=rhs;</tt>
+	 *
+	 * @param  lhs
+	 * @param  rhs
+	 * @return rhs, angefügt an lhs
+	 * @see    CCString::CCString(int16_t)
+	 * @see    CCString::operator+=(const CCString&)
+	 */
+	CCString friend operator+(int16_t lhs, const CCString& rhs);
+	/**
+	 * @brief Konkatenation eines CCStrings und einer Ganzzahl.
+	 *
+	 * Äquivalent zu:
+	 * @n<tt>CCString(lhs)+=rhs;</tt>
+	 *
+	 * @param  lhs
+	 * @param  rhs
+	 * @return rhs, angefügt an lhs
+	 * @see    CCString::CCString(const CCString&)
+	 * @see    CCString::operator+=(int32_t)
+	 */
+	CCString friend operator+(const CCString& lhs, int32_t rhs);
+	/**
+	 * @brief Konkatenation einer Ganzzahl und einer Ganzzahl.
+	 *
+	 * Äquivalent zu:
+	 * @n<tt>CCString(lhs)+=rhs;</tt>
+	 *
+	 * @param  lhs
+	 * @param  rhs
+	 * @return rhs, angefügt an lhs
+	 * @see    CCString::CCString(int32_t)
+	 * @see    CCString::operator+=(const CCString&)
+	 */
+	CCString friend operator+(int32_t lhs, const CCString& rhs);
+	/**
+	 * @brief Konkatenation eines CCStrings und einer Ganzzahl.
+	 *
+	 * Äquivalent zu:
+	 * @n<tt>CCString(lhs)+=rhs;</tt>
+	 *
+	 * @param  lhs
+	 * @param  rhs
+	 * @return rhs, angefügt an lhs
+	 * @see    CCString::CCString(const CCString&)
+	 * @see    CCString::operator+=(int64_t)
+	 */
+	CCString friend operator+(const CCString& lhs, int64_t rhs);
+	/**
+	 * @brief Konkatenation einer Ganzzahl und einer Ganzzahl.
+	 *
+	 * Äquivalent zu:
+	 * @n<tt>CCString(lhs)+=rhs;</tt>
+	 *
+	 * @param  lhs
+	 * @param  rhs
+	 * @return rhs, angefügt an lhs
+	 * @see    CCString::CCString(int64_t)
+	 * @see    CCString::operator+=(const CCString&)
+	 */
+	CCString friend operator+(int64_t lhs, const CCString& rhs);
+
+	/**
+	 * @brief Konkatenation eines CCStrings und einer Ganzzahl.
+	 *
+	 * Äquivalent zu:
+	 * @n<tt>CCString(lhs)+=rhs;</tt>
+	 *
+	 * @param  lhs
+	 * @param  rhs
+	 * @return rhs, angefügt an lhs
+	 * @see    CCString::CCString(const CCString&)
+	 * @see    CCString::operator+=(uint16_t)
+	 */
+	CCString friend operator+(const CCString& lhs, uint16_t rhs);
+	/**
+	 * @brief Konkatenation einer Ganzzahl und einer Ganzzahl.
+	 *
+	 * Äquivalent zu:
+	 * @n<tt>CCString(lhs)+=rhs;</tt>
+	 *
+	 * @param  lhs
+	 * @param  rhs
+	 * @return rhs, angefügt an lhs
+	 * @see    CCString::CCString(uint16_t)
+	 * @see    CCString::operator+=(const CCString&)
+	 */
+	CCString friend operator+(uint16_t lhs, const CCString& rhs);
+	/**
+	 * @brief Konkatenation eines CCStrings und einer Ganzzahl.
+	 *
+	 * Äquivalent zu:
+	 * @n<tt>CCString(lhs)+=rhs;</tt>
+	 *
+	 * @param  lhs
+	 * @param  rhs
+	 * @return rhs, angefügt an lhs
+	 * @see    CCString::CCString(const CCString&)
+	 * @see    CCString::operator+=(uint32_t)
+	 */
+	CCString friend operator+(const CCString& lhs, uint32_t rhs);
+	/**
+	 * @brief Konkatenation einer Ganzzahl und einer Ganzzahl.
+	 *
+	 * Äquivalent zu:
+	 * @n<tt>CCString(lhs)+=rhs;</tt>
+	 *
+	 * @param  lhs
+	 * @param  rhs
+	 * @return rhs, angefügt an lhs
+	 * @see    CCString::CCString(uint32_t)
+	 * @see    CCString::operator+=(const CCString&)
+	 */
+	CCString friend operator+(uint32_t lhs, const CCString& rhs);
+	/**
+	 * @brief Konkatenation eines CCStrings und einer Ganzzahl.
+	 *
+	 * Äquivalent zu:
+	 * @n<tt>CCString(lhs)+=rhs;</tt>
+	 *
+	 * @param  lhs
+	 * @param  rhs
+	 * @return rhs, angefügt an lhs
+	 * @see    CCString::CCString(const CCString&)
+	 * @see    CCString::operator+=(uint64_t)
+	 */
+	CCString friend operator+(const CCString& lhs, uint64_t rhs);
+	/**
+	 * @brief Konkatenation einer Ganzzahl und einer Ganzzahl.
+	 *
+	 * Äquivalent zu:
+	 * @n<tt>CCString(lhs)+=rhs;</tt>
+	 *
+	 * @param  lhs
+	 * @param  rhs
+	 * @return rhs, angefügt an lhs
+	 * @see    CCString::CCString(uint64_t)
+	 * @see    CCString::operator+=(const CCString&)
+	 */
+	CCString friend operator+(uint64_t lhs, const CCString& rhs);
+
+	/**
+	 * @brief Konkatenation eines CCStrings und einer Gleitkommazahl.
+	 *
+	 * Äquivalent zu:
+	 * @n<tt>CCString(lhs)+=rhs;</tt>
+	 *
+	 * @param  lhs
+	 * @param  rhs
+	 * @return rhs, angefügt an lhs
+	 * @see    CCString::CCString(const CCString&)
+	 * @see    CCString::operator+=(float)
+	 */
+	CCString friend operator+(const CCString& lhs, float rhs);
+	/**
+	 * @brief Konkatenation einer Ganzzahl und einer Gleitkommazahl.
+	 *
+	 * Äquivalent zu:
+	 * @n<tt>CCString(lhs)+=rhs;</tt>
+	 *
+	 * @param  lhs
+	 * @param  rhs
+	 * @return rhs, angefügt an lhs
+	 * @see    CCString::CCString(float)
+	 * @see    CCString::operator+=(const CCString&)
+	 */
+	CCString friend operator+(float lhs, const CCString& rhs);
+	/**
+	 * @brief Konkatenation eines CCStrings und einer Gleitkommazahl.
+	 *
+	 * Äquivalent zu:
+	 * @n<tt>CCString(lhs)+=rhs;</tt>
+	 *
+	 * @param  lhs
+	 * @param  rhs
+	 * @return rhs, angefügt an lhs
+	 * @see    CCString::CCString(const CCString&)
+	 * @see    CCString::operator+=(double)
+	 */
+	CCString friend operator+(const CCString& lhs, double rhs);
+	/**
+	 * @brief Konkatenation einer Ganzzahl und einer Gleitkommazahl.
+	 *
+	 * Äquivalent zu:
+	 * @n<tt>CCString(lhs)+=rhs;</tt>
+	 *
+	 * @param  lhs
+	 * @param  rhs
+	 * @return rhs, angefügt an lhs
+	 * @see    CCString::CCString(double)
+	 * @see    CCString::operator+=(const CCString&)
+	 */
+	CCString friend operator+(double lhs, const CCString& rhs);
+	/**
+	 * @brief Konkatenation eines CCStrings und einer Gleitkommazahl.
+	 *
+	 * Äquivalent zu:
+	 * @n<tt>CCString(lhs)+=rhs;</tt>
+	 *
+	 * @param  lhs
+	 * @param  rhs
+	 * @return rhs, angefügt an lhs
+	 * @see    CCString::CCString(const CCString&)
+	 * @see    CCString::operator+=(long double)
+	 */
+	CCString friend operator+(const CCString& lhs, long double rhs);
+	/**
+	 * @brief Konkatenation einer Ganzzahl und einer Gleitkommazahl.
+	 *
+	 * Äquivalent zu:
+	 * @n<tt>CCString(lhs)+=rhs;</tt>
+	 *
+	 * @param  lhs
+	 * @param  rhs
+	 * @return rhs, angefügt an lhs
+	 * @see    CCString::CCString(long double)
+	 * @see    CCString::operator+=(const CCString&)
+	 */
+	CCString friend operator+(long double lhs, const CCString& rhs);
+	/**
+	 * @brief Konkatenation eines CCStrings und einer CCDecimal-Gleitkommazahl.
+	 *
+	 * Äquivalent zu:
+	 * @n<tt>CCString(lhs)+=rhs;</tt>
+	 *
+	 * @param  lhs
+	 * @param  rhs
+	 * @return rhs, angefügt an lhs
+	 * @see    CCString::CCString(const CCString&)
+	 * @see    CCString::operator+=(long double)
+	 */
+	CCString friend operator+(const CCString& lhs, const CCDecimal& rhs);
+	/**
+	 * @brief Konkatenation einer Ganzzahl und einer CCDecimal-Gleitkommazahl.
+	 *
+	 * Äquivalent zu:
+	 * @n<tt>CCString(lhs)+=rhs;</tt>
+	 *
+	 * @param  lhs
+	 * @param  rhs
+	 * @return rhs, angefügt an lhs
+	 * @see    CCString::CCString(long double)
+	 * @see    CCString::operator+=(const CCString&)
+	 */
+	CCString friend operator+(const CCDecimal& lhs, const CCString& rhs);
+
+	/**
+	 * @brief Fängt ungültige (nicht unterstützte) Typen für #operator+ ab.
+	 */
+	template<typename type1, typename type2>
+	/* operand type not supported   */CCString friend operator+(const type1&, const type2&) = delete;
 };
 
-/**
- * @brief Konkatenation zweier CCStrings.
- *
- * Äquivalent zu:
- * @n<tt>CCString(lhs)+=rhs;</tt>
- *
- * @param  lhs
- * @param  rhs
- * @return rhs, angefügt an lhs
- * @see    CCString::CCString(const CCString&)
- * @see    CCString::operator+=(const CCString&)
- */
-CCString operator+(const CCString& lhs, const CCString& rhs);
-/**
- * @brief Konkatenation eines CCStrings und eines C-Strings.
- *
- * Äquivalent zu:
- * @n<tt>CCString(lhs)+=rhs;</tt>
- *
- * @param  lhs
- * @param  rhs
- * @return rhs, angefügt an lhs
- * @see    CCString::CCString(const CCString&)
- * @see    CCString::operator+=(const char*)
- */
-CCString operator+(const CCString& lhs, const char* rhs);
-/**
- * @brief Konkatenation eines C-Strings und eines CCStrings.
- *
- * Äquivalent zu:
- * @n<tt>CCString(lhs)+=rhs;</tt>
- *
- * @param  lhs
- * @param  rhs
- * @return rhs, angefügt an lhs
- * @see    CCString::CCString(const char*)
- * @see    CCString::operator+=(const CCString&)
- */
-CCString operator+(const char* lhs, const CCString& rhs);
-/**
- * @brief Konkatenation eines CCStrings und eines C++-Strings.
- *
- * Äquivalent zu:
- * @n<tt>CCString(lhs)+=rhs;</tt>
- *
- * @param  lhs
- * @param  rhs
- * @return rhs, angefügt an lhs
- * @see    CCString::CCString(const CCString&)
- * @see    CCString::operator+=(const std::string&)
- */
-CCString operator+(const CCString& lhs, const std::string& rhs);
-/**
- * @brief Konkatenation eines C++-Strings und eines CCStrings.
- *
- * Äquivalent zu:
- * @n<tt>CCString(lhs)+=rhs;</tt>
- *
- * @param  lhs
- * @param  rhs
- * @return rhs, angefügt an lhs
- * @see    CCString::CCString(const std::string&)
- * @see    CCString::operator+=(const CCString&)
- */
-CCString operator+(const std::string& lhs, const CCString& rhs);
-/**
- * @brief Konkatenation eines CCStrings und eines Zeichens.
- *
- * Äquivalent zu:
- * @n<tt>CCString(lhs)+=rhs;</tt>
- *
- * @param  lhs
- * @param  rhs
- * @return rhs, angefügt an lhs
- * @see    CCString::CCString(const CCString&)
- * @see    CCString::operator+=(char)
- */
-CCString operator+(const CCString& lhs, char rhs);
-/**
- * @brief Konkatenation eines Zeichens und eines CCStrings.
- *
- * Äquivalent zu:
- * @n<tt>CCString(lhs)+=rhs;</tt>
- *
- * @param  lhs
- * @param  rhs
- * @return rhs, angefügt an lhs
- * @see    CCString::CCString(char)
- * @see    CCString::operator+=(const CCString&)
- */
-CCString operator+(char lhs, const CCString& rhs);
-
-/**
- * @brief Konkatenation der Textform eines Wahrheitswerts und eines CCStrings.
- *
- * Äquivalent zu:
- * @n<tt>CCString(lhs)+=rhs;</tt>
- *
- * @param  lhs
- * @param  rhs
- * @return rhs, angefügt an lhs
- * @see    CCString::CCString(bool)
- * @see    CCString::operator+=(const CCString&)
- */
-CCString operator+(bool lhs, const CCString& rhs);
-/**
- * @brief Konkatenation eines CCStrings und der Textform eines Wahrheitswerts.
- *
- * Äquivalent zu:
- * @n<tt>CCString(lhs)+=rhs;</tt>
- *
- * @param  lhs
- * @param  rhs
- * @return rhs, angefügt an lhs
- * @see    CCString::CCString(const CCString&)
- * @see    CCString::operator+=(bool)
- */
-CCString operator+(const CCString& lhs, bool rhs);
-
-/**
- * @brief Konkatenation eines CCStrings und einer Ganzzahl.
- *
- * Äquivalent zu:
- * @n<tt>CCString(lhs)+=rhs;</tt>
- *
- * @param  lhs
- * @param  rhs
- * @return rhs, angefügt an lhs
- * @see    CCString::CCString(const CCString&)
- * @see    CCString::operator+=(int16_t)
- */
-CCString operator+(const CCString& lhs, int16_t rhs);
-/**
- * @brief Konkatenation einer Ganzzahl und einer Ganzzahl.
- *
- * Äquivalent zu:
- * @n<tt>CCString(lhs)+=rhs;</tt>
- *
- * @param  lhs
- * @param  rhs
- * @return rhs, angefügt an lhs
- * @see    CCString::CCString(int16_t)
- * @see    CCString::operator+=(const CCString&)
- */
-CCString operator+(int16_t lhs, const CCString& rhs);
-/**
- * @brief Konkatenation eines CCStrings und einer Ganzzahl.
- *
- * Äquivalent zu:
- * @n<tt>CCString(lhs)+=rhs;</tt>
- *
- * @param  lhs
- * @param  rhs
- * @return rhs, angefügt an lhs
- * @see    CCString::CCString(const CCString&)
- * @see    CCString::operator+=(int32_t)
- */
-CCString operator+(const CCString& lhs, int32_t rhs);
-/**
- * @brief Konkatenation einer Ganzzahl und einer Ganzzahl.
- *
- * Äquivalent zu:
- * @n<tt>CCString(lhs)+=rhs;</tt>
- *
- * @param  lhs
- * @param  rhs
- * @return rhs, angefügt an lhs
- * @see    CCString::CCString(int32_t)
- * @see    CCString::operator+=(const CCString&)
- */
-CCString operator+(int32_t lhs, const CCString& rhs);
-/**
- * @brief Konkatenation eines CCStrings und einer Ganzzahl.
- *
- * Äquivalent zu:
- * @n<tt>CCString(lhs)+=rhs;</tt>
- *
- * @param  lhs
- * @param  rhs
- * @return rhs, angefügt an lhs
- * @see    CCString::CCString(const CCString&)
- * @see    CCString::operator+=(int64_t)
- */
-CCString operator+(const CCString& lhs, int64_t rhs);
-/**
- * @brief Konkatenation einer Ganzzahl und einer Ganzzahl.
- *
- * Äquivalent zu:
- * @n<tt>CCString(lhs)+=rhs;</tt>
- *
- * @param  lhs
- * @param  rhs
- * @return rhs, angefügt an lhs
- * @see    CCString::CCString(int64_t)
- * @see    CCString::operator+=(const CCString&)
- */
-CCString operator+(int64_t lhs, const CCString& rhs);
-
-/**
- * @brief Konkatenation eines CCStrings und einer Ganzzahl.
- *
- * Äquivalent zu:
- * @n<tt>CCString(lhs)+=rhs;</tt>
- *
- * @param  lhs
- * @param  rhs
- * @return rhs, angefügt an lhs
- * @see    CCString::CCString(const CCString&)
- * @see    CCString::operator+=(uint16_t)
- */
-CCString operator+(const CCString& lhs, uint16_t rhs);
-/**
- * @brief Konkatenation einer Ganzzahl und einer Ganzzahl.
- *
- * Äquivalent zu:
- * @n<tt>CCString(lhs)+=rhs;</tt>
- *
- * @param  lhs
- * @param  rhs
- * @return rhs, angefügt an lhs
- * @see    CCString::CCString(uint16_t)
- * @see    CCString::operator+=(const CCString&)
- */
-CCString operator+(uint16_t lhs, const CCString& rhs);
-/**
- * @brief Konkatenation eines CCStrings und einer Ganzzahl.
- *
- * Äquivalent zu:
- * @n<tt>CCString(lhs)+=rhs;</tt>
- *
- * @param  lhs
- * @param  rhs
- * @return rhs, angefügt an lhs
- * @see    CCString::CCString(const CCString&)
- * @see    CCString::operator+=(uint32_t)
- */
-CCString operator+(const CCString& lhs, uint32_t rhs);
-/**
- * @brief Konkatenation einer Ganzzahl und einer Ganzzahl.
- *
- * Äquivalent zu:
- * @n<tt>CCString(lhs)+=rhs;</tt>
- *
- * @param  lhs
- * @param  rhs
- * @return rhs, angefügt an lhs
- * @see    CCString::CCString(uint32_t)
- * @see    CCString::operator+=(const CCString&)
- */
-CCString operator+(uint32_t lhs, const CCString& rhs);
-/**
- * @brief Konkatenation eines CCStrings und einer Ganzzahl.
- *
- * Äquivalent zu:
- * @n<tt>CCString(lhs)+=rhs;</tt>
- *
- * @param  lhs
- * @param  rhs
- * @return rhs, angefügt an lhs
- * @see    CCString::CCString(const CCString&)
- * @see    CCString::operator+=(uint64_t)
- */
-CCString operator+(const CCString& lhs, uint64_t rhs);
-/**
- * @brief Konkatenation einer Ganzzahl und einer Ganzzahl.
- *
- * Äquivalent zu:
- * @n<tt>CCString(lhs)+=rhs;</tt>
- *
- * @param  lhs
- * @param  rhs
- * @return rhs, angefügt an lhs
- * @see    CCString::CCString(uint64_t)
- * @see    CCString::operator+=(const CCString&)
- */
-CCString operator+(uint64_t lhs, const CCString& rhs);
-
-/**
- * @brief Konkatenation eines CCStrings und einer Gleitkommazahl.
- *
- * Äquivalent zu:
- * @n<tt>CCString(lhs)+=rhs;</tt>
- *
- * @param  lhs
- * @param  rhs
- * @return rhs, angefügt an lhs
- * @see    CCString::CCString(const CCString&)
- * @see    CCString::operator+=(float)
- */
-CCString operator+(const CCString& lhs, float rhs);
-/**
- * @brief Konkatenation einer Ganzzahl und einer Gleitkommazahl.
- *
- * Äquivalent zu:
- * @n<tt>CCString(lhs)+=rhs;</tt>
- *
- * @param  lhs
- * @param  rhs
- * @return rhs, angefügt an lhs
- * @see    CCString::CCString(float)
- * @see    CCString::operator+=(const CCString&)
- */
-CCString operator+(float lhs, const CCString& rhs);
-/**
- * @brief Konkatenation eines CCStrings und einer Gleitkommazahl.
- *
- * Äquivalent zu:
- * @n<tt>CCString(lhs)+=rhs;</tt>
- *
- * @param  lhs
- * @param  rhs
- * @return rhs, angefügt an lhs
- * @see    CCString::CCString(const CCString&)
- * @see    CCString::operator+=(double)
- */
-CCString operator+(const CCString& lhs, double rhs);
-/**
- * @brief Konkatenation einer Ganzzahl und einer Gleitkommazahl.
- *
- * Äquivalent zu:
- * @n<tt>CCString(lhs)+=rhs;</tt>
- *
- * @param  lhs
- * @param  rhs
- * @return rhs, angefügt an lhs
- * @see    CCString::CCString(double)
- * @see    CCString::operator+=(const CCString&)
- */
-CCString operator+(double lhs, const CCString& rhs);
-/**
- * @brief Konkatenation eines CCStrings und einer Gleitkommazahl.
- *
- * Äquivalent zu:
- * @n<tt>CCString(lhs)+=rhs;</tt>
- *
- * @param  lhs
- * @param  rhs
- * @return rhs, angefügt an lhs
- * @see    CCString::CCString(const CCString&)
- * @see    CCString::operator+=(long double)
- */
-CCString operator+(const CCString& lhs, long double rhs);
-/**
- * @brief Konkatenation einer Ganzzahl und einer Gleitkommazahl.
- *
- * Äquivalent zu:
- * @n<tt>CCString(lhs)+=rhs;</tt>
- *
- * @param  lhs
- * @param  rhs
- * @return rhs, angefügt an lhs
- * @see    CCString::CCString(long double)
- * @see    CCString::operator+=(const CCString&)
- */
-CCString operator+(long double lhs, const CCString& rhs);
-/**
- * @brief Konkatenation eines CCStrings und einer CCDecimal-Gleitkommazahl.
- *
- * Äquivalent zu:
- * @n<tt>CCString(lhs)+=rhs;</tt>
- *
- * @param  lhs
- * @param  rhs
- * @return rhs, angefügt an lhs
- * @see    CCString::CCString(const CCString&)
- * @see    CCString::operator+=(long double)
- */
-CCString operator+(const CCString& lhs, const CCDecimal& rhs);
-/**
- * @brief Konkatenation einer Ganzzahl und einer CCDecimal-Gleitkommazahl.
- *
- * Äquivalent zu:
- * @n<tt>CCString(lhs)+=rhs;</tt>
- *
- * @param  lhs
- * @param  rhs
- * @return rhs, angefügt an lhs
- * @see    CCString::CCString(long double)
- * @see    CCString::operator+=(const CCString&)
- */
-CCString operator+(const CCDecimal& lhs, const CCString& rhs);
-
-/**
- * @brief Fängt ungültige (nicht unterstützte) Typen für #operator+ ab.
- */
-template<typename type1, typename type2>
-/* operand type not supported   */CCString operator+(const type1&, const type2&) = delete;
 
 /* as per https://en.cppreference.com/w/cpp/language/operators */
 /**

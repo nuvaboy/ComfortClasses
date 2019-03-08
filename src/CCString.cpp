@@ -26,7 +26,7 @@
 CCString::CCString(const std::string& str) :
 		internalStr(str) {
 }
-CCString::CCString(const char* cstr) :
+CCString::CCString(const char cstr[]) :
 		CCString(std::string(cstr)) {
 }
 CCString::CCString(char c) :
@@ -176,7 +176,7 @@ CCString& CCString::append(const std::string& str) {
 		throw;
 	}
 }
-CCString& CCString::append(const char* cstr) {
+CCString& CCString::append(const char cstr[]) {
 	try {
 		internalStr.append(cstr);
 		return *this;
@@ -427,7 +427,7 @@ CCString& CCString::replaceAt(size_t pos, const std::string& str) {
 	}
 }
 
-CCString& CCString::replaceAt(size_t pos, const char* cstr) {
+CCString& CCString::replaceAt(size_t pos, const char cstr[]) {
 	try {
 		internalStr.replace(pos, std::char_traits<char>::length(cstr), cstr);
 		return *this;
@@ -479,7 +479,7 @@ CCString& CCString::insert(size_t pos, const std::string& str) {
 		throw;
 	}
 }
-CCString& CCString::insert(size_t pos, const char* cstr) {
+CCString& CCString::insert(size_t pos, const char cstr[]) {
 	try {
 		internalStr.insert(pos, cstr);
 		return *this;
@@ -600,7 +600,7 @@ size_t CCString::find(const CCString& ccstr, size_t pos) const {
 size_t CCString::find(const std::string& str, size_t pos) const {
 	return internalStr.find(str, pos);
 }
-size_t CCString::find(const char* cstr, size_t pos) const {
+size_t CCString::find(const char cstr[], size_t pos) const {
 	return internalStr.find(cstr, pos);
 }
 size_t CCString::find(char c, size_t pos) const {
@@ -613,7 +613,7 @@ size_t CCString::findLast(const CCString& ccstr, size_t pos) const {
 size_t CCString::findLast(const std::string& str, size_t pos) const {
 	return internalStr.rfind(str, pos);
 }
-size_t CCString::findLast(const char* cstr, size_t pos) const {
+size_t CCString::findLast(const char cstr[], size_t pos) const {
 	return internalStr.rfind(cstr, pos);
 }
 size_t CCString::findLast(char c, size_t pos) const {

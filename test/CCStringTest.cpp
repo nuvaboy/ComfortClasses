@@ -149,8 +149,18 @@ GROUP_TEST(find, CCStringTest, finds) {
 	CCString ccstr("abcdefgdefhdef");
 	EXPECT_EQ(ccstr.find(CCString("bcd")), (size_t )1);
 	EXPECT_EQ(ccstr.findLast(CCString("fgd")), (size_t )5);
+
+//	const char* def = "def";
+//	size_t s1 = ccstr.find(std::string("efg"));
+//	size_t s2 = ccstr.find(def, s1);
+//	size_t s3 = ccstr.find(std::string("efg"));
+//	size_t s4 = ccstr.findLast(def, s3);
+
 	EXPECT_EQ(ccstr.find("def", ccstr.find(std::string("efg"))),
 			ccstr.findLast("def", ccstr.findLast(std::string("hde"))));
+
+
+
 	EXPECT_EQ(ccstr.find('1'), static_cast<size_t>(-1));
 	EXPECT_EQ(ccstr.findLast('1'), static_cast<size_t>(-1));
 }
