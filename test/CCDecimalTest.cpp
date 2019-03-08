@@ -572,11 +572,13 @@ GROUP_TEST(Conversion, CCDecimalTest, onConstruction) {
 	CCDecimal t2("10.5");
 	CCDecimal t3 = "10.5";
 	CCDecimal t4 = 10.5;
+	CCDecimal t5 = CCString("10.5");
 
 	EXPECT_EQ(t0, t1);
 	EXPECT_EQ(t1, t2);
 	EXPECT_EQ(t2, t3);
 	EXPECT_EQ(t3, t4);
+	EXPECT_EQ(t4, t5);
 
 }
 
@@ -1148,7 +1150,6 @@ GROUP_TEST(Conversions, CCDecimalTest, toDouble) {
 			123456789012345680000000000000000000000000000000.0);
 
 }
-
 
 
 

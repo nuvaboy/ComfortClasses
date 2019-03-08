@@ -5,6 +5,13 @@
  *      Author: marlo
  */
 
+/**
+ * @file    CCDecimal.h
+ *
+ * @brief   Implementation einer Dezimalzahl mit Gleitkomma-Arithmetik.
+ *
+ * @author  Marlo Siebolts
+ */
 
 
 #ifndef CCDECIMAL_H_
@@ -27,8 +34,6 @@ using namespace std;
  *
  */
 class CCDecimal {
-
-
 
 	//TODO: Remove this in release version (for testing purposes only)
 	friend class CCDecimalTest;
@@ -228,7 +233,7 @@ public:
 	 *
 	 *  Erstellt ein CCDecimal mit dem Wert 0.
 	 */
-	CCDecimal() noexcept;
+	CCDecimal();
 
 	/** \brief Konstruktor (copy)
 	 *

@@ -91,6 +91,7 @@ public:
 	 * @param b  der einzuspeichernde Wahrheitswert
 	 */
 	CCString(bool b);
+
 //## constructors for numeric types #######################
 	/**
 	 * @brief Umwandlungskonstruktor
