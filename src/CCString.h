@@ -23,6 +23,9 @@ class CCDecimal;
 #include <memory>
 #include <string>
 
+/**
+ * @brief Vorzeichenloser Ganzzahlentyp. Für Indizes und dergleichen.
+ */
 using size_t = std::string::size_type;
 
 /**
@@ -562,7 +565,6 @@ public:
 	 * @see    CCString::operator+=(const CCString&)
 	 */
 	CCString friend operator+(const CCString& lhs, const CCString& rhs);
-
 };
 
 
