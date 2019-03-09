@@ -19,13 +19,16 @@
 class CCDecimal;
 #include "CCDecimal.h"
 
-#include <cstddef>
 #include <iterator>
 #include <memory>
 #include <string>
 
+using size_t = std::string::size_type;
+
 /**
  * @brief Vereinfachte String-Klasse.
+ *
+ * Akzeptiert in den Funktionen als Operanden alle Typen, für die ein Umwandlungsoperator definiert ist.
  */
 class CCString {
 private:
@@ -313,6 +316,15 @@ public:
 	/**
 	 * @brief Fügt einen anderen CCString an diesen an.
 	 *
+	 * Wird der Operator mehrmals hintereinander geschrieben, ist das Ergebnis nicht definiert.
+	 * @code
+	 * CCString ccstr;
+	 * double d=1.23;
+	 * ccstr += d += d += d += d += d; //not defined
+	 * @endcode
+	 * Für eine Variante, die mehrere String- oder unterstützte Werte beliebig hintereinander anfügen kann,
+	 * bitte #operator<<(const CCString&) beachten
+	 *
 	 * @param ccStr  die anzufügende Zeichenkette
 	 * @return       eine Referenz auf dieses Objekt
 	 *
@@ -323,6 +335,13 @@ public:
 
 	/**
 	 * @brief Fügt einen anderen CCString an diesen an.
+	 *
+	 * Wird der Operator mehrmals hintereinander angefügt, so ist das Ergebnis die schrittweise Verkettung aller Einzelwerte.
+	 * @code
+	 * CCString ccstr;
+	 * double d=1.23;
+	 * ccstr << d << d << d << d << d; //"1.231.23..."
+	 * @endcode
 	 *
 	 * @param ccStr  die anzufügende Zeichenkette
 	 * @return       eine Referenz auf dieses Objekt
@@ -530,6 +549,12 @@ public:
 	 * Äquivalent zu:
 	 * @n<tt>CCString(lhs)+=rhs;</tt>
 	 *
+	 * Das Ergebnis ist nicht definiert, wenn der erste Operand kein echtes CCString-Objekt ist.
+	 *
+	 *
+	 * Für eine Variante, die mehrere String- oder unterstützte Werte beliebig hintereinander anfügen kann,
+	 * bitte #operator<<(const CCString&) beachten
+	 *
 	 * @param  lhs
 	 * @param  rhs
 	 * @return rhs, angefügt an lhs
@@ -537,6 +562,7 @@ public:
 	 * @see    CCString::operator+=(const CCString&)
 	 */
 	CCString friend operator+(const CCString& lhs, const CCString& rhs);
+
 };
 
 
