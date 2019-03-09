@@ -165,236 +165,16 @@ CCString& CCString::append(const CCString& ccStr) {
 		throw;
 	}
 }
-CCString& CCString::append(const std::string& str) {
-	try {
-		internalStr.append(str);
-		return *this;
-	} catch (std::length_error& e) {
-		e.what();
-		throw std::length_error("Result exceeding max length for a string.");
-	} catch (std::bad_alloc& e) {
-		throw;
-	}
-}
-CCString& CCString::append(const char cstr[]) {
-	try {
-		internalStr.append(cstr);
-		return *this;
-	} catch (std::length_error& e) {
-		e.what();
-		throw std::length_error("Result exceeding max length for a string.");
-	} catch (std::bad_alloc& e) {
-		throw;
-	}
-}
-CCString& CCString::append(char c) {
-	try {
-		internalStr.push_back(c);
-		return *this;
-	} catch (std::length_error& e) {
-		e.what();
-		throw std::length_error("Result exceeding max length for a string.");
-	} catch (std::bad_alloc& e) {
-		throw;
-	}
-
-}
-CCString& CCString::append(bool b) {
-	return append(CCString(b));
-}
-CCString& CCString::append(int16_t i) {
-	return append(CCString(i));
-}
-CCString& CCString::append(int32_t i) {
-	return append(CCString(i));
-}
-CCString& CCString::append(int64_t i) {
-	return append(CCString(i));
-}
-CCString& CCString::append(uint16_t i) {
-	return append(CCString(i));
-}
-CCString& CCString::append(uint32_t i) {
-	return append(CCString(i));
-}
-CCString& CCString::append(uint64_t i) {
-	return append(CCString(i));
-}
-CCString& CCString::append(float f, bool hiPrec) {
-	return append(CCString(f, hiPrec));
-}
-CCString& CCString::append(double d, bool hiPrec) {
-	return append(CCString(d, hiPrec));
-}
-CCString& CCString::append(long double d, bool hiPrec) {
-	return append(CCString(d, hiPrec));
-}
-CCString& CCString::append(const CCDecimal& d, int32_t sigDigits) {
-	return append(CCString(d, sigDigits));
-}
-CCString& CCString::append(const CCDecimal& d) {
-	return append(CCString(d));
-}
 
 CCString& CCString::operator<<(const CCString& ccStr) {
 	return append(ccStr);
-}
-CCString& CCString::operator<<(const std::string& str) {
-	return append(str);
-}
-CCString& CCString::operator<<(const char* cstr) {
-	return append(cstr);
-}
-CCString& CCString::operator<<(char c) {
-	return append(c);
-}
-CCString& CCString::operator<<(bool b) {
-	return append(CCString(b));
-}
-CCString& CCString::operator<<(int16_t i) {
-	return append(CCString(i));
-}
-CCString& CCString::operator<<(int32_t i) {
-	return append(CCString(i));
-}
-CCString& CCString::operator<<(int64_t i) {
-	return append(CCString(i));
-}
-CCString& CCString::operator<<(uint16_t i) {
-	return append(CCString(i));
-}
-CCString& CCString::operator<<(uint32_t i) {
-	return append(CCString(i));
-}
-CCString& CCString::operator<<(uint64_t i) {
-	return append(CCString(i));
-}
-CCString& CCString::operator<<(float f) {
-	return append(CCString(f));
-}
-CCString& CCString::operator<<(double d) {
-	return append(CCString(d));
-}
-CCString& CCString::operator<<(long double d) {
-	return append(CCString(d));
-}
-CCString& CCString::operator<<(const CCDecimal& d) {
-	return append(CCString(d));
 }
 
 CCString& CCString::operator+=(const CCString& ccStr) {
 	return append(ccStr);
 }
-CCString& CCString::operator+=(const std::string& str) {
-	return append(str);
-}
-CCString& CCString::operator+=(const char* cstr) {
-	return append(cstr);
-}
-CCString& CCString::operator+=(char c) {
-	return append(c);
-}
-CCString& CCString::operator+=(bool b) {
-	return append(CCString(b));
-}
-CCString& CCString::operator+=(int16_t i) {
-	return append(CCString(i));
-}
-CCString& CCString::operator+=(int32_t i) {
-	return append(CCString(i));
-}
-CCString& CCString::operator+=(int64_t i) {
-	return append(CCString(i));
-}
-CCString& CCString::operator+=(uint16_t i) {
-	return append(CCString(i));
-}
-CCString& CCString::operator+=(uint32_t i) {
-	return append(CCString(i));
-}
-CCString& CCString::operator+=(uint64_t i) {
-	return append(CCString(i));
-}
-CCString& CCString::operator+=(float f) {
-	return append(CCString(f));
-}
-CCString& CCString::operator+=(double d) {
-	return append(CCString(d));
-}
-CCString& CCString::operator+=(long double d) {
-	return append(CCString(d));
-}
-CCString& CCString::operator+=(const CCDecimal& d) {
-	return append(CCString(d));
-}
 
 CCString operator+(const CCString& lhs, const CCString& rhs) {
-	return CCString(lhs) += rhs;
-}
-CCString operator+(const CCString& lhs, const char* rhs) {
-	return CCString(lhs) += rhs;
-}
-CCString operator+(const char* lhs, const CCString& rhs) {
-	return CCString(lhs) += rhs;
-}
-CCString operator+(const CCString& lhs, const std::string& rhs) {
-	return CCString(lhs) += rhs;
-}
-CCString operator+(const std::string& lhs, const CCString& rhs) {
-	return CCString(lhs) += rhs;
-}
-CCString operator+(const CCString& lhs, char rhs) {
-	return CCString(lhs) += rhs;
-}
-CCString operator+(char lhs, const CCString& rhs) {
-	return CCString(lhs) += rhs;
-}
-
-CCString operator+(const CCString& lhs, bool rhs) {
-	return CCString(lhs) += rhs;
-}
-CCString operator+(bool lhs, const CCString& rhs) {
-	return CCString(lhs) += rhs;
-}
-CCString operator+(const CCString& lhs, int16_t rhs) {
-	return CCString(lhs) += rhs;
-}
-CCString operator+(int16_t lhs, const CCString& rhs) {
-	return CCString(lhs) += rhs;
-}
-CCString operator+(const CCString& lhs, int32_t rhs) {
-	return CCString(lhs) += rhs;
-}
-CCString operator+(int32_t lhs, const CCString& rhs) {
-	return CCString(lhs) += rhs;
-}
-CCString operator+(const CCString& lhs, int64_t rhs) {
-	return CCString(lhs) += rhs;
-}
-CCString operator+(int64_t lhs, const CCString& rhs) {
-	return CCString(lhs) += rhs;
-}
-CCString operator+(float lhs, const CCString& rhs) {
-	return CCString(lhs) += rhs;
-}
-
-CCString operator+(const CCString& lhs, double rhs) {
-	return CCString(lhs) += rhs;
-}
-CCString operator+(double lhs, const CCString& rhs) {
-	return CCString(lhs) += rhs;
-}
-CCString operator+(const CCString& lhs, long double rhs) {
-	return CCString(lhs) += rhs;
-}
-CCString operator+(long double lhs, const CCString& rhs) {
-	return CCString(lhs) += rhs;
-}
-
-CCString operator+(const CCString& lhs, const CCDecimal& rhs) {
-	return CCString(lhs) += rhs;
-}
-CCString operator+(const CCDecimal lhs, const CCString& rhs) {
 	return CCString(lhs) += rhs;
 }
 
@@ -412,44 +192,6 @@ CCString& CCString::replaceAt(size_t pos, const CCString& ccStr) {
 		throw;
 	}
 }
-CCString& CCString::replaceAt(size_t pos, const std::string& str) {
-	try {
-		internalStr.replace(pos, str.length(), str);
-		return *this;
-	} catch (std::out_of_range& e) {
-		e.what();
-		throw std::out_of_range("Position pointing outside of the string.");
-	} catch (std::length_error& e) {
-		e.what();
-		throw std::length_error("Result exceeding max length for a string.");
-	} catch (std::bad_alloc& e) {
-		throw;
-	}
-}
-
-CCString& CCString::replaceAt(size_t pos, const char cstr[]) {
-	try {
-		internalStr.replace(pos, std::char_traits<char>::length(cstr), cstr);
-		return *this;
-	} catch (std::out_of_range& e) {
-		e.what();
-		throw std::out_of_range("Position pointing outside of the string.");
-	} catch (std::length_error& e) {
-		e.what();
-		throw std::length_error("Result exceeding max length for a string.");
-	} catch (std::bad_alloc& e) {
-		throw;
-	}
-}
-CCString& CCString::replaceAt(size_t pos, char c) {
-	try {
-		internalStr.at(pos) = c;
-		return *this;
-	} catch (std::out_of_range& e) {
-		e.what();
-		throw std::out_of_range("Position pointing outside of the string.");
-	}
-}
 
 CCString& CCString::insert(size_t pos, const CCString& ccStr) {
 	try {
@@ -464,86 +206,6 @@ CCString& CCString::insert(size_t pos, const CCString& ccStr) {
 	} catch (std::bad_alloc& e) {
 		throw;
 	}
-}
-CCString& CCString::insert(size_t pos, const std::string& str) {
-	try {
-		internalStr.insert(pos, str);
-		return *this;
-	} catch (std::out_of_range& e) {
-		e.what();
-		throw std::out_of_range("Position pointing outside of the string.");
-	} catch (std::length_error& e) {
-		e.what();
-		throw std::length_error("Result exceeding max length for a string.");
-	} catch (std::bad_alloc& e) {
-		throw;
-	}
-}
-CCString& CCString::insert(size_t pos, const char cstr[]) {
-	try {
-		internalStr.insert(pos, cstr);
-		return *this;
-	} catch (std::out_of_range& e) {
-		e.what();
-		throw std::out_of_range("Position pointing outside of the string.");
-	} catch (std::length_error& e) {
-		e.what();
-		throw std::length_error("Result exceeding max length for a string.");
-	} catch (std::bad_alloc& e) {
-		throw;
-	}
-}
-CCString& CCString::insert(size_t pos, char c) {
-	try {
-		internalStr.insert(pos, 1, c);
-		return *this;
-	} catch (std::out_of_range& e) {
-		e.what();
-		throw std::out_of_range("Position pointing outside of the string.");
-	} catch (std::length_error& e) {
-		e.what();
-		throw std::length_error("Result exceeding max length for a string.");
-	} catch (std::bad_alloc& e) {
-		throw;
-	}
-}
-
-CCString& CCString::insert(size_t pos, bool b) {
-	return insert(pos, CCString(b));
-}
-
-CCString& CCString::insert(size_t pos, int16_t i) {
-	return insert(pos, CCString(i));
-}
-CCString& CCString::insert(size_t pos, int32_t i) {
-	return insert(pos, CCString(i));
-}
-CCString& CCString::insert(size_t pos, int64_t i) {
-	return insert(pos, CCString(i));
-}
-CCString& CCString::insert(size_t pos, uint16_t i) {
-	return insert(pos, CCString(i));
-}
-CCString& CCString::insert(size_t pos, uint32_t i) {
-	return insert(pos, CCString(i));
-}
-CCString& CCString::insert(size_t pos, uint64_t i) {
-	return insert(pos, CCString(i));
-}
-CCString& CCString::insert(size_t pos, float f, bool hiPrec) {
-	return insert(pos, CCString(f, hiPrec));
-}
-CCString& CCString::insert(size_t pos, double d, bool hiPrec) {
-	return insert(pos, CCString(d, hiPrec));
-}
-CCString& CCString::insert(size_t pos, long double d, bool hiPrec) {
-	return insert(pos, CCString(d, hiPrec));
-}
-CCString& CCString::insert(size_t pos, const CCDecimal& d, int32_t sigDigits) {
-	return insert(pos, CCString(d, sigDigits));
-}
-CCString& CCString::insert(size_t pos, const CCDecimal& d) {
-	return insert(pos, CCString(d));
 }
 
 CCString& CCString::erase(size_t pos, size_t length) {
@@ -567,20 +229,6 @@ CCString& CCString::trim() {
 	}
 	return *this;
 }
-//CCString& CCString::toUpper() {
-//	for (char& c : internalStr) {
-//		c = std::use_facet<std::ctype<char>>(std::locale()).toupper(
-//				static_cast<int>(c));
-//	}
-//	return *this;
-//}
-//CCString& CCString::toLower() {
-//	for (char& c : internalStr) {
-//		c = std::use_facet<std::ctype<char>>(std::locale()).tolower(
-//				static_cast<int>(c));
-//	}
-//	return *this;
-//}
 
 CCString CCString::subString(size_t pos, size_t length) const {
 	try {
@@ -597,27 +245,9 @@ CCString CCString::subString(size_t pos, size_t length) const {
 size_t CCString::find(const CCString& ccstr, size_t pos) const {
 	return internalStr.find(ccstr.internalStr, pos);
 }
-size_t CCString::find(const std::string& str, size_t pos) const {
-	return internalStr.find(str, pos);
-}
-size_t CCString::find(const char cstr[], size_t pos) const {
-	return internalStr.find(cstr, pos);
-}
-size_t CCString::find(char c, size_t pos) const {
-	return internalStr.find(c, pos);
-}
 
 size_t CCString::findLast(const CCString& ccstr, size_t pos) const {
 	return internalStr.rfind(ccstr.internalStr, pos);
-}
-size_t CCString::findLast(const std::string& str, size_t pos) const {
-	return internalStr.rfind(str, pos);
-}
-size_t CCString::findLast(const char cstr[], size_t pos) const {
-	return internalStr.rfind(cstr, pos);
-}
-size_t CCString::findLast(char c, size_t pos) const {
-	return internalStr.rfind(c, pos);
 }
 
 bool CCString::isMatch(const CCString& regex) const {
