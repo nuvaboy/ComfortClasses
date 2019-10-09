@@ -13,7 +13,7 @@ execute_process(COMMAND ${CMAKE_COMMAND} --build .
   RESULT_VARIABLE result
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
 if(result)
-  message(FATAL_ERROR "Build step for googletest failed: ${result}")
+  message(WARNING "Build step for googletest failed: ${result}")
 endif()
 
 # Prevent overriding the parent project's compiler/linker
@@ -38,7 +38,20 @@ endif()
 #target_link_libraries(example gtest_main)
 #add_test(NAME example_test COMMAND example)
 
+if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+# activate all compiler warnings, as per https://stackoverflow.com/a/50882216
+  if(MSVC)
+    add_compile_options(/W4)
+  else()
+    add_compile_options(-Wall -Wextra -Wpedantic)
+  endif()
+
+endif()
+
+#CCDecimal and CCString
 add_subdirectory(src)
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 add_executable(demo demo/CCStringDemo.cpp)
 add_dependencies(demo ComfortClasses)
@@ -56,8 +69,3 @@ add_executable(testCCDecimal test/CCDecimalTest.cpp)
 add_dependencies(testCCDecimal ComfortClasses gtest_main)
 target_link_libraries(testCCDecimal ComfortClasses gtest_main)
 add_test(NAME test_CCDecimal COMMAND testCCDecimal)
-
-
-#set(CPACK_PROJECT_NAME ${PROJECT_NAME})
-#set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
-#include(CPack)
