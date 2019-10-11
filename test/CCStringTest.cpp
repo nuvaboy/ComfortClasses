@@ -66,8 +66,8 @@ GROUP_TEST(comparisons, CCStringTest, operatorLessThan) {
 
 GROUP_TEST(conversions, CCStringTest, castToConstCString) {
 	CCString ccstr("abc");
-	EXPECT_NO_FATAL_FAILURE(static_cast<std::string>(ccstr));
-	std::string str = static_cast<std::string>(ccstr);
+	std::string str;
+	ASSERT_NO_FATAL_FAILURE(str = static_cast<std::string>(ccstr));
 	str.append("def");
 	EXPECT_EQ(str, "abcdef");
 	EXPECT_NE(ccstr, "abcdef");
@@ -76,7 +76,7 @@ GROUP_TEST(conversions, CCStringTest, castToConstCString) {
 
 	ccstr = "abc";
 	char cstr[10];
-	strcpy(cstr, static_cast<const char*>(ccstr));
+	ASSERT_NO_FATAL_FAILURE(strcpy(cstr, static_cast<const char*>(ccstr)));
 	EXPECT_EQ(ccstr, cstr);
 }
 
