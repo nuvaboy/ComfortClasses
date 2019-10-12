@@ -110,13 +110,13 @@ void regexDemo()
      */
     vector<CCString> hostComponents(host.splitBegin("\\."), host.splitEnd());
 
-    uint_fast32_t ipAsBitMask = 0;
+    uint32_t ipAsBitMask = 0;
 
     for (size_t i = 0; i < hostComponents.size(); i++)
     {
         ipAsBitMask *= 256;
         //             using CCDecimal to convert the string to a number
-        ipAsBitMask += CCDecimal(hostComponents[i]).toDouble();
+        ipAsBitMask += (uint32_t)CCDecimal(hostComponents[i]);
     }
     cout << std::bitset<32>(ipAsBitMask) << endl;
 

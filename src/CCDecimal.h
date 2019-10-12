@@ -19,6 +19,7 @@
 
 #include <cstdint>
 #include <iostream>
+#include <limits>
 #include <string>
 
 
@@ -579,45 +580,74 @@ public:
 	 */
 	double toDouble() const;
 
-//	CCDecimal pow(int32_t n){
-//
-//		CCDecimal result;
-//		int arr_size = 0; //array to hold the nth to the 1th power
-//
-//		//get the absolute power
-//		if (n < 0) n = -n;
-//
-//
-//		for (int32_t temp = n; temp > 0; temp >>= 1){
-//			arr_size++;
-//		}
-//
-//		//2048
-//		CCDecimal* arr = new CCDecimal[arr_size];
-//		delete[] arr;
-//
-//		return CCDecimal();
-//
-//		//^10
-//		//*=2
-//		//*=2
-//		//*=2
-//		//5*5*5*5*5*5*5*5*5*5*5
-//		//2
-//		//4
-//		//8
-//		//16
-//		//32
-//		//64
-//		//128
-//		//256
-//		//512
-//		//1024
-//		//2048
-//		//4092
-//		//10 x 8  = 80 Byte
-//
-//	}
+	template <typename T>
+	operator  T() const
+	{
+		static_assert(std::is_integral<T>::value, "Non-Integer-Convferoin");
+		T result(0);
+		auto iPartLength = used + shift;
+
+		for (auto i = used - 1; i >= used - iPartLength; --i)
+		{
+			//check if multiply would fail
+			if (result > std::numeric_limits<T>::max() / 10)
+			{
+				throw std::overflow_error("integer range exceeded");
+			}
+			//basically shift all current digits
+			result *= 10;
+
+			//check if add would fail
+			if (result > std::numeric_limits<T>::max() - digit[i])
+			{
+				throw std::overflow_error("integer range exceeded");
+			}
+			//add current digit in
+			result += digit[i];
+		}
+
+		return result;
+	}
+
+	//	CCDecimal pow(int32_t n){
+	//
+	//		CCDecimal result;
+	//		int arr_size = 0; //array to hold the nth to the 1th power
+	//
+	//		//get the absolute power
+	//		if (n < 0) n = -n;
+	//
+	//
+	//		for (int32_t temp = n; temp > 0; temp >>= 1){
+	//			arr_size++;
+	//		}
+	//
+	//		//2048
+	//		CCDecimal* arr = new CCDecimal[arr_size];
+	//		delete[] arr;
+	//
+	//		return CCDecimal();
+	//
+	//		//^10
+	//		//*=2
+	//		//*=2
+	//		//*=2
+	//		//5*5*5*5*5*5*5*5*5*5*5
+	//		//2
+	//		//4
+	//		//8
+	//		//16
+	//		//32
+	//		//64
+	//		//128
+	//		//256
+	//		//512
+	//		//1024
+	//		//2048
+	//		//4092
+	//		//10 x 8  = 80 Byte
+	//
+	//	}
 
 };
 
@@ -637,5 +667,7 @@ public:
  *
  */
 std::ostream& operator<<(std::ostream &os, const CCDecimal& dec);
+
+//template operator int();
 
 #endif /* CCDECIMAL_H_ */
