@@ -11,6 +11,21 @@ using std::endl;
 using std::vector;
 
 /**
+ * Demonstrates the different types CCString can accept as inputs using its constructors;
+ * others can be added using a conversion operator, see 'demoRatinal'
+ */
+void typesDemo()
+{
+    struct demoRational
+    {
+        int a, b;
+        operator CCString() { return CCString() << '(' << a << '/' << b << ')'; }
+    };
+    
+    cout << CCString(demoRational{1, 2}) << endl;
+}
+
+/**
  * Shows ways of disecting strings using the built-in regex functions,
  * using a URL as an example.
  */
@@ -126,5 +141,7 @@ void regexDemo()
 int main()
 {
     regexDemo();
+
+    typesDemo();
     return 0;
 }
