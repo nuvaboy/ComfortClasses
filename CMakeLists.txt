@@ -54,18 +54,15 @@ add_subdirectory(src)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 add_executable(demo demo/CCStringDemo.cpp)
-add_dependencies(demo ComfortClasses)
 target_link_libraries(demo ComfortClasses)
 
 include(CTest)
 enable_testing()
 
 add_executable(testCCString test/CCStringTest.cpp)
-add_dependencies(testCCString ComfortClasses gtest_main)
 target_link_libraries(testCCString ComfortClasses gtest_main)
 add_test(NAME test_CCString COMMAND testCCString)
 
 add_executable(testCCDecimal test/CCDecimalTest.cpp)
-add_dependencies(testCCDecimal ComfortClasses gtest_main)
 target_link_libraries(testCCDecimal ComfortClasses gtest_main)
 add_test(NAME test_CCDecimal COMMAND testCCDecimal)
