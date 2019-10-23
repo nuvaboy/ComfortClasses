@@ -15,7 +15,7 @@
  * @author  Marlo Siebolts
  */
 
-#include "CCDecimal.h"
+#include "CCDecimal.hpp"
 
 #include <string>
 #include <sstream>

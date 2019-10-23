@@ -1,5 +1,5 @@
-#include "../src/CCString.h"
-#include "../src/CCDecimal.h"
+#include "../src/CCString.hpp"
+#include "../src/CCDecimal.hpp"
 #include <iomanip>
 #include <iostream>
 #include <bitset>
@@ -79,7 +79,7 @@ void manipDemo()
      * - findLast()
      */
 
-    
+
 }
 
 /**

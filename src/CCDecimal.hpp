@@ -6,7 +6,7 @@
  */
 
 /**
- * @file    CCDecimal.h
+ * @file    CCDecimal.hpp
  *
  * @brief   Implementation einer Dezimalzahl mit Gleitkomma-Arithmetik.
  *
@@ -22,7 +22,7 @@
 #include <string>
 
 
-#include "CCString.h"
+#include "CCString.hpp"
 
 class CCString;
 

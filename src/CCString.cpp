@@ -13,7 +13,7 @@
  * @author  Jan Alexander Stiehl
  */
 
-#include "CCString.h"
+#include "CCString.hpp"
 
 #include <iomanip>
 #include <limits>

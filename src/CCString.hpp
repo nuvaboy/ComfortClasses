@@ -1,12 +1,12 @@
 /*
- * CCString.h
+ * CCString.hpp
  *
  *  Created on: 21.01.2019
  *      Author: jan
  */
 
 /**
- * @file    CCString.h
+ * @file    CCString.hpp
  *
  * @brief   Definition von CCString, CCString::SplitIterator und anderen zusammenhängenden Funktionen.
  *
@@ -17,7 +17,7 @@
 #define CCSTRING_H_
 
 class CCDecimal;
-#include "CCDecimal.h"
+#include "CCDecimal.hpp"
 
 #include <iterator>
 #include <memory>

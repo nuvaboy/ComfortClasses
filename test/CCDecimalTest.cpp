@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "../src/CCDecimal.h"
+#include "../src/CCDecimal.hpp"
 
 #include <cstdarg>
 

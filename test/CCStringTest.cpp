@@ -5,7 +5,7 @@
  *      Author: jan
  */
 #include "gtest/gtest.h"
-#include "../src/CCString.h"
+#include "../src/CCString.hpp"
 
 #include <sstream>
 
