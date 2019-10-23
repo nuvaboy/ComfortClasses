@@ -69,6 +69,7 @@ public:
 	 * @param ccstr  CCString, der zu kopieren ist
 	 */
 	CCString(const CCString& ccstr) = default;
+
 	//constructors for textual types
 	/**
 	 * @brief Umwandlungskonstruktor
@@ -564,7 +565,7 @@ public:
 	 * @see    CCString::CCString(const CCString&)
 	 * @see    CCString::operator+=(const CCString&)
 	 */
-	CCString friend operator+(const CCString& lhs, const CCString& rhs);
+	friend CCString operator+(const CCString& lhs, const CCString& rhs);
 };
 
 
