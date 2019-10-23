@@ -3,7 +3,6 @@
 #include <iomanip>
 #include <iostream>
 #include <bitset>
-#include <type_traits>
 #include <vector>
 
 using std::cout;
@@ -12,17 +11,75 @@ using std::vector;
 
 /**
  * Demonstrates the different types CCString can accept as inputs using its constructors;
- * others can be added using a conversion operator, see 'demoRatinal'
+ * for others, conversion operators are neccessary.
  */
 void typesDemo()
 {
+    /**
+     * Supported types:
+     * std::string
+     * const char*
+     * char
+     * 
+     * bool
+     * 
+     * (u)int_(8,16,32,64)
+     * float
+     * (long) double
+     * CCDecimal
+     */
+
+    // Variables of several example types:
+    int64_t negOne = -1;
+    double aTenth = 0.1;
+    CCDecimal accurateTenth = "0.1";
+    bool trueValue = true;
+    bool falseValue = false;
+
+    CCString builtInTypes;
+    builtInTypes << "Here, we have...:\n "
+                 << "  an intege:   " << negOne << "\n"
+                 << "  a double:    " << aTenth << "\n"
+                 << "  a CCDecimal: " << accurateTenth << "\n"
+                 << "  and the boolean values, " << trueValue << " and " << falseValue << "\n";
+
     struct demoRational
     {
         int a, b;
+        /**
+         * other types need a conversion operator for automatic conversion
+         */
         operator CCString() { return CCString() << '(' << a << '/' << b << ')'; }
     };
+
+    CCString customTypes;
+    customTypes << "This is what a custom type could be displayed as:\n"
+                << demoRational{1, 4} << ": demoRational{1, 4}\n";
+
+    cout << builtInTypes << endl
+         << customTypes << endl;
+}
+
+/**
+ * Demonstrates the different manipulation functions CCString offers.
+ */
+void manipDemo()
+{
+    /**
+     * supported operations:
+     * - length()
+     * - at(),[]
+     * - append(),+=,<<,+
+     * - replaceAt()
+     * - insert()
+     * - erase()
+     * - trim()
+     * - subString()
+     * - find()
+     * - findLast()
+     */
+
     
-    cout << CCString(demoRational{1, 2}) << endl;
 }
 
 /**
@@ -133,15 +190,21 @@ void regexDemo()
         //             using CCDecimal to convert the string to a number
         ipAsBitMask += CCDecimal(hostComponents[i]).toDouble();
     }
-    cout << std::bitset<32>(ipAsBitMask) << endl;
+    cout << "the host address as a bitmask: \n"
+         << std::bitset<32>(ipAsBitMask) << endl;
 
     return;
 }
 
 int main()
 {
+    cout << "\n---------------regexDemo: \n";
     regexDemo();
 
+    cout << "\n---------------manipDemo: \n";
+    manipDemo();
+
+    cout << "\n---------------typesDemo: \n";
     typesDemo();
     return 0;
 }
