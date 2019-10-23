@@ -135,6 +135,12 @@ GROUP_TEST(edit, CCStringTest, insert_erase) {
 	EXPECT_EQ(ccstr, CCString("abcdefghij"));
 }
 
+GROUP_TEST(edit, CCStringTest, trim){
+	CCString trim_test("\n\t  trimmed \n\t ");
+	ASSERT_NO_FATAL_FAILURE(trim_test.trim(););
+	EXPECT_EQ(trim_test, CCString("trimmed"));
+}
+
 GROUP_TEST(stream, CCStringTest, streamOperator) {
 	std::stringstream strBuf;
 	CCString ccstr1("123");

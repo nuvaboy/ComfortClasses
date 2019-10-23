@@ -225,7 +225,7 @@ CCString& CCString::trim() {
 	}
 	for (auto rit = internalStr.rbegin();
 			rit != internalStr.rend() && !std::isgraph(*rit, std::locale()); rit++) {
-		internalStr.erase(rit.base());
+		internalStr.erase(rit.base()-1);
 	}
 	return *this;
 }
