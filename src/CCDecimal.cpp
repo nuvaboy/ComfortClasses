@@ -1299,7 +1299,9 @@ void CCDecimal::constructFromString(std::string numberStr) {
 }
 
 bool CCDecimal::magnitudeLessThan(const CCDecimal& op2) const {
-	if (static_cast<int32_t>(used) == 0) return static_cast<int32_t>(op2.used) != 0;
+	if (static_cast<int32_t>(op2.used) == 0) return false;
+	if (static_cast<int32_t>(used) == 0) return true;
+
 
 	if (static_cast<int32_t>(used) + shift > static_cast<int32_t>(op2.used) + op2.shift) return false;
 

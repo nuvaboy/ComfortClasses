@@ -1033,11 +1033,11 @@ GROUP_TEST(Comparison, CCDecimalTest, cmp_moreThan) {
 	//Id. 6: pos, neg, abs(value) is equal		=> FALSE
 	testMoreThan("3500", "-3500", true);
 
-	//Id. 7: zero, pos, abs(value) bigger 0 	=> TRUE
-	testMoreThan("0", "0.09", true);
+	//Id. 7: zero, pos, abs(value) bigger 0 	=> FALSE
+	testMoreThan("0", "0.09", false);
 	
-	//Id. 8: pos, zero, abs(value) bigger 0		=> FALSE
-	testMoreThan("0.09", "0", false);
+	//Id. 8: pos, zero, abs(value) bigger 0		=> TRUE
+	testMoreThan("0.09", "0", true);
 
 }
 
@@ -1055,7 +1055,8 @@ GROUP_TEST(Comparison, CCDecimalTest, cmp_equal) {
 	testEqual("-86.59", "-8.659", false);
 
 	//Id. 1.2: different shift
-	testEqual("0", "0.09", true);
+	testEqual("0", "0.09", false);
+	testEqual("0.09", "0", false);
 
 	//Id. 2: different used
 	testEqual("99.2", "99.21", false);
