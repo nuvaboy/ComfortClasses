@@ -242,7 +242,7 @@ CCDecimal CCDecimal::operator--(int) {
 //### comparison operators #########################
 bool CCDecimal::operator ==(const CCDecimal& op2) const {
 
-	if (used == 0 && op2.used == 0) return true;
+	if (used == 0 || op2.used == 0) return (used == 0 && op2.used == 0);
 
 	//round
 	CCDecimal dec1(*this);
