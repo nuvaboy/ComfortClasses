@@ -289,6 +289,19 @@ public:
 	 */
 	virtual ~CCDecimal() = default;
 
+	/** \brief Kopierzuweisung
+     *
+     *  Erstellt eine Kopie eines anderen CCDecimals.
+     *  Der Zeiger pPrecision verweist entweder auf die lokal oder global definierte Präzision.
+     *  Wurde die lokale Präzision 'precision' explizit für das Original gesetzt,
+     *  muss der Zeiger 'pPrecision' auf die lokale Präzision der Kopie gesetzt werden.
+     *  Andernfalls wird die globale Präzision als "shallow copy" übernommen.
+     *
+     *
+     *  @param original Referenz des CCDecimals, welcher kopiert wird
+     */
+    CCDecimal& operator=(const CCDecimal& original);
+
 	//### public setter/getter #########################
 	/** \brief Liefert die aktuelle Präzision zurück.
 	 *

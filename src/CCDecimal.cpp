@@ -17,6 +17,7 @@
 
 #include "CCDecimal.hpp"
 
+#include <cstring>
 #include <string>
 #include <sstream>
 #include <iomanip>
@@ -38,15 +39,40 @@ CCDecimal::CCDecimal() {
 	pPrecision = &CCDecimal::globalPrecision;
 
 }
+CCDecimal& CCDecimal::operator=(const CCDecimal& original) {
+    if (this == &original)
+    {
+        return *this;
+    }
+
+    std::memcpy(digit, original.digit, sizeof(digit));
+    isNegative = original.isNegative;
+
+    if (original.pPrecision == &original.localPrecision)
+    {
+        localPrecision = original.localPrecision;
+        pPrecision = &localPrecision;
+    }
+
+    shift = original.shift;
+    used = original.used;
+
+    return *this;
+}
+
 CCDecimal::CCDecimal(const CCDecimal& original) :
-		CCDecimal() {
+        CCDecimal() {
+    std::memcpy(digit, original.digit, sizeof(digit));
+    isNegative = original.isNegative;
 
-	*this = original;
+    if (original.pPrecision == &original.localPrecision)
+    {
+        localPrecision = original.localPrecision;
+        pPrecision = &localPrecision;
+    }
 
-	//ensures that pPrecision points to the local precision if the original's was explicitly changed.
-	if (pPrecision == &original.localPrecision) {
-		pPrecision = &localPrecision;
-	}
+    shift = original.shift;
+    used = original.used;
 }
 CCDecimal::CCDecimal(double number) :
 		CCDecimal() {
@@ -1273,6 +1299,7 @@ void CCDecimal::constructFromString(std::string numberStr) {
 }
 
 bool CCDecimal::magnitudeLessThan(const CCDecimal& op2) const {
+	if (static_cast<int32_t>(used) == 0) return static_cast<int32_t>(op2.used) != 0;
 
 	if (static_cast<int32_t>(used) + shift > static_cast<int32_t>(op2.used) + op2.shift) return false;
 

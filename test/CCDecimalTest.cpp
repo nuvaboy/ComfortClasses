@@ -162,6 +162,16 @@ GROUP_TEST(GetterSetter, CCDecimalTest, defaultPrecision) {
 	CCDecimal d2 = d1;
 	EXPECT_EQ(d2.getPrecision(), 3);
 
+	//TODO set and check precisions
+	CCDecimal d3 = 5;
+	CCDecimal d4;
+	{
+		CCDecimal dTemp(d3);
+		dTemp.setLocalPrecision(4);
+		d4 = dTemp;
+	}
+	;
+
 }
 
 
@@ -990,6 +1000,12 @@ GROUP_TEST(Comparison, CCDecimalTest, cmp_lessThan) {
 	//Id. 6: pos, neg, abs(value) is equal		=> FALSE
 	testLessThan("3500", "-3500", false);
 
+	//Id. 7: zero, pos, abs(value) bigger 0 	=> TRUE
+	testLessThan("0", "0.09", true);
+
+	//Id. 8: pos, zero, abs(value) bigger 0		=> FALSE
+	testLessThan("0.09", "0", false);
+
 }
 
 GROUP_TEST(Comparison, CCDecimalTest, cmp_moreThan) {
@@ -1017,6 +1033,12 @@ GROUP_TEST(Comparison, CCDecimalTest, cmp_moreThan) {
 	//Id. 6: pos, neg, abs(value) is equal		=> FALSE
 	testMoreThan("3500", "-3500", true);
 
+	//Id. 7: zero, pos, abs(value) bigger 0 	=> TRUE
+	testMoreThan("0", "0.09", true);
+	
+	//Id. 8: pos, zero, abs(value) bigger 0		=> FALSE
+	testMoreThan("0.09", "0", false);
+
 }
 
 GROUP_TEST(Comparison, CCDecimalTest, cmp_equal) {
@@ -1031,6 +1053,9 @@ GROUP_TEST(Comparison, CCDecimalTest, cmp_equal) {
 
 	//Id. 1.1: different shift
 	testEqual("-86.59", "-8.659", false);
+
+	//Id. 1.2: different shift
+	testEqual("0", "0.09", true);
 
 	//Id. 2: different used
 	testEqual("99.2", "99.21", false);
