@@ -164,13 +164,21 @@ GROUP_TEST(GetterSetter, CCDecimalTest, defaultPrecision) {
 
 	//TODO set and check precisions
 	CCDecimal d3 = 5;
+	d3.setLocalPrecision(3);
 	CCDecimal d4;
+	d4.setLocalPrecision(4);
 	{
-		CCDecimal dTemp(d3);
-		dTemp.setLocalPrecision(4);
-		d4 = dTemp;
+		//set d4 to a value outside the scope
+		CCDecimal dTemp1(d3);
+		dTemp1.setLocalPrecision(7);	
+		d4 = dTemp1;
 	}
-	;
+	{
+		//attempt to overwrite the stack (to provoke undefined behaviour)
+		CCDecimal dTemp1(d3);
+		dTemp1.setLocalPrecision(8);
+	}
+	EXPECT_EQ(d4.getPrecision(), 7);
 
 }
 
