@@ -45,34 +45,34 @@ CCDecimal& CCDecimal::operator=(const CCDecimal& original) {
         return *this;
     }
 
-    std::memcpy(digit, original.digit, sizeof(digit));
     isNegative = original.isNegative;
+    shift = original.shift;
+    used = original.used;
+
+	std::memcpy(digit, original.digit, used);
 
     if (original.pPrecision == &original.localPrecision)
     {
         localPrecision = original.localPrecision;
         pPrecision = &localPrecision;
     }
-
-    shift = original.shift;
-    used = original.used;
 
     return *this;
 }
 
 CCDecimal::CCDecimal(const CCDecimal& original) :
         CCDecimal() {
-    std::memcpy(digit, original.digit, sizeof(digit));
     isNegative = original.isNegative;
+    shift = original.shift;
+    used = original.used;
+
+	std::memcpy(digit, original.digit, used);
 
     if (original.pPrecision == &original.localPrecision)
     {
         localPrecision = original.localPrecision;
         pPrecision = &localPrecision;
     }
-
-    shift = original.shift;
-    used = original.used;
 }
 CCDecimal::CCDecimal(double number) :
 		CCDecimal() {
